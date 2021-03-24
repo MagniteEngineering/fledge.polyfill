@@ -134,7 +134,7 @@ Using the [flow diagram](#leave-flow-diagram) as a guide, the following internal
 
 ## `bidding_logic_url`
 
-This is a URL string that is provided in the [`<InterestGroup>` options `Object`](#types) when creating or updating an interest group’s attributes.  This URL should expose two functions that the buyer will need to provide that handle the bidding at auction time (`generate_bid()`) as well as report the win (`report_win()`) to the appropriate APIs for accounting purposes.  As of right now, there is no information on how these functions need to be exposed, but one can suspect that it will be either an ES Module or windowed object/class that exposes the two functions.
+This is a URL string that is provided in the [`<InterestGroup>` options `Object`](#types) when creating or updating an interest group’s attributes.  This URL should expose two functions that the buyer will need to provide that handle the bidding at auction time (`generate_bid()`) as well as report the win (`report_win()`) to the appropriate APIs for accounting purposes.  As of right now, there is no information on how these functions need to be exposed, but one can suspect that it will be either an ES Module or windowed object/class that exposes the two functions.  An [open discussion](https://github.com/MagniteEngineering/fledge.polyfill/discussions/9) has been created for tracking purposes.
 
 An example: `"dsp.com/nike/bid.js"`
 
