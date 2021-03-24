@@ -116,7 +116,7 @@ The complementary API to leave an interest group. This can be called from within
 
 ##### If an empty `Object` is passed
 
-1. If an empty `Object` is passed within an Ad already rendered on the page, delete the record. This is designed for an ad’s creative to allow for a user to hide that particular ad and never show it again.
+1. If an empty `Object` is passed within an ad already rendered on the page, delete the record. This is designed for an ad’s creative to allow for a user to hide that particular ad and never show it again.
 
 One open question is how will the browser pass along the interest group information.  It’s possible that this could be passed in via the browser_signals in the score_ad function within the auction.
 
