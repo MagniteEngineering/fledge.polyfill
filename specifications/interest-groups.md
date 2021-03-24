@@ -174,5 +174,5 @@ This function is designed to delete an existing record in the internal storage f
 
 ## Open Questions
 
-* When do we clean up the expired groups? After the auction?  Upon updating/adding to a new interest group? Depending on when we clean up, there could be a race condition (may not be that big a deal) whereby you’re deleting an interest group from an expired session right before an auction.
-* Given we’re going to use 1 domain/iframe as the mock dB storage, we need to verify/look into any storage limitations that the browser may enforce.
+* [Interest Group Clean Up](https://github.com/MagniteEngineering/fledge.polyfill/discussions/5)
+* [Storage Limits](https://github.com/MagniteEngineering/fledge.polyfill/discussions/6)
