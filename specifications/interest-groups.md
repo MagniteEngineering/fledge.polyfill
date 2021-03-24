@@ -5,6 +5,8 @@
 
 ## Introduction
 
+An interest group is a way to group users/browser sessions with shared properties for which ads can target allowing the owner of this group to act as the buyer in an auction.
+
 ## How will they be stored?
 
 In order to recall an interest group data in the auction, a storage mechanism is required.  The storage of this needs to be keyed by some combination of the `owner` and `name` fields in order to create a unique ID to get or set values.
@@ -44,6 +46,8 @@ The following is the data types when referring to the [internal data model](#mod
 
 Any type that is suffixed with a `?` is meant to signify that its an optional parameter when creating an interest group.
 
+#### InterestGroup
+
 * **owner**: _String<URL\>_ (e.g. `"www.dsp.com"`)
 * **name**: _String_ (e.g. `"womens-running-shoes"`)
 * **bidding_logic_url**: _String<URL\>_ (e.g. `"dsp.com/nike/bid.js"`)
@@ -53,6 +57,14 @@ Any type that is suffixed with a `?` is meant to signify that its an optional pa
 * **user_bidding_signals?**: _Object_ (e.g. `{ timestamp: 123456789, hostname: "nike.com", path: "/w/womens-running-shoes" }`)
 * **ads?**: _Array<Object\>_ (e.g. `[ { rendering_url: "s3.aws.com/ad1.html", meta: { … } }, ... ]`)
 
+#### UnixTime
+
+This is, as described by [Wikipedia](https://en.wikipedia.org/wiki/Unix_time#:~:text=The%20Unix%20epoch%20is%20the,%2D01T00%3A00%3A00Z.):
+
+> a number of seconds that have elapsed since the Unix epoch, minus leap seconds
+
+So any mention of `<UnixTime>` in this document is in reference to that format, with the exception that we're converting it to milliseconds as is suggested by the [Fledge Proposal](https://github.com/WICG/turtledove/blob/main/FLEDGE.md#11-joining-interest-groups) in their example code snippet.
+
 #### Assumptions
 
 * The specific type of data for the Ads field is left unstructured at this time until we can involve DSPs.
@@ -60,9 +72,9 @@ Any type that is suffixed with a `?` is meant to signify that its an optional pa
 
 ## Methods
 
-### `joinAdInterestGroup(options<InterestGroup>, expiry<UnixDate> = (30 * 86400000))`
+### `joinAdInterestGroup(options<InterestGroup>, expiry<UnixTime> = (30 * 86400000))`
 
-When a "user" lands on a "buyer's" page, this API method will allow them to create and/or create an interest group with some properties that define the group and subsequently allow the "user" to join the interest group.  The method accepts two parameters, an options `Object` that is of the type [`<InterestGroup>`](#types), and an expiry `Number` that is of the type [`Date (Unix)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date).
+When a "user" lands on a "buyer's" page, this API method will allow them to create and/or create an interest group with some properties that define the group and subsequently allow the "user" to join the interest group.  The method accepts two parameters, an options `Object` that is of the type [`<InterestGroup>`](#InterestGroup), and an expiry `Number` that is of the type [`UnixTime`](#UnixTime).
 
 #### Join Flow Diagram
 
@@ -151,14 +163,14 @@ This function is designed to retrieve a specific record from the internal storag
 * **Private/Public**: Private
 * **Return**: If found, return full record.  If no record found, return `null`
 
-### `_createInterestGroup(options<InterestGroup>, expiry<UnixDate> = (30 * 86400000))`
+### `_createInterestGroup(options<InterestGroup>, expiry<UnixTime> = (30 * 86400000))`
 
 This function is designed to create a new record in the internal storage, including all private/internals for the interest group.  Only the `options` parameter is required; if no `expiry` is passed in, then the number will be set to the default value.  This will also validate the existence of any required field, following the [validation rules](#validation).
 
 * **Private/Public**: Private
 * **Return**: If successful, return `true`.  If failure, return `Error` with a message if it fails.
 
-### `_updateInterestGroup(options<InterestGroup>, expiry<UnixDate> = (30 * 86400000))`
+### `_updateInterestGroup(options<InterestGroup>, expiry<UnixTime> = (30 * 86400000))`
 
 This function is designed to update an existing record in the internal storage, including all private/internals for the interest group.  Only the `options` parameter is required; if no `expiry` is passed in, then the number will be set to the default value.  This will also validate the existence of any required field, following the [validation rules](#validation).
 
