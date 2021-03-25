@@ -71,9 +71,9 @@ So any mention of `<UnixTime>` in this document is in reference to that format, 
 
 ## Methods
 
-### `joinAdInterestGroup(options<InterestGroup>, expiry<UnixTime> = (30 * 86400000))`
+### `joinAdInterestGroup(options<InterestGroup>, expiry<Number>)`
 
-When a "user" lands on a "buyer's" page, this API method will allow them to create and/or create an interest group with some properties that define the group and subsequently allow the "user" to join the interest group.  The method accepts two parameters, an options `Object` that is of the type [`<InterestGroup>`](#InterestGroup), and an expiry `Number` that is of the type [`UnixTime`](#UnixTime).
+When a "user" lands on a "buyer's" page, this API method will allow them to create and/or create an interest group with some properties that define the group and subsequently allow the "user" to join the interest group.  The method accepts two parameters, an options `Object` that is of the type [`<InterestGroup>`](#InterestGroup), and an expiry [`Number`](https://developer.mozilla.org/en-US/docs/Web/JavasScript/Reference/Global_Objects/Number).
 
 #### Join Flow Diagram
 
@@ -81,20 +81,25 @@ When a "user" lands on a "buyer's" page, this API method will allow them to crea
 
 #### Validation
 
+❗ As of today (2021-03-25), there is an [issue filed](https://github.com/WICG/turtledove/issues/159) with Chrome to determine the data structure of the `expiry` and whether its required or optional and if there is a default value.  This will impact the validation below and the internal functions.
+
 ##### If no `InterestGroup` exists, then
 
 1. If no `<InterestGroup>` is passed in, throw an `Error` stating a generic message such as "missing fields"
 2. If required fields are missing from `<InterestGroup>`, throw an `Error` stating a generic message such as "missing fields"
-3. If an `expiry` is passed in and is not a valid [`Date`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date), throw an `Error` stating a generic message such as "invalid Date"
-4. If no `expiry` is passed in, then default to 30 days
-5. If, at some time we do handle permissions, then in the event there is missing permissions, throw an `Error` describing the reason.
+3. If, at some time we do handle permissions, then in the event there is missing permissions, throw an `Error` describing the reason.
+4. If no `expiry` is passed in, throw an `Error` stating a generic message such as "missing fields"
+~4. If an `expiry` is passed in and is not a valid [`Date`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date), throw an `Error` stating a generic message such as "invalid Date"~
+~5. If no `expiry` is passed in, then default to 30 days~
+
 
 ##### If an `InterestGroup` already exists, then
 
-1. If `expiry` is passed in and it is beyond 30 days from the created day, then default to the maximum of 30 days
-2. If the same owner and name is passed in, then "[merge](https://github.com/WICG/turtledove/issues/113#issuecomment-798985166)" with the existing data, update the internal _updated_ field to the current time and _expires_ field will be 30 days past the current time
-3. If owner or name is passed in and doesn't match an existing group, then create an entirely new record with the options passed in, adding in the internal _created_ field and _updated_ field to the current date
-4. If, at some time we do handle permissions, then in the event there is missing permissions, throw an `Error` describing the reason.
+1. If the same owner and name is passed in, then "[merge](https://github.com/WICG/turtledove/issues/113#issuecomment-798985166)" with the existing data, update the internal _updated_ field to the current time and _expires_ field will be 30 days past the current time
+2. If owner or name is passed in and doesn't match an existing group, then create an entirely new record with the options passed in, adding in the internal _created_ field and _updated_ field to the current date
+3. If, at some time we do handle permissions, then in the event there is missing permissions, throw an `Error` describing the reason.
+~4. If `expiry` is passed in and it is beyond 30 days from the created day, then default to the maximum of 30 days~
+4. If `expiry` is passed in and it is beyond 30 days (2592000000), throw an `Error`, stating a generic message such as "number beyond maximum allowed"
 
 #### return
 
@@ -162,14 +167,14 @@ This function is designed to retrieve a specific record from the internal storag
 * **Private/Public**: Private
 * **Return**: If found, return full record.  If no record found, return `null`
 
-### `_createInterestGroup(options<InterestGroup>, expiry<UnixTime> = (30 * 86400000))`
+### `_createInterestGroup(options<InterestGroup>, expiry<Number>)`
 
 This function is designed to create a new record in the internal storage, including all private/internals for the interest group.  Only the `options` parameter is required; if no `expiry` is passed in, then the number will be set to the default value.  This will also validate the existence of any required field, following the [validation rules](#validation).
 
 * **Private/Public**: Private
 * **Return**: If successful, return `true`.  If failure, throw an `Error` with a message if it fails.
 
-### `_updateInterestGroup(options<InterestGroup>, expiry<UnixTime> = (30 * 86400000))`
+### `_updateInterestGroup(options<InterestGroup>, expiry<Number>)`
 
 This function is designed to update an existing record in the internal storage, including all private/internals for the interest group.  Only the `options` parameter is required; if no `expiry` is passed in, then the number will be set to the default value.  This will also validate the existence of any required field, following the [validation rules](#validation).
 
@@ -187,3 +192,4 @@ This function is designed to delete an existing record in the internal storage f
 
 * [Interest Group Clean Up](https://github.com/MagniteEngineering/fledge.polyfill/discussions/5)
 * [Storage Limits](https://github.com/MagniteEngineering/fledge.polyfill/discussions/6)
+* [Expiry as UnixTime or Number](https://github.com/WICG/turtledove/issues/159)
