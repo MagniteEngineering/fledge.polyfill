@@ -27,7 +27,6 @@ The following is the storage model and will be later referred in the document as
     "_created": "<Date.now()>",
     "_updated": "<unix_timestamp_in_ms_from_daily_update_url_call>",
     "_expires": "<this._created + (expiry * 86400000)>",
-    "_trusted_bidding_signals": "<options.tbs_url>?hostname=<this._hostname>&keys=<options.tbs_keys.join(',')>",
     "owner": "<options.owner>",
     "name": "<options.name>",
     "bidding_logic_url": "<options.bidding_logic_url>",
