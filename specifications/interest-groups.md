@@ -83,23 +83,23 @@ When a "user" lands on a "buyer's" page, this API method will allow them to crea
 
 ##### If no `InterestGroup` exists, then
 
-1. If no `<InterestGroup>` is passed in, return with an `Error` stating a generic message such as "missing fields"
-2. If required fields are missing from `<InterestGroup>`, return with an `Error` stating a generic message such as "missing fields"
-3. If an `expiry` is passed in and is not a valid [`Date`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date), return with an `Error` stating a generic message such as "invalid Date"
+1. If no `<InterestGroup>` is passed in, throw an `Error` stating a generic message such as "missing fields"
+2. If required fields are missing from `<InterestGroup>`, throw an `Error` stating a generic message such as "missing fields"
+3. If an `expiry` is passed in and is not a valid [`Date`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date), throw an `Error` stating a generic message such as "invalid Date"
 4. If no `expiry` is passed in, then default to 30 days
-5. If, at some time we do handle permissions, then in the event there is missing permissions, the return should be an `Error` describing the reason.
+5. If, at some time we do handle permissions, then in the event there is missing permissions, throw an `Error` describing the reason.
 
 ##### If an `InterestGroup` already exists, then
 
 1. If `expiry` is passed in and it is beyond 30 days from the created day, then default to the maximum of 30 days
 2. If the same owner and name is passed in, then "[merge](https://github.com/WICG/turtledove/issues/113#issuecomment-798985166)" with the existing data, update the internal _updated_ field to the current time and _expires_ field will be 30 days past the current time
 3. If owner or name is passed in and doesn't match an existing group, then create an entirely new record with the options passed in, adding in the internal _created_ field and _updated_ field to the current date
-4. If, at some time we do handle permissions, then in the event there is missing permissions, the return should be an `Error` describing the reason.
+4. If, at some time we do handle permissions, then in the event there is missing permissions, throw an `Error` describing the reason.
 
 #### return
 
 * If successful, return `Boolean(true)`
-* If failure, return `Error(<reason>)`
+* If failure, throw `Error(<reason>)`
 
 #### Implementation
 
@@ -122,8 +122,8 @@ The complementary API to leave an interest group. This can be called from within
 ##### If an `Object` is passed
 
 1. If both the `name` and `owner` passed in exist, delete the record
-2. If one of the `name` and `owner` passed in is missing, return with an `Error` stating a generic method such as "missing fields"
-3. If the owner and/or name passed in is not found, return with an `Error` stating a generic message such as "record not found"
+2. If one of the `name` and `owner` passed in is missing, throw an `Error` stating a generic method such as "missing fields"
+3. If the owner and/or name passed in is not found, throw an `Error` stating a generic message such as "record not found"
 
 ##### If an empty `Object` is passed
 
@@ -134,7 +134,7 @@ One [open question](https://github.com/MagniteEngineering/fledge.polyfill/discus
 #### return
 
 * If successful, return `Boolean(true)`
-* If failure, return `Error(reason)`
+* If failure, throw `Error(reason)`
 
 #### Implementation
 
@@ -167,21 +167,21 @@ This function is designed to retrieve a specific record from the internal storag
 This function is designed to create a new record in the internal storage, including all private/internals for the interest group.  Only the `options` parameter is required; if no `expiry` is passed in, then the number will be set to the default value.  This will also validate the existence of any required field, following the [validation rules](#validation).
 
 * **Private/Public**: Private
-* **Return**: If successful, return `true`.  If failure, return `Error` with a message if it fails.
+* **Return**: If successful, return `true`.  If failure, throw an `Error` with a message if it fails.
 
 ### `_updateInterestGroup(options<InterestGroup>, expiry<UnixTime> = (30 * 86400000))`
 
 This function is designed to update an existing record in the internal storage, including all private/internals for the interest group.  Only the `options` parameter is required; if no `expiry` is passed in, then the number will be set to the default value.  This will also validate the existence of any required field, following the [validation rules](#validation).
 
 * **Private/Public**: Private
-* **Return**: If successful, return `true`.  If failure, return `Error` with a message if it fails.
+* **Return**: If successful, return `true`.  If failure, throw an `Error` with a message if it fails.
 
 ### `_deleteInterestGroup(owner<String, name<String>)`
 
 This function is designed to delete an existing record in the internal storage for the interest group based on it's owner and name. Both parameters are required.  It should remove the name `Object` and not the entire owner `Object`, even if there are no more interest groups.  It should also remove an interest group if the `expires` key in an interest group has lapsed.
 
 * **Private/Public**: Private
-* **Return**: If successful, return `true`.  If failure, return `Error` with a message if it fails.
+* **Return**: If successful, return `true`.  If failure, throw an `Error` with a message if it fails.
 
 ## Open Questions
 
