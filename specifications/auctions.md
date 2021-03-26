@@ -9,7 +9,7 @@ An auction done entirely within a browser worklet with no network access, which 
 
 ## How will they be stored?
 
-The same mechanism being created for storing Interest Groups will be used to process the auction, including the scoring of all ads/bids that are sent into the auction by buyers.  [See the current discussion on storage types]((https://github.com/MagniteEngineering/fledge.polyfill/discussions/7).
+The same mechanism being created for storing Interest Groups will be used to process the auction, including the scoring of all ads/bids that are sent into the auction by buyers.  [See the current discussion on storage types](https://github.com/MagniteEngineering/fledge.polyfill/discussions/7).
 
 ### Model
 
@@ -21,6 +21,7 @@ The following is the storage model and will be later referred in the document as
     "<adslot_id>": {
       "seller": "<options.seller>",
       "decision_logic_url": "<options.decision_logic_url>",
+      "trusted_scoring_signals_url": "<options.trusted_scoring_signals_url>",
       "interest_group_buyers": "<options.interest_group_buyers.keys()>",
       "additional_bids": "<options.additional_bids>"
       "auction_signals": "<options.auction_signals>",
@@ -39,15 +40,18 @@ Any type that is suffixed with a `?` is meant to signify that its an optional pa
 
 * **seller**: _String<URL\>_ (e.g. `"www.dsp.com"`)
 * **decision_logic_url**: _String<URL\>_ (e.g. `"dsp.com/nike/bid.js"`)
+* **trusted_scoring_signals_url**: _String<URL\>_ (e.g.  `"dsp.com/scoring-signals"`)
 * **interest_group_buyers**: _Array<URL > | *_ (e.g. `[ "www.tradedesk.com", "nike.com" ]`)
 * **additional_bids?**: _Array_
 * **auction_signals?**: _Object_
 * **seller_signals?**: _Object_
 * **per_buyer_signals?**: _Object_
 
-#### Assumptions
+### Assumptions
 
-?
+* While the proposal states that rendering of the winning ad will happen in an Fenced Frame, we will have to render it in a traditional `iframe`
+* The `browser_signals` provided to the `score_ad()` function will be provided by us with our best guess as to what the final object may resemble, but consumers are warned not to rely on the signals coming from that too much as it is highly subject to change
+* The final proposal will be much more secure that what is possible by doing everything within a Cross-Domain Sharing storage solution
 
 ## Methods
 
@@ -65,9 +69,9 @@ When a "user" lands on a "seller's" page, this API method will allow them run an
 2. If required fields are missing from `<AuctionConfig>`, return with an `Error` stating a generic message such as "missing fields"
 3. If, at some time we do handle permissions, then in the event there is missing permissions, the return should be an `Error` describing the reason.
 
-#### return
+#### Return
 
-* If successful and contains a winning bid, return a `<Promise>`.  While the proposal with maintain this is `opaque`, within our trials we won't support that feature as we won't have any way to do so.
+* If successful and contains a winning bid, return a `<Promise>`.  While the proposal will maintain this is `opaque`, within our trials we won't support that feature as we won't have any way to do so.
 * If successful and does not contain a winning bid, return a `null`
 * If failure, return `Error(<reason>)`
 
@@ -75,10 +79,11 @@ When a "user" lands on a "seller's" page, this API method will allow them run an
 
 Using the [flow diagram](#auction-flow-diagram) as a guide, the following internal functions will be created in order to support joining an interest group:
 
-1. [InterestGroups.getInterestGroup](#_getinterestgroup28owner26ltstring26gt-name26ltstring26gt2)
-2. [_generateBid](#)
-3. [_scoreBid](#)
-4. [_sortBids](#)
+1. [_getFromStorage](#_getfromstorage28type26ltstring26gt29)
+2. [_filterInterestGroupBuyers](#_filterinterestgroupbuyers28auctionconfig26ltauctionconfig26gt29)
+3. [_filterBidsByScore](#_filterbidsbyscore28bids26lt5Bbid5D26gt29)
+4. [_sortBidsByScore](#_sortbidsbyscore28bids26lt5Bbid5D26gt29)
+5. [_getWinningBid](#_getwinningbid28bids26lt5Bbid5D26gt29)
 
 ## `decision_logic_url`
 
@@ -86,9 +91,34 @@ This is a URL string that is provided in the [`<AuctionConfig>` options `Object`
 
 An example: `"ssp.com/espn/auction.js"`
 
-### `score_ad()`
+### `score_ad(ad_metadata<Object>, bid<Number>, auction_config<AuctionConfig>, trusted_scoring_signals, browser_signals<Object>)`
+
+The scoring function that will be provided by the `decision_logic_url` from the seller that will process each eligible bid in order to provide a numerical score, some metadata and a URL to render the creative.
+
+* **ad_metadata**: this comes from each bid; specifically the `ad` key in the return value of each `generate_bid()` function.
+* **bid**: this comes from each bid; specifically the `bid` key in the return value of each `generate_bid()` function.
+* **auction_config**: this is provided by the auction; it is the configuration that is provided by the auction when initially called
+* **trusted_scoring_signals**: this is provided by the auction configuration with the base URL being the `trusted_scoring_signals_url` key and the return value of each `generate_bid()` functions `render_url` key (e.g. `kv-server.com?hostname=<interest_group.owner>&keys=<render_url>`)
+* **browser_signals**: this is provided by the browser, but in this case, it will be arbitrary information we provide, explaining to consumers not to rely too heavily on the information provided
+
+#### Validation
+
+All fields are required and provided to the function when called in the context of the Cross-Domain storage solution.
+
+#### Return
+
+* A numerical value of greater than 0, indicates an eligible bid
+* A numerical value of less than or equal to 0, indicates an ineligible bid
 
 _Note: `report_result()` and are detailed in other specifications._
+
+### `renderAd(bid<Bid>)`
+
+The function designed to create an `iframe` on the sellers page that will render the ads creative for the winning bid.
+
+### `generate_bid()`
+
+This will be detailed in another specification.
 
 ## Internal Functions
 
