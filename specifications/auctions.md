@@ -94,6 +94,41 @@ _Note: `report_result()` and are detailed in other specifications._
 
 Detailed are the internal functions and their parameters that will be called at various stages of the two aforementioned API methods.
 
+### `_getFromStorage(type<String>)`
+
+This function is designed to retrieve a set of data from the Cross-Domain storage system (e.g. InterestGroups, Bids, etc.).
+
+* **Private/Public**: Private
+* **Return**: If successful and a record exists, return `Object<InterestGroup>`; If no record found, return `null`.
+
+### `_filterInterestGroupBuyers(auctionConfig<AuctionConfig>)`
+
+This function takes in an auction configuration `Object` and filters out the `interest_group_buyers` key, stored as an `Array<String>`, in order to process the eligible interest groups. If wild card `String` in the form of `*` is passed instead, then all interest groups will be eligible to bid.
+
+* **Private/Public**: Private
+* **Return**: If successful, return `Array<InterestGroup>`; If no record found, return `null`.
+
+### `_filterBidsByScore(bids<[Bid]>)`
+
+This function is designed to take all bids and filter out any record that has a score of less than or equal to 0.
+
+* **Private/Public**: Private
+* **Return**: If successful, return `Array<Bid>`; If failure, throw an `Error` with a message.
+
+### `_sortBidsByScore(bids<[Bid]>)`
+
+This function is designed to take all bids and sort each record by the highest to lowest score.
+
+* **Private/Public**: Private
+* **Return**: If successful, return a sorted `Array<Bid>`. If failure, throw an `Error` with a message.
+
+### `_getWinningBid(bids<[Bid]>)`
+
+This function is designed to retrieve the "winning bid".  At the time that is meant to mean the bid with the highest score, but over time this may mean the bid with the highest score that meets other criteria.
+
+* **Private/Public**: Private
+* **Return**: If successful and a record exists, return a single `<Bid>`; If no record found, return `null`.
+
 ## Open Questions
 
 * [Storage Limits](https://github.com/MagniteEngineering/fledge.polyfill/discussions/6)
