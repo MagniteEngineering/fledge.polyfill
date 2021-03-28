@@ -91,7 +91,7 @@ This is a URL string that is provided in the [`<AuctionConfig>` options `Object`
 
 An example: `"ssp.com/espn/auction.js"`
 
-### `score_ad(ad_metadata<Object>, bid<Number>, auction_config<AuctionConfig>, trusted_scoring_signals, browser_signals<Object>)`
+### `score_ad(ad_metadata<Object>, bid<Number>, auction_config<AuctionConfig>, trusted_scoring_signals<String>, browser_signals<Object>)`
 
 The scoring function that will be provided by the `decision_logic_url` from the seller that will process each eligible bid in order to provide a numerical score, some metadata and a URL to render the creative.
 
@@ -138,21 +138,21 @@ This function takes in an auction configuration `Object` and filters out the `in
 * **Private/Public**: Private
 * **Return**: If successful, return `Array<InterestGroup>`; If no record found, return `null`.
 
-### `_filterBidsByScore(bids<[Bid]>)`
+### `_filterBidsByScore(bids<Bid[]>)`
 
 This function is designed to take all bids and filter out any record that has a score of less than or equal to 0.
 
 * **Private/Public**: Private
 * **Return**: If successful, return `Array<Bid>`; If failure, throw an `Error` with a message.
 
-### `_sortBidsByScore(bids<[Bid]>)`
+### `_sortBidsByScore(bids<Bid[]>)`
 
 This function is designed to take all bids and sort each record by the highest to lowest score.
 
 * **Private/Public**: Private
 * **Return**: If successful, return a sorted `Array<Bid>`. If failure, throw an `Error` with a message.
 
-### `_getWinningBid(bids<[Bid]>)`
+### `_getWinningBid(bids<Bid[]>)`
 
 This function is designed to retrieve the "winning bid".  At the time that is meant to mean the bid with the highest score, but over time this may mean the bid with the highest score that meets other criteria.
 
