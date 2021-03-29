@@ -57,7 +57,7 @@ Any type that is suffixed with a `?` is meant to signify that its an optional pa
 
 ### `runAdAuction(config<AuctionConfig>)`
 
-When a "user" lands on a "seller's" page, this API method will allow them run an auction.  The method accepts one parameter, an configuration `Object` that is of the type [`<AuctionConfig>`](#types).
+When a "user" lands on a "seller's" page, this API method will allow them to run an auction.  The method accepts one parameter, a configuration `Object` that is of the type [`<AuctionConfig>`](#types).
 
 #### Auction Flow Diagram
 
@@ -110,7 +110,7 @@ All fields are required and provided to the function when called in the context 
 * A numerical value of greater than 0, indicates an eligible bid
 * A numerical value of less than or equal to 0, indicates an ineligible bid
 
-_Note: `report_result()` and are detailed in other specifications._
+_Note: `report_result()` is detailed in other specifications._
 
 ### `renderAd(bid<Bid>)`
 
