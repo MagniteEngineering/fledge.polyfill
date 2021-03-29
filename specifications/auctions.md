@@ -38,7 +38,7 @@ The following is the data types when referring a function that accepts an `<Auct
 
 Any type that is suffixed with a `?` is meant to signify that its an optional parameter when creating an interest group.
 
-* **seller**: _String<URL\>_ (e.g. `"www.dsp.com"`)
+* **seller**: _String<URL\>_ (e.g. `"www.ssp.com"`)
 * **decision_logic_url**: _String<URL\>_ (e.g. `"dsp.com/nike/bid.js"`)
 * **trusted_scoring_signals_url**: _String<URL\>_ (e.g.  `"dsp.com/scoring-signals"`)
 * **interest_group_buyers**: _Array<URL > | *_ (e.g. `[ "www.tradedesk.com", "nike.com" ]`)
@@ -71,7 +71,7 @@ When a "user" lands on a "seller's" page, this API method will allow them to run
 
 #### Return
 
-* If successful and contains a winning bid, return a `<Promise>`.  While the proposal will maintain this is `opaque`, within our trials we won't support that feature as we won't have any way to do so.
+* If successful and contains a winning bid, return a `<Promise>`.  While the proposal will maintain this is `opaque`, within our trials we won't support that feature, initially, but may try to do this in a future iteration.
 * If successful and does not contain a winning bid, return a `null`
 * If failure, return `Error(<reason>)`
 
@@ -87,7 +87,7 @@ Using the [flow diagram](#auction-flow-diagram) as a guide, the following intern
 
 ## `decision_logic_url`
 
-This is a URL string that is provided in the [`<AuctionConfig>` options `Object`](#types) when running an auction.  This URL should expose two functions that the seller will need to provide that handle the scoring of ads at auction time (`score_ad()`) as well as report the win (`report_result()`) to the appropriate APIs for accounting purposes.  As of right now, there is no information on how these functions need to be exposed, but one can suspect that it will be either an ES Module or windowed object/class that exposes the two functions.
+This is a URL string that is provided in the [`<AuctionConfig>` options `Object`](#types) when running an auction.  This URL should expose two functions that the seller will need to provide that handle the scoring of ads at auction time (`score_ad()`) as well as report the win (`report_result()`) to the appropriate APIs for accounting purposes.  As of right now, there is no information on how these functions need to be exposed, but one can suspect that it will be either an ES Module or windowed object/class that exposes the two functions.  There is an [ongoing discussion](https://github.com/MagniteEngineering/fledge.polyfill/discussions/9) about how we might want to expose these.
 
 An example: `"ssp.com/espn/auction.js"`
 
