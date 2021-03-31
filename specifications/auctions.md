@@ -90,14 +90,14 @@ This is a URL string that is provided in the [`<AuctionConfig>` options `Object`
 
 An example: `"ssp.com/espn/auction.js"`
 
-### `score_ad(ad_metadata<Object>, bid<Number>, auction_config<AuctionConfig>, trusted_scoring_signals<String>, browser_signals<Object>)`
+### `score_ad(ad_metadata<Object>, bid<Number>, auction_config<AuctionConfig>, trusted_scoring_signals<Object>, browser_signals<Object>)`
 
 The scoring function that will be provided by the `decision_logic_url` from the seller that will process each eligible bid in order to provide a numerical score, some metadata and a URL to render the creative.
 
 * **ad_metadata**: this comes from each bid; specifically the `ad` key in the return value of each `generate_bid()` function.
 * **bid**: this comes from each bid; specifically the `bid` key in the return value of each `generate_bid()` function.
-* **auction_config**: this is provided by the auction; it is the configuration that is provided by the auction when initially called
-* **trusted_scoring_signals**: this is provided by the auction configuration with the base URL being the `trusted_scoring_signals_url` key and the return value of each `generate_bid()` functions `render_url` key (e.g. `kv-server.com?hostname=<interest_group.owner>&keys=<render_url>`)
+* **auction_config**: this is provided by the auction; it is the configuration that is provided by the auction when initially called.
+* **trusted_scoring_signals**: this is provided by the auction configuration with the base URL being the `trusted_scoring_signals_url` key and the return value of each `generate_bid()` functions `render_url` key (e.g. `kv-server.com?hostname=<interest_group.owner>&keys=<render_url>`) which should return back a JSON object.
 * **browser_signals**: this is provided by the browser, but in this case, it will be arbitrary information we provide, explaining to consumers not to rely too heavily on the information provided
 
 #### Validation
