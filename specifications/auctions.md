@@ -18,16 +18,14 @@ The following is the storage model and will be later referred in the document as
 ```json
 "<options.seller>": {
   "<`${window.top.location.origin}${window.top.location.pathname}`>": {
-    "<adslot_id>": {
-      "seller": "<options.seller>",
-      "decision_logic_url": "<options.decision_logic_url>",
-      "trusted_scoring_signals_url": "<options.trusted_scoring_signals_url>",
-      "interest_group_buyers": "<options.interest_group_buyers.keys()>",
-      "additional_bids": "<options.additional_bids>"
-      "auction_signals": "<options.auction_signals>",
-      "seller_signals": "<options.seller_signals>",
-      "per_buyer_signals": "<options.per_buyer_signals>"
-    }
+    "seller": "<options.seller>",
+    "decision_logic_url": "<options.decision_logic_url>",
+    "trusted_scoring_signals_url": "<options.trusted_scoring_signals_url>",
+    "interest_group_buyers": "<options.interest_group_buyers.keys()>",
+    "additional_bids": "<options.additional_bids>"
+    "auction_signals": "<options.auction_signals>",
+    "seller_signals": "<options.seller_signals>",
+    "per_buyer_signals": "<options.per_buyer_signals>"
   }
 }
 ```
