@@ -16,7 +16,8 @@ The same mechanism being created for storing Interest Groups will be used to pro
 The following is the storage model and will be later referred in the document as `AuctionConfig` when referring to its data structure:
 
 ```json
-"<options.seller>": {
+{
+  "seller": "<options.seller>",
   "<`${window.top.location.origin}${window.top.location.pathname}`>": {
     "seller": "<options.seller>",
     "decision_logic_url": "<options.decision_logic_url>",
