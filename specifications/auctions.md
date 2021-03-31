@@ -129,9 +129,9 @@ This function is designed to retrieve a set of data from the Cross-Domain storag
 * **Private/Public**: Private
 * **Return**: If successful and a record exists, return `Object<InterestGroup>`; If no record found, return `null`.
 
-### `_filterInterestGroupBuyers(auctionConfig<AuctionConfig>)`
+### `_filterInterestGroupBuyers(auctionConfig<AuctionConfig.interest_group_buyers>)`
 
-This function takes in an auction configuration `Object` and filters out the `interest_group_buyers` key, stored as an `Array<String>`, in order to process the eligible interest groups. If wild card `String` in the form of `*` is passed instead, then all interest groups will be eligible to bid.
+This function takes in the auction configuration `Object` key at `interest_group_buyers`, stored as an `Array<String>`, in order to process the eligible interest groups. If wild card `String` in the form of `*` is passed instead, then all interest groups will be eligible to bid.
 
 * **Private/Public**: Private
 * **Return**: If successful, return `Array<InterestGroup>`; If no record found, return `null`.
