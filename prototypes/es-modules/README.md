@@ -6,6 +6,9 @@ Following the [discussion in GitHub](https://github.com/MagniteEngineering/fledg
 
 As of this experiment, the earliest version of Chrome that would contain Fledge support would be v91, which is set to be released in June of 2021. According to [MDN's Guide to Modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules), full support for ES modules is as follows, which means any browser supporting Fledge would support ES modules.
 
+![Can I Use ES Module Support](https://caniuse.bitsofco.de/image/es6-module.jpg)
+[source](https://caniuse.com/es6-module)
+
 ![Import syntax support](./images/import-support.png)
 _import_
 
