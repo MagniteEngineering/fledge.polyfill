@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>IndexedDB Prototype</title>
+	</head>
+	<body>
+		<script type="module">
+			import { joinAdInterestGroup } from './scripts/db.js';
+			const ig = {
+				owner: 'www.dsp.com',
+				name: 'womens-running-shoes',
+			};
+			joinAdInterestGroup(ig, (30 * 86400000));
+		</script>
+	</body>
+</html>
