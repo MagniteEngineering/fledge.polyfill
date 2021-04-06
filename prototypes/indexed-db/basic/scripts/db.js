@@ -103,8 +103,8 @@ export async function joinAdInterestGroup(options, expiry) {
 		});
 	}
 
-		/*
-	ig.name = "an-updated-value";
-	await db.put("interest-groups", ig);
-	*/
+	if (options.update) {
+		ig.name = "an-updated-value";
+		await db.put("interest-groups", ig);
+	}
 }
