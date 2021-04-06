@@ -90,11 +90,21 @@ export async function joinAdInterestGroup(options, expiry) {
 		},
 	});
 
-	// Add an article:
-	await db.add('interest-groups', {
-		owner: options.owner,
-		name: options.name,
-		date: Date.now(),
-		expire: Date.now() + expiry,
-	});
+	const ig = await db.get('interest-groups', `${options.owner}-${options.name}`);
+	console.log(ig);
+	if (!ig) {
+		// Add a group:
+		await db.add('interest-groups', {
+			_key: `${options.owner}-${options.name}`,
+			_date: Date.now(),
+			_expires: Date.now() + expiry,
+			owner: options.owner,
+			name: options.name,
+		});
+	}
+
+		/*
+	ig.name = "an-updated-value";
+	await db.put("interest-groups", ig);
+	*/
 }
