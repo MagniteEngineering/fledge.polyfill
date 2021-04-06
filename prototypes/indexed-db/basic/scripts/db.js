@@ -79,12 +79,14 @@ export async function joinAdInterestGroup(options, expiry) {
 			// Create a store of objects
 			const store = db.createObjectStore('interest-groups', {
 				// The 'id' property of the object will be the key.
-				keyPath: 'id',
+				keyPath: '_key',
 				// If it isn't explicitly set, create a value by auto incrementing.
 				autoIncrement: true,
 			});
 			// Create an index on the 'date' property of the objects.
-			store.createIndex('owner', 'owner');
+			store.createIndex('owner', 'owner', { unique: false });
+			store.createIndex('name', 'name', { unique: false });
+			store.createIndex('_expires', '_expires', { unique: false });
 		},
 	});
 
