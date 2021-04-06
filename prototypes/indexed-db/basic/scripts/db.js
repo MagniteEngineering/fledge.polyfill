@@ -107,4 +107,8 @@ export async function joinAdInterestGroup(options, expiry) {
 		ig.name = "an-updated-value";
 		await db.put("interest-groups", ig);
 	}
+
+	if (options.delete) {
+		await db.delete("interest-groups", ig._key);
+	}
 }
