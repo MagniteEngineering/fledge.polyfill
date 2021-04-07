@@ -1,6 +1,34 @@
 # Auctions [§](https://github.com/WICG/turtledove/blob/main/FLEDGE.md#2-sellers-run-on-device-auctions)
 
 <!-- toc -->
+
+- [Introduction](#introduction)
+- [How will they be stored?](#how-will-they-be-stored)
+  * [Model](#model)
+  * [Types](#types)
+  * [Assumptions](#assumptions)
+- [Methods](#methods)
+  * [`runAdAuction(config)`](#runadauctionconfig)
+    + [Auction Flow Diagram](#auction-flow-diagram)
+    + [Validation](#validation)
+    + [Return](#return)
+    + [Implementation](#implementation)
+- [`decision_logic_url`](#decision_logic_url)
+  * [`score_ad(ad_metadata, bid, auction_config, trusted_scoring_signals, browser_signals)`](#score_adad_metadata-bid-auction_config-trusted_scoring_signals-browser_signals)
+    + [Validation](#validation-1)
+    + [Return](#return-1)
+  * [`renderAd(bid)`](#renderadbid)
+  * [`generate_bid()`](#generate_bid)
+- [Internal Functions](#internal-functions)
+  * [`_getFromStorage(type)`](#_getfromstoragetype)
+  * [`_filterInterestGroupBuyers(auctionConfig)`](#_filterinterestgroupbuyersauctionconfig)
+  * [`_filterBidsByScore(bids)`](#_filterbidsbyscorebids)
+  * [`_sortBidsByScore(bids)`](#_sortbidsbyscorebids)
+  * [`_getWinningBid(bids)`](#_getwinningbidbids)
+- [Open Questions](#open-questions)
+
+<!-- tocstop -->
+
 <!-- end:toc -->
 
 ## Introduction
@@ -17,8 +45,6 @@ The following is the storage model and will be later referred in the document as
 
 ```json
 {
-  "seller": "<options.seller>",
-  "<`${window.top.location.origin}${window.top.location.pathname}`>": {
     "seller": "<options.seller>",
     "decision_logic_url": "<options.decision_logic_url>",
     "trusted_scoring_signals_url": "<options.trusted_scoring_signals_url>",
@@ -60,7 +86,7 @@ When a "user" lands on a "seller's" page, this API method will allow them to run
 
 #### Auction Flow Diagram
 
-![Auction flow diagram](./auction-flow.png)
+![Auction flow diagram](./images/auction-flow.png)
 
 #### Validation
 

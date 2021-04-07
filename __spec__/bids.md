@@ -1,6 +1,18 @@
 # Bids [§](https://github.com/WICG/turtledove/blob/main/FLEDGE.md#3-buyers-provide-ads-and-bidding-functions-byos-for-now)
 
 <!-- toc -->
+
+- [Introduction](#introduction)
+- [Methods](#methods)
+  * [`generate_bid(...)`](#generate_bid)
+    + [Option Types](#option-types)
+    + [Bidding Flow Diagram](#bidding-flow-diagram)
+    + [Validation](#validation)
+    + [Return](#return)
+    + [Implementation](#implementation)
+
+<!-- tocstop -->
+
 <!-- end:toc -->
 
 ## Introduction
@@ -27,7 +39,7 @@ The bidding function that will be provided by the `bidding_logic_url` from the I
 
 #### Bidding Flow Diagram
 
-![Bidding flow diagram](./bidding-flow.png)
+![Bidding flow diagram](./images/bidding-flow.png)
 
 #### Validation
 

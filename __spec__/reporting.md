@@ -1,6 +1,22 @@
 # Reporting [§](https://github.com/WICG/turtledove/blob/main/FLEDGE.md#5-event-level-reporting-for-now)
 
 <!-- toc -->
+
+- [Introduction](#introduction)
+- [Methods](#methods)
+  * [`report_result(auction_config, browser_signals)`](#report_resultauction_config-browser_signals)
+    + [Option Types](#option-types)
+    + [Validation](#validation)
+    + [Return](#return)
+    + [Implementation](#implementation)
+  * [`report_win(...)`](#report_win)
+    + [Option Types](#option-types-1)
+    + [Validation](#validation-1)
+    + [Return](#return-1)
+    + [Implementation](#implementation-1)
+
+<!-- tocstop -->
+
 <!-- end:toc -->
 
 ## Introduction
