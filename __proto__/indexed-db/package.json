@@ -3,9 +3,6 @@
   "version": "0.0.0",
   "description": "A prototype to showcase the capabilities of IndexedDB with regard to Fledge auctions",
   "main": "index.js",
-  "scripts": {
-    "test": "npm test"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MagniteEngineering/fledge.polyfill.git"
