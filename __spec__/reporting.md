@@ -17,8 +17,6 @@
 
 <!-- tocstop -->
 
-<!-- end:toc -->
-
 ## Introduction
 
 Once the winning ad has rendered, the seller and the winning buyer each have an opportunity to perform reporting on the auction outcome. The browser will call one reporting function in the seller's auction worklet and one in the winning buyer's bidding worklet.

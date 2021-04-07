@@ -34,8 +34,6 @@
 
 <!-- tocstop -->
 
-<!-- end:toc -->
-
 ## Introduction
 
 An interest group is a way to group users/browser sessions with shared properties for which ads can target allowing the owner of this group to act as the buyer in an auction.

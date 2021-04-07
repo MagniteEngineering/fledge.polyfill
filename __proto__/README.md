@@ -4,6 +4,20 @@ Any discussion or open question that may have been posed from our initial tech s
 
 The two biggest categories of prototypes revolve around [ES Modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) and [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API).
 
+<!-- toc -->
+
+- [ES Modules](#es-modules)
+  * [Basic](#basic)
+  * [Running the Demo](#running-the-demo)
+  * [Dynamic](#dynamic)
+  * [Running the Demo](#running-the-demo-1)
+  * [Auction](#auction)
+  * [Running the Demo](#running-the-demo-2)
+- [Indexed dB](#indexed-db)
+  * [Running the Demo](#running-the-demo-3)
+
+<!-- tocstop -->
+
 ## ES Modules
 
 Within the `es-modules` are 3 prototypes:

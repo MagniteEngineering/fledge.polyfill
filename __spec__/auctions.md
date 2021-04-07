@@ -29,8 +29,6 @@
 
 <!-- tocstop -->
 
-<!-- end:toc -->
-
 ## Introduction
 
 An auction done entirely within a browser worklet with no network access, which allow sellers to decide the buyers, which bids from interest groups are eligible, the logic to determine the winning bid and reporting the outcome.

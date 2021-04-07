@@ -13,8 +13,6 @@
 
 <!-- tocstop -->
 
-<!-- end:toc -->
-
 ## Introduction
 
 Interest groups are used by their owners to bid in on-device auctions.  These buyers choose whether or not to participate in an auction, pick a specific ad, and enter it in the auction along with a bid price and whatever metadata the seller expects.
