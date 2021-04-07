@@ -1,0 +1,22 @@
+{
+  "name": "@magnite/indexeddb.prototype",
+  "version": "0.0.0",
+  "description": "A prototype to showcase the capabilities of IndexedDB with regard to Fledge auctions",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MagniteEngineering/fledge.polyfill.git"
+  },
+  "author": "Newton Koumantzelis <github@iamnewton.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MagniteEngineering/fledge.polyfill/issues"
+  },
+  "homepage": "https://github.com/MagniteEngineering/fledge.polyfill/prototypes/indexed-db#readme",
+  "dependencies": {
+    "idb": "^6.0.0"
+  }
+}
