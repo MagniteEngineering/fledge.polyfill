@@ -1,8 +1,9 @@
 # Interest Groups [§](https://github.com/WICG/turtledove/blob/main/FLEDGE.md#1-browsers-record-interest-groups)
 
+An interest group is a way to group users/browser sessions with shared properties for which ads can target allowing the owner of this group to act as the buyer in an auction.
+
 <!-- toc -->
 
-- [Introduction](#introduction)
 - [How will they be stored?](#how-will-they-be-stored)
   * [Model](#model)
   * [Types](#types)
@@ -34,10 +35,6 @@
 
 <!-- tocstop -->
 
-## Introduction
-
-An interest group is a way to group users/browser sessions with shared properties for which ads can target allowing the owner of this group to act as the buyer in an auction.
-
 ## How will they be stored?
 
 In order to recall an interest group data in the auction, a storage mechanism is required.  The storage of this needs to be keyed by some combination of the `owner` and `name` fields in order to create a unique ID to get or set values.
@@ -46,7 +43,7 @@ In order to recall an interest group data in the auction, a storage mechanism is
 
 After more discussion, we've determined to go back to using the top-level key of `owner` since the only way to retrieve an interest group is through the `interest_group_buyers` key in the auction configuration object and we won't know the interest group name.  This also allows for the auction to run the `*` (wild card) mechanism in order to allow all interest groups to bid.
 
-The internal data model will be stored within the browser using an undetermined system of storage (e.g. `localStorage`, `sessionStorage`, `indexedDB`, something else) in the format of JSON.  Regardless of the technology choice, all choices will require some form of [Cross-Domain Sharing](https://github.com/aviboy2006/cross-domain-cookie-sharing) to exploit the same-origin policy restrictions that the browser enforces. There is a [discussion around this topic](https://github.com/MagniteEngineering/fledge.polyfill/discussions/7).
+The internal data model will be stored within the browser using an undetermined `IndexedDB`, and it will require some form of [Cross-Domain Sharing](https://github.com/aviboy2006/cross-domain-cookie-sharing) to exploit the same-origin policy restrictions that the browser enforces.
 
 ### Model
 

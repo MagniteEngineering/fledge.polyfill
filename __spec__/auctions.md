@@ -1,8 +1,9 @@
 # Auctions [§](https://github.com/WICG/turtledove/blob/main/FLEDGE.md#2-sellers-run-on-device-auctions)
 
+An auction done entirely within a browser worklet with no network access, which allow sellers to decide the buyers, which bids from interest groups are eligible, the logic to determine the winning bid and reporting the outcome.
+
 <!-- toc -->
 
-- [Introduction](#introduction)
 - [How will they be stored?](#how-will-they-be-stored)
   * [Model](#model)
   * [Types](#types)
@@ -29,13 +30,9 @@
 
 <!-- tocstop -->
 
-## Introduction
-
-An auction done entirely within a browser worklet with no network access, which allow sellers to decide the buyers, which bids from interest groups are eligible, the logic to determine the winning bid and reporting the outcome.
-
 ## How will they be stored?
 
-The same mechanism being created for storing Interest Groups will be used to process the auction, including the scoring of all ads/bids that are sent into the auction by buyers.  [See the current discussion on storage types](https://github.com/MagniteEngineering/fledge.polyfill/discussions/7).
+The same mechanism being created for storing Interest Groups will be used to process the auction, including the scoring of all ads/bids that are sent into the auction by buyers.
 
 ### Model
 
@@ -110,7 +107,7 @@ Using the [flow diagram](#auction-flow-diagram) as a guide, the following intern
 
 ## `decision_logic_url`
 
-This is a URL string that is provided in the [`<AuctionConfig>` options `Object`](#types) when running an auction.  This URL should expose two functions that the seller will need to provide that handle the scoring of ads at auction time (`score_ad()`) as well as report the win (`report_result()`) to the appropriate APIs for accounting purposes.  As of right now, there is no information on how these functions need to be exposed, but one can suspect that it will be either an ES Module or windowed object/class that exposes the two functions.  There is an [ongoing discussion](https://github.com/MagniteEngineering/fledge.polyfill/discussions/9) about how we might want to expose these.
+This is a URL string that is provided in the [`<AuctionConfig>` options `Object`](#types) when running an auction.  This URL should expose two functions that the seller will need to provide that handle the scoring of ads at auction time (`score_ad()`) as well as report the win (`report_result()`) to the appropriate APIs for accounting purposes.  As of right now, there is no information on how these functions need to be exposed, but one can suspect that it will be either an ES Module or windowed object/class that exposes the two functions.  These functions will be exposed using ES Modules and will be imported using dynamic imports.
 
 An example: `"ssp.com/espn/auction.js"`
 

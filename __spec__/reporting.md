@@ -1,8 +1,9 @@
 # Reporting [§](https://github.com/WICG/turtledove/blob/main/FLEDGE.md#5-event-level-reporting-for-now)
 
+Once the winning ad has rendered, the seller and the winning buyer each have an opportunity to perform reporting on the auction outcome. The browser will call one reporting function in the seller's auction worklet and one in the winning buyer's bidding worklet.
+
 <!-- toc -->
 
-- [Introduction](#introduction)
 - [Methods](#methods)
   * [`report_result(auction_config, browser_signals)`](#report_resultauction_config-browser_signals)
     + [Option Types](#option-types)
@@ -16,10 +17,6 @@
     + [Implementation](#implementation-1)
 
 <!-- tocstop -->
-
-## Introduction
-
-Once the winning ad has rendered, the seller and the winning buyer each have an opportunity to perform reporting on the auction outcome. The browser will call one reporting function in the seller's auction worklet and one in the winning buyer's bidding worklet.
 
 ## Methods
 
@@ -48,7 +45,7 @@ All fields are required and provided to the function when called.
 
 The implementation details of this function are subject to however the seller decides to process the inputs, at this time.  However, in the future, network calls will be prevented from being run within this context and should not be relied upon as they are subject to change.
 
-There is an [ongoing discussion](https://github.com/MagniteEngineering/fledge.polyfill/discussions/9) about how we might want to expose these functions.  Whatever method is chosen, the return of this function will be sent to the buyers `report_win()` function and so there may need to be some temporary storage mechanism similar to Cross-Domain storage where that value can be read from when being sent to the buyer.
+~There is an [ongoing discussion](https://github.com/MagniteEngineering/fledge.polyfill/discussions/9) about how we might want to expose these functions.~  These will be exposed using ES Modules and dynamic imports and the return of this function will be sent to the buyers `report_win()` function and so there may need to be some temporary storage mechanism similar to Cross-Domain storage where that value can be read from when being sent to the buyer.
 
 ### `report_win(...)`
 
@@ -76,5 +73,3 @@ All fields are required and provided to the function when called.
 #### Implementation
 
 The implementation details of this function are subject to however the buyer decides to process the inputs, at this time.  However, in the future, network calls will be prevented from being run within this context and should not be relied upon as they are subject to change.
-
-There is an [ongoing discussion](https://github.com/MagniteEngineering/fledge.polyfill/discussions/9) about how we might want to expose these functions.

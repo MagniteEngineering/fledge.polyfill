@@ -1,8 +1,13 @@
 # Bids [§](https://github.com/WICG/turtledove/blob/main/FLEDGE.md#3-buyers-provide-ads-and-bidding-functions-byos-for-now)
 
+Interest groups are used by their owners to bid in on-device auctions.  These buyers choose whether or not to participate in an auction, pick a specific ad, and enter it in the auction along with a bid price and whatever metadata the seller expects.
+
+When the auction is being run, all eligible interest group buyers will be allowed to bid with a request being sent to the buyers `bidding_logic_url`.  This is a URL string that is provided in the [`<InterestGroup>` options `Object`](#types) when adding a user to said interest group.  This URL should expose two functions that the seller will need to provide that handle the bidding at auction time (`generate_bid()`) as well as report the win (`report_win()`) to the appropriate APIs for accounting purposes.  As of right now, there is no information on how these functions need to be exposed, but one can suspect that it will be either an ES Module or windowed object/class that exposes the two functions.  These functions will be exposed using ES Modules and will be imported using dynamic imports.
+
+An example: `"dsp.com/nike/bid.js"`
+
 <!-- toc -->
 
-- [Introduction](#introduction)
 - [Methods](#methods)
   * [`generate_bid(...)`](#generate_bid)
     + [Option Types](#option-types)
@@ -12,14 +17,6 @@
     + [Implementation](#implementation)
 
 <!-- tocstop -->
-
-## Introduction
-
-Interest groups are used by their owners to bid in on-device auctions.  These buyers choose whether or not to participate in an auction, pick a specific ad, and enter it in the auction along with a bid price and whatever metadata the seller expects.
-
-When the auction is being run, all eligible interest group buyers will be allowed to bid with a request being sent to the buyers `bidding_logic_url`.  This is a URL string that is provided in the [`<InterestGroup>` options `Object`](#types) when adding a user to said interest group.  This URL should expose two functions that the seller will need to provide that handle the bidding at auction time (`generate_bid()`) as well as report the win (`report_win()`) to the appropriate APIs for accounting purposes.  As of right now, there is no information on how these functions need to be exposed, but one can suspect that it will be either an ES Module or windowed object/class that exposes the two functions.  There is an [ongoing discussion](https://github.com/MagniteEngineering/fledge.polyfill/discussions/9) about how we might want to expose these.
-
-An example: `"dsp.com/nike/bid.js"`
 
 ## Methods
 
