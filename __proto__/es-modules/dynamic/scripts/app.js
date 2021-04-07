@@ -1,6 +1,6 @@
 const name = "tag";
 const suffix = "js";
-const host = 'https://cdn.jsdelivr.net/gh/iamnewton/es-module-dynamics';
+const host = 'https://island-torpid-comic.glitch.me';
 const filename = `${host}/${name}.${suffix}`;
 
 import(filename).then(({ tag }) => {
