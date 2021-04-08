@@ -6,17 +6,6 @@ When the auction is being run, all eligible interest group buyers will be allowe
 
 An example: `"dsp.com/nike/bid.js"`
 
-<!-- toc -->
-
-- [`generate_bid(...)`](#generate_bid)
-  * [Option Types](#option-types)
-  * [Bidding Flow Diagram](#bidding-flow-diagram)
-  * [Validation](#validation)
-  * [Return](#return)
-  * [Implementation](#implementation)
-
-<!-- tocstop -->
-
 ## `generate_bid(...)`
 
 The bidding function that will be provided by the `bidding_logic_url` from the Interest Group owner that will generate a bid in order to run at auction time.
