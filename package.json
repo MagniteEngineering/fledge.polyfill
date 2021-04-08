@@ -1,0 +1,19 @@
+{
+  "name": "@magnite/fledge.polyfill",
+  "version": "0.0.0",
+  "description": "A Fledge JavaScript polyfill",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MagniteEngineering/fledge.polyfill.git"
+  },
+  "author": "Newton Koumantzelis <cnewton@magnite.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MagniteEngineering/fledge.polyfill/issues"
+  },
+  "homepage": "https://github.com/MagniteEngineering/fledge.polyfill#readme"
+}
