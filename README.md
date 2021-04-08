@@ -97,4 +97,4 @@ Looking to talk to someone or need some help? Please read our [support guideline
 
 ## License [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://opensource.org/licenses/MIT)
 
-©2021 MIT License. See [LICENSE](./LICENSE) for specifics.
+©2021 Magnite, Inc. See [LICENSE](./LICENSE) for specifics.
