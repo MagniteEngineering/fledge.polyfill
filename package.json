@@ -1,19 +1,50 @@
 {
   "name": "@magnite/fledge.polyfill",
-  "version": "0.0.0",
+  "homepage": "https://github.com/MagniteEngineering/fledge.polyfill#readme",
   "description": "A Fledge JavaScript polyfill",
+  "author": "Newton Koumantzelis",
+  "version": "0.0.0",
   "main": "index.js",
+  "repository": "https://github.com/MagniteEngineering/fledge.polyfill.git",
+  "bugs": "https://github.com/MagniteEngineering/fledge.polyfill/issues",
+  "releases": "https://github.com/MagniteEngineering/fledge.polyfill/releases",
+  "wiki": "https://github.com/MagniteEngineering/fledge.polyfill/wiki",
+  "license": "MIT",
+  "commitlint": {
+    "extends": [
+      "@theholocron"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "@theholocron"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "lint-staged --config @theholocron/lint-staged-config"
+    }
+  },
+  "jest": {
+    "preset": "@theholocron/jest-preset"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "release": {
+    "extends": "@theholocron/semantic-release-config",
+    "branch": "master"
+  },
   "scripts": {
+    "commit": "commit",
+    "lint": "eslint .",
+    "release": "semantic-release",
     "test": "jest"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/MagniteEngineering/fledge.polyfill.git"
-  },
-  "author": "Newton Koumantzelis <cnewton@magnite.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/MagniteEngineering/fledge.polyfill/issues"
-  },
-  "homepage": "https://github.com/MagniteEngineering/fledge.polyfill#readme"
+  "devDependencies": {
+    "@theholocron/commitlint-config": "^0.1.11",
+    "@theholocron/eslint-config": "^0.4.1",
+    "@theholocron/lint-staged-config": "^0.1.6",
+    "@theholocron/jest-preset": "^0.2.3",
+    "@theholocron/semantic-release-config": "^0.2.4"
+  }
 }
