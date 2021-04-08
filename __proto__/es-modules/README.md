@@ -11,14 +11,6 @@ As of this experiment, the earliest version of Chrome that would contain Fledge 
 ![Can I Use ES Module Support](https://caniuse.bitsofco.de/image/es6-module.jpg)<br />
 [source](https://caniuse.com/es6-module)
 
-![Import syntax support](./images/import-support.png)<br />
-_import_
+![Can I Use Dynamic Import Support](https://caniuse.bitsofco.de/image/es6-module-dynamic-import.jpg)<br />
+[source](https://caniuse.com/es6-module-dynamic-import)
 
-![Export syntax support](./images/export-support.png)<br />
-_export_
-
-## Running the Demo
-
-You will need to run a server within the current directory.  Using `npx serve` within the current working directory would suffice.  It will provide you a URL that you can paste into the browser. 
-
-From that URL, you should see that the `index.html` page is calling a script called `scripts/app.js`, which imports an ES module from another file (`scripts/tag.js`). 

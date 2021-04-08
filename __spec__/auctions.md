@@ -1,15 +1,38 @@
 # Auctions [§](https://github.com/WICG/turtledove/blob/main/FLEDGE.md#2-sellers-run-on-device-auctions)
 
-<!-- toc -->
-<!-- end:toc -->
-
-## Introduction
-
 An auction done entirely within a browser worklet with no network access, which allow sellers to decide the buyers, which bids from interest groups are eligible, the logic to determine the winning bid and reporting the outcome.
+
+<!-- toc -->
+
+- [How will they be stored?](#how-will-they-be-stored)
+  * [Model](#model)
+  * [Types](#types)
+  * [Assumptions](#assumptions)
+- [Methods](#methods)
+  * [`runAdAuction(config)`](#runadauctionconfig)
+    + [Auction Flow Diagram](#auction-flow-diagram)
+    + [Validation](#validation)
+    + [Return](#return)
+    + [Implementation](#implementation)
+- [`decision_logic_url`](#decision_logic_url)
+  * [`score_ad(ad_metadata, bid, auction_config, trusted_scoring_signals, browser_signals)`](#score_adad_metadata-bid-auction_config-trusted_scoring_signals-browser_signals)
+    + [Validation](#validation-1)
+    + [Return](#return-1)
+  * [`renderAd(bid)`](#renderadbid)
+  * [`generate_bid()`](#generate_bid)
+- [Internal Functions](#internal-functions)
+  * [`_getFromStorage(type)`](#_getfromstoragetype)
+  * [`_filterInterestGroupBuyers(auctionConfig)`](#_filterinterestgroupbuyersauctionconfig)
+  * [`_filterBidsByScore(bids)`](#_filterbidsbyscorebids)
+  * [`_sortBidsByScore(bids)`](#_sortbidsbyscorebids)
+  * [`_getWinningBid(bids)`](#_getwinningbidbids)
+- [Open Questions](#open-questions)
+
+<!-- tocstop -->
 
 ## How will they be stored?
 
-The same mechanism being created for storing Interest Groups will be used to process the auction, including the scoring of all ads/bids that are sent into the auction by buyers.  [See the current discussion on storage types](https://github.com/MagniteEngineering/fledge.polyfill/discussions/7).
+The same mechanism being created for storing Interest Groups will be used to process the auction, including the scoring of all ads/bids that are sent into the auction by buyers.
 
 ### Model
 
@@ -17,8 +40,6 @@ The following is the storage model and will be later referred in the document as
 
 ```json
 {
-  "seller": "<options.seller>",
-  "<`${window.top.location.origin}${window.top.location.pathname}`>": {
     "seller": "<options.seller>",
     "decision_logic_url": "<options.decision_logic_url>",
     "trusted_scoring_signals_url": "<options.trusted_scoring_signals_url>",
@@ -60,7 +81,7 @@ When a "user" lands on a "seller's" page, this API method will allow them to run
 
 #### Auction Flow Diagram
 
-![Auction flow diagram](./auction-flow.png)
+![Auction flow diagram](./images/auction-flow.png)
 
 #### Validation
 
@@ -86,7 +107,7 @@ Using the [flow diagram](#auction-flow-diagram) as a guide, the following intern
 
 ## `decision_logic_url`
 
-This is a URL string that is provided in the [`<AuctionConfig>` options `Object`](#types) when running an auction.  This URL should expose two functions that the seller will need to provide that handle the scoring of ads at auction time (`score_ad()`) as well as report the win (`report_result()`) to the appropriate APIs for accounting purposes.  As of right now, there is no information on how these functions need to be exposed, but one can suspect that it will be either an ES Module or windowed object/class that exposes the two functions.  There is an [ongoing discussion](https://github.com/MagniteEngineering/fledge.polyfill/discussions/9) about how we might want to expose these.
+This is a URL string that is provided in the [`<AuctionConfig>` options `Object`](#types) when running an auction.  This URL should expose two functions that the seller will need to provide that handle the scoring of ads at auction time (`score_ad()`) as well as report the win (`report_result()`) to the appropriate APIs for accounting purposes.  As of right now, there is no information on how these functions need to be exposed, but one can suspect that it will be either an ES Module or windowed object/class that exposes the two functions.  These functions will be exposed using ES Modules and will be imported using dynamic imports.
 
 An example: `"ssp.com/espn/auction.js"`
 

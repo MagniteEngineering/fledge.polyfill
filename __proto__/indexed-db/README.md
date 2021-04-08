@@ -14,12 +14,3 @@ As of this experiment, the earliest version of Chrome that would contain Fledge 
 	<img src="https://caniuse.bitsofco.de/image/indexeddb.jpg" alt="Data on support for the indexeddb feature across the major browsers from caniuse.com">
 </picture><br />
 [source](https://caniuse.com/indexeddb)
-
-
-## Running the Demo
-
-### The Basics
-
-This demo is hosted in the `basic/` directory and showcases the level of browser support.  Through this demo you should see that each refresh of the page will add a new item into the `dB` with an incremental ID.
-
-To run the demo, insure you have the dependencies required by running `npm install` in the immediate parent directory (`indexed-db`).  Then `cd` into the `basic` directory and run `npx serve`.

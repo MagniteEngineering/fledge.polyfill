@@ -1,11 +1,39 @@
 # Interest Groups [§](https://github.com/WICG/turtledove/blob/main/FLEDGE.md#1-browsers-record-interest-groups)
 
-<!-- toc -->
-<!-- end:toc -->
-
-## Introduction
-
 An interest group is a way to group users/browser sessions with shared properties for which ads can target allowing the owner of this group to act as the buyer in an auction.
+
+<!-- toc -->
+
+- [How will they be stored?](#how-will-they-be-stored)
+  * [Model](#model)
+  * [Types](#types)
+    + [InterestGroup](#interestgroup)
+    + [UnixTime](#unixtime)
+    + [Assumptions](#assumptions)
+- [Methods](#methods)
+  * [`joinAdInterestGroup(options, expiry)`](#joinadinterestgroupoptions-expiry)
+    + [Join Flow Diagram](#join-flow-diagram)
+    + [Validation](#validation)
+      - [If no `InterestGroup` exists, then](#if-no-interestgroup-exists-then)
+      - [If an `InterestGroup` already exists, then](#if-an-interestgroup-already-exists-then)
+    + [return](#return)
+    + [Implementation](#implementation)
+  * [`leaveAdInterestGroup(group)`](#leaveadinterestgroupgroup)
+    + [Leave Flow Diagram](#leave-flow-diagram)
+    + [Validation](#validation-1)
+      - [If an `Object` is passed](#if-an-object-is-passed)
+      - [If an empty `Object` is passed](#if-an-empty-object-is-passed)
+    + [return](#return-1)
+    + [Implementation](#implementation-1)
+- [`bidding_logic_url`](#bidding_logic_url)
+- [Internal Functions](#internal-functions)
+  * [`_getInterestGroup(owner, name)`](#_getinterestgroupowner-name)
+  * [`_createInterestGroup(options, expiry)`](#_createinterestgroupoptions-expiry)
+  * [`_updateInterestGroup(options, expiry)`](#_updateinterestgroupoptions-expiry)
+  * [`_deleteInterestGroup(owner)`](#_deleteinterestgroupowner)
+- [Open Questions](#open-questions)
+
+<!-- tocstop -->
 
 ## How will they be stored?
 
@@ -15,15 +43,14 @@ In order to recall an interest group data in the auction, a storage mechanism is
 
 After more discussion, we've determined to go back to using the top-level key of `owner` since the only way to retrieve an interest group is through the `interest_group_buyers` key in the auction configuration object and we won't know the interest group name.  This also allows for the auction to run the `*` (wild card) mechanism in order to allow all interest groups to bid.
 
-The internal data model will be stored within the browser using an undetermined system of storage (e.g. `localStorage`, `sessionStorage`, `indexedDB`, something else) in the format of JSON.  Regardless of the technology choice, all choices will require some form of [Cross-Domain Sharing](https://github.com/aviboy2006/cross-domain-cookie-sharing) to exploit the same-origin policy restrictions that the browser enforces. There is a [discussion around this topic](https://github.com/MagniteEngineering/fledge.polyfill/discussions/7).
+The internal data model will be stored within the browser using an undetermined `IndexedDB`, and it will require some form of [Cross-Domain Sharing](https://github.com/aviboy2006/cross-domain-cookie-sharing) to exploit the same-origin policy restrictions that the browser enforces.
 
 ### Model
 
 The following is the storage model and will be later referred in the document as `InterestGroup` when referring to its data structure:
 
 ```json
-"<options.owner>": {
-  "<options.name>": {
+"<options.owner>":<options.name>": {
     "_created": "<Date.now()>",
     "_updated": "<unix_timestamp_in_ms_from_daily_update_url_call>",
     "_expires": "<this._created + (expiry * 86400000)>",
@@ -35,7 +62,6 @@ The following is the storage model and will be later referred in the document as
     "trusted_bidding_signals_keys": "<options.tbs_keys>",
     "user_bidding_signals": "<options.user_bidding_signals>",
     "ads": "<options.ads>"
-  }
 }
 ```
 
@@ -77,7 +103,7 @@ When a "user" lands on a "buyer's" page, this API method will allow them to crea
 
 #### Join Flow Diagram
 
-![Interest Group join flow diagram](./interest-group-join-flow.png)
+![Interest Group join flow diagram](./images/interest-group-join-flow.png)
 
 #### Validation
 
@@ -120,7 +146,7 @@ The complementary API to leave an interest group. This can be called from within
 
 #### Leave Flow Diagram
 
-![Interest Group leave flow diagram](./interest-group-leave-flow.png)
+![Interest Group leave flow diagram](./images/interest-group-leave-flow.png)
 
 #### Validation
 
