@@ -8,23 +8,20 @@ An example: `"dsp.com/nike/bid.js"`
 
 <!-- toc -->
 
-- [Methods](#methods)
-  * [`generate_bid(...)`](#generate_bid)
-    + [Option Types](#option-types)
-    + [Bidding Flow Diagram](#bidding-flow-diagram)
-    + [Validation](#validation)
-    + [Return](#return)
-    + [Implementation](#implementation)
+- [`generate_bid(...)`](#generate_bid)
+  * [Option Types](#option-types)
+  * [Bidding Flow Diagram](#bidding-flow-diagram)
+  * [Validation](#validation)
+  * [Return](#return)
+  * [Implementation](#implementation)
 
 <!-- tocstop -->
 
-## Methods
-
-### `generate_bid(...)`
+## `generate_bid(...)`
 
 The bidding function that will be provided by the `bidding_logic_url` from the Interest Group owner that will generate a bid in order to run at auction time.
 
-#### Option Types
+### Option Types
 
 * **`interest_group<InterestGroup>`**: comes from the interest group `Object` that was saved during the process to join an interest group
 * **`auction_signals<AuctionConfig.auction_signals>`**: comes from the auction; specifically the `auction_signals` key from the `AuctionConfig`
@@ -32,18 +29,18 @@ The bidding function that will be provided by the `bidding_logic_url` from the I
 * **`trusted_bidding_signals<Object>`**: this is provided by the `InterestGroup` configuration where by the URL and keys are combined to return an `Object` of data
 * **`browser_signals<Object>`**: this is provided by the browser, but in this case, it will be arbitrary information we provide, explaining to consumers not to rely too heavily on the information provided
 
-#### Bidding Flow Diagram
+### Bidding Flow Diagram
 
 ![Bidding flow diagram](./images/bidding-flow.png)
 
-#### Validation
+### Validation
 
 All fields are required and provided to the function when called.
 
 * If one of the fields is missing, return with an `Error` stating a generic message such as "missing fields"
 * If, at some time we do handle permissions, then in the event there is missing permissions, the return should be an `Error` describing the reason.
 
-#### Return
+### Return
 
 * If successful, return a `<Object>`. with the signature provided below.
 * If failure, return `Error(<reason>)`
@@ -54,7 +51,7 @@ An `Object` with the following keys:
 * **`bid<Number>`**: a number meant to be in a seller-chosen unit
 * **`render<String>`**: a URL that will be passed along to an iframe, if the bid wins; this could be an array of strings for when multiple ad slots are supported
 
-#### Implementation
+### Implementation
 
 Using the [flow diagram](#auction-flow-diagram) as a guide, the following internal functions will be created in order to support joining an interest group:
 
