@@ -1,0 +1,18 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: "daily"
+  open-pull-requests-limit: 10
+  reviewers:
+    - "iamnewton"
+    - "brodrigu"
+  labels:
+    - "dependencies"
+  pull-request-branch-name:
+    separator: "-" 
+  commit-message:
+    prefix: "fix"
+    prefix-development: "chore"
+    include: "scope"
