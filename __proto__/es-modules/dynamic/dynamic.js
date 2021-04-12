@@ -1,5 +1,5 @@
-const name = "tag";
-const suffix = "js";
+const name = 'tag';
+const suffix = 'js';
 const host = 'https://island-torpid-comic.glitch.me';
 const filename = `${host}/${name}.${suffix}`;
 
