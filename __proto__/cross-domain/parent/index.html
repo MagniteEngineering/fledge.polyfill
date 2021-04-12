@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Parent - Cross-Domain iframe Storage Prototype</title>
+		<style>
+			iframe { display: none; }
+		</style>
+	</head>
+	<body>
+		<iframe id="interest-groups" src="https://iamnewton.github.io/cdn/iframe.test.html"></iframe>
+
+		<script>
+			const iframe = document.getElementById("interest-groups");
+			iframe.onload = function () {
+				iframe.contentWindow.postMessage(
+					"foo",
+					"https://iamnewton.github.io" // has to be there in order to send data; messages get posted sporadically but with no data if this is not present
+				);
+			};
+		</script>
+	</body>
+</html>

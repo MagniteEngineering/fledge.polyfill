@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>iFrame - Cross-Domain iframe Storage Prototype</title>
+		<style>
+			iframe { display: none; }
+		</style>
+	</head>
+	<body>
+		<script type="module">
+			import { joinAdInterestGroup } from './db.js';
+
+			/**
+			* Receiving message from other domain
+			*/
+			window.addEventListener(
+				"message",
+				function(event) {
+					console.log(event);
+					if (event.origin !== "https://languid-radical-oyster.glitch.me") {
+						console.log(event.origin);
+					}
+					// localStorage.setItem("test", event.data);
+					const ig = {
+						owner: 'www.magnite.com',
+						name: 'womens-running-shoes',
+						update: true,
+					};
+					joinAdInterestGroup(ig, (30 * 86400000));
+					/*event.source.postMessage("hi there yourself!  the secret response " + "is: rheeeeet!", event.origin);*/
+				},
+				false
+			);
+		</script>
+	</body>
+</html>
