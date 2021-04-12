@@ -38,7 +38,7 @@
     "commit": "commit",
     "lint": "eslint .",
     "release": "semantic-release",
-    "test": "jest"
+    "test": "jest --passWithNoTests"
   },
   "devDependencies": {
     "@theholocron/commitlint-config": "^0.1.11",
