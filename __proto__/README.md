@@ -6,17 +6,29 @@ The two biggest categories of prototypes revolve around [ES Modules](https://dev
 
 <!-- toc -->
 
+- [Cross-Domain](#cross-domain)
+  * [Running the Demo](#running-the-demo)
 - [ES Modules](#es-modules)
   * [Basic](#basic)
-  * [Running the Demo](#running-the-demo)
-  * [Dynamic](#dynamic)
   * [Running the Demo](#running-the-demo-1)
-  * [Auction](#auction)
+  * [Dynamic](#dynamic)
   * [Running the Demo](#running-the-demo-2)
-- [Indexed dB](#indexed-db)
+  * [Auction](#auction)
   * [Running the Demo](#running-the-demo-3)
+- [Indexed dB](#indexed-db)
+  * [Running the Demo](#running-the-demo-4)
 
 <!-- tocstop -->
+
+## Cross-Domain
+
+This demo was setup to answer the question of the possibility for posting data to `IndexedDB` through an iframe hosted on a separate domain.
+
+### Running the Demo
+
+You will need to run a server and host both HTML files within the each of the subsequent directories.  Using `npx serve __proto__/cross-domain` within the current working directory would suffice.  It will provide you a URL that you can paste into the browser. But you'll need to find a way to host it with a different domain to truly test the cross-domain message posting.  Hosting one file using a service like <https://glitch.com> or <https://github.com> are both viable options.
+
+From that URL, you should see that the `index.html` page is calling a script and in order to confirm that groups were stored, check in the DevTools "Application" tab under the "IndexedDB" tab.
 
 ## ES Modules
 

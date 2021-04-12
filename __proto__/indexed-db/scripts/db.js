@@ -1,15 +1,17 @@
-import { openDB } from '../node_modules/idb/with-async-ittr.js';
+import { openDB } from 'https://cdn.jsdelivr.net/npm/idb@6.0.0/with-async-ittr.js';
 
+/*
 const hoursPerDay = 24;
 const minsPerHour = 60;
 const secsPerMinute = 60;
 const msPerSeconds = 1000;
 const msPerDay = hoursPerDay * minsPerHour * secsPerMinute * msPerSeconds;
 const expiry = 30 * msPerDay;
+*/
 
-export async function joinAdInterestGroup(options, expiry) {
+export async function joinAdInterestGroup (options, expiry) {
 	const db = await openDB('Interest Groups', 1, {
-		upgrade(db) {
+		upgrade (db) {
 			// Create a store of objects
 			const store = db.createObjectStore('interest-groups', {
 				// The '_key' property of the object will be the key.
@@ -37,11 +39,11 @@ export async function joinAdInterestGroup(options, expiry) {
 	}
 
 	if (ig && options.update) {
-		ig.name = "an-updated-value";
-		await db.put("interest-groups", ig);
+		ig.name = 'an-updated-value';
+		await db.put('interest-groups', ig);
 	}
 
 	if (ig && options.delete) {
-		await db.delete("interest-groups", ig._key);
+		await db.delete('interest-groups', ig._key);
 	}
 }
