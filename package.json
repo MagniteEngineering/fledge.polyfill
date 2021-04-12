@@ -36,6 +36,7 @@
   },
   "scripts": {
     "commit": "commit",
+    "dist": "echo 'No dist task specified' && exit 1",
     "lint": "eslint .",
     "release": "semantic-release",
     "test": "jest --passWithNoTests"
