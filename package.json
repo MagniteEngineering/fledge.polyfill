@@ -5,6 +5,7 @@
   "author": "Newton Koumantzelis",
   "version": "0.0.0",
   "main": "index.js",
+  "type": "module",
   "repository": "https://github.com/MagniteEngineering/fledge.polyfill.git",
   "bugs": "https://github.com/MagniteEngineering/fledge.polyfill/issues",
   "releases": "https://github.com/MagniteEngineering/fledge.polyfill/releases",
@@ -25,7 +26,9 @@
     }
   },
   "jest": {
-    "preset": "@theholocron/jest-preset"
+    "preset": "@theholocron/jest-preset",
+    "testEnvironment": "jest-environment-node",
+    "transform": {}
   },
   "publishConfig": {
     "access": "public"
@@ -39,13 +42,14 @@
     "dist": "echo 'No dist task specified' && exit 1",
     "lint": "eslint .",
     "release": "semantic-release",
-    "test": "jest --passWithNoTests"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests"
   },
   "devDependencies": {
     "@theholocron/commitlint-config": "^0.1.11",
     "@theholocron/eslint-config": "^0.4.1",
-    "@theholocron/lint-staged-config": "^0.1.6",
     "@theholocron/jest-preset": "^0.2.3",
-    "@theholocron/semantic-release-config": "^0.2.4"
+    "@theholocron/lint-staged-config": "^0.1.6",
+    "@theholocron/semantic-release-config": "^0.2.4",
+    "jest-environment-node": "^26.6.2"
   }
 }
