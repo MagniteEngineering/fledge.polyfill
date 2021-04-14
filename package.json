@@ -45,7 +45,8 @@
     "dist": "echo 'No dist task specified' && exit 1",
     "lint": "eslint .",
     "release": "semantic-release",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests",
+    "integration-test": "node integration/webserver.js & export APP_PID=$! && jest --config integration/jest-integration-test.config.js && kill -9 $APP_PID"
   },
   "devDependencies": {
     "@theholocron/commitlint-config": "^0.1.11",
@@ -53,6 +54,9 @@
     "@theholocron/jest-preset": "^0.2.3",
     "@theholocron/lint-staged-config": "^0.1.6",
     "@theholocron/semantic-release-config": "^0.2.4",
-    "jest-environment-node": "^26.6.2"
+    "express": "^4.17.1",
+    "jest-environment-node": "^26.6.2",
+    "jest-puppeteer": "^4.4.0",
+    "puppeteer": "^8.0.0"
   }
 }
