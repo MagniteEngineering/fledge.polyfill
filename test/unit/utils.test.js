@@ -1,11 +1,11 @@
-import types from '../src/interest-groups/types';
+import types from '../../src/interest-groups/types';
 import {
 	hasInvalidOptionTypes,
 	isMissingRequiredOptions,
 	printInvalidOptionTypes,
 	validateParam,
 	validateType,
-} from '../src/utils/';
+} from '../../src/utils/';
 import { mockAllOptions } from './mocks';
 
 describe('Utilities', () => {

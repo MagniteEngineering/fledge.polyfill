@@ -1,4 +1,4 @@
-import { default as fledge } from '../src/';
+import fledge from '../../src/';
 import {
 	mockAllOptions,
 	mockExpiry,

@@ -32,9 +32,9 @@
     "preset": "@theholocron/jest-preset",
     "testEnvironment": "jest-environment-node",
     "testPathIgnorePatterns": [
-      "<rootDir>/test/mocks.js",
       "<rootDir>/node_modules/",
-      "<rootDir>/integration/"
+      "<rootDir>/test/unit/mocks.js",
+      "<rootDir>/test/unit/coverage/"
     ],
     "transform": {}
   },
@@ -50,9 +50,9 @@
     "dist": "echo 'No dist task specified' && exit 1",
     "lint": "eslint .",
     "release": "semantic-release",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests",
-    "integration-test": "node integration/webserver.js & export APP_PID=$! && jest --config integration/jest-integration-test.config.js; kill -9 $APP_PID",
-    "webserver": "node integration/webserver.js"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js test/unit --passWithNoTests",
+    "integration-test": "node test/integration/webserver.js & export APP_PID=$! && jest --config test/integration/jest-integration-test.config.js; kill -9 $APP_PID",
+    "webserver": "node test/integration/webserver.js"
   },
   "devDependencies": {
     "@theholocron/commitlint-config": "^0.1.11",
