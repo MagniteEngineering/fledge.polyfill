@@ -33,7 +33,8 @@
     "testEnvironment": "jest-environment-node",
     "testPathIgnorePatterns": [
       "<rootDir>/test/mocks.js",
-      "<rootDir>/node_modules/"
+      "<rootDir>/node_modules/",
+      "<rootDir>/integration/"
     ],
     "transform": {}
   },
