@@ -1,4 +1,4 @@
-module.exports = {
-    verbose: true,
-    preset: 'jest-puppeteer',
+export default {
+	verbose: true,
+	preset: 'jest-puppeteer',
 };
