@@ -131,7 +131,7 @@ describe('Interest Groups', () => {
 
 		describe('Return', () => {
 			it('should return true when all valid options are provided', () => {
-				expect(joinAdInterestGroup(mockAllOptions, mockExpiry)).toThrow();
+				expect(joinAdInterestGroup(mockAllOptions, mockExpiry)).toBe(true);
 			});
 		});
 	});
