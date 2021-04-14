@@ -45,7 +45,7 @@
     "dist": "echo 'No dist task specified' && exit 1",
     "lint": "eslint .",
     "release": "semantic-release",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js src --passWithNoTests"
   },
   "devDependencies": {
     "@theholocron/commitlint-config": "^0.1.11",
