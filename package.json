@@ -46,7 +46,8 @@
     "lint": "eslint .",
     "release": "semantic-release",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests",
-    "integration-test": "node integration/webserver.js & export APP_PID=$! && jest --config integration/jest-integration-test.config.js; kill -9 $APP_PID"
+    "integration-test": "node integration/webserver.js & export APP_PID=$! && jest --config integration/jest-integration-test.config.js; kill -9 $APP_PID",
+    "webserver": "node integration/webserver.js"
   },
   "devDependencies": {
     "@theholocron/commitlint-config": "^0.1.11",
