@@ -1,12 +1,12 @@
-import { mockAllOptions } from '../interest-groups/mock';
-import types from '../interest-groups/types';
+import types from '../src/interest-groups/types';
 import {
 	hasInvalidOptionTypes,
 	isMissingRequiredOptions,
 	printInvalidOptionTypes,
 	validateParam,
 	validateType,
-} from './';
+} from '../src/utils/';
+import { mockAllOptions } from './mock';
 
 describe('Utilities', () => {
 	describe('hasInvalidOptionTypes', () => {
