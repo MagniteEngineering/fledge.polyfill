@@ -1,12 +1,14 @@
-// hours per day: 24;
-// minutes per hour: 60;
-// seconds per minute :60;
-// milliseconds per second: 1000;
-export const MS_PER_DAY = 86400000;
+/*
+ * @const {number}
+ * @summary Maximum expiration allowed for an Interest Group to exist
+ * @description Milliseconds occuring per day multiplied by the maximum number of days (maximum dayus (30) * hours per day (24) * minutes per hour (60) * seconds per minute (60) * milliseconds per second (1000))
+ */
+export const MAX_EXPIRATION = 2592000000;
 
-export const MAX_DAYS = 30;
-export const MAX_EXPIRATION = MAX_DAYS * MS_PER_DAY;
-
+/*
+ * @const {array}
+ * @description The required options provided to join an interest group
+ */
 export const REQUIRED_OPTS = [
 	'owner',
 	'name',
