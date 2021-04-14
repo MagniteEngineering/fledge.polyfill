@@ -3,11 +3,14 @@ import {
 	isMissingRequiredOptions,
 	validateParam,
 } from '../utils/index.js';
-import {
-	MAX_EXPIRATION,
-	REQUIRED_OPTS,
-} from './constants.js';
 import types from './types.js';
+
+/*
+ * @const {number}
+ * @summary Maximum expiration allowed for an Interest Group to exist
+ * @description Milliseconds occuring per day multiplied by the maximum number of days (maximum dayus (30) * hours per day (24) * minutes per hour (60) * seconds per minute (60) * milliseconds per second (1000))
+ */
+const MAX_EXPIRATION = 2592000000;
 
 /*
  * @function
@@ -25,7 +28,7 @@ import types from './types.js';
 export default function joinAdInterestGroup (options, expiry) {
 	validateParam(options, 'object');
 	validateParam(expiry, 'number');
-	isMissingRequiredOptions(options, REQUIRED_OPTS);
+	isMissingRequiredOptions(options, [ 'owner', 'name', 'bidding_logic_url' ]);
 	hasInvalidOptionTypes(options, types);
 
 	if (expiry > MAX_EXPIRATION) {
