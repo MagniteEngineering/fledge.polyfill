@@ -31,6 +31,10 @@
   "jest": {
     "preset": "@theholocron/jest-preset",
     "testEnvironment": "jest-environment-node",
+    "testPathIgnorePatterns": [
+      "<rootDir>/test/mocks.js",
+      "<rootDir>/node_modules/"
+    ],
     "transform": {}
   },
   "publishConfig": {

@@ -2,7 +2,7 @@ import { default as fledge } from '../src/';
 import {
 	mockAllOptions,
 	mockOptionals,
-} from './mock';
+} from './mocks';
 
 describe('Interest Groups', () => {
 	describe('leaveAdInterestGroup', () => {
