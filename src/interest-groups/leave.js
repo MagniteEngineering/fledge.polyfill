@@ -2,8 +2,8 @@ import {
 	hasInvalidOptionTypes,
 	isMissingRequiredOptions,
 	validateParam,
-} from '../utils/';
-import types from './types';
+} from '../utils/index.js';
+import types from './types.js';
 
 export default function leaveAdInterestGroup (group) {
 	validateParam(group, 'object');

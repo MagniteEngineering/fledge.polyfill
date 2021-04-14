@@ -2,12 +2,12 @@ import {
 	hasInvalidOptionTypes,
 	isMissingRequiredOptions,
 	validateParam,
-} from '../utils/';
+} from '../utils/index.js';
 import {
 	MAX_EXPIRATION,
 	REQUIRED_OPTS,
-} from './constants';
-import types from './types';
+} from './constants.js';
+import types from './types.js';
 
 export default function joinAdInterestGroup (options, expiry) {
 	validateParam(options, 'object');
