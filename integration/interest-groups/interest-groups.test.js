@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 describe('Initial test', () => {
 	beforeAll(async () => {
-		await page.goto('http://localhost:3000/integration/www/interest-groups.test.html');
+		await page.goto('http://localhost:3000/integration/interest-groups/interest-groups.test.html');
 	});
 
 	it('should be titled "interest-groups.test"', async () => {
