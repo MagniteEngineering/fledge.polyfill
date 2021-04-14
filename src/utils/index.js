@@ -2,7 +2,7 @@
 
 export const validateTypes = {
 	array: arr => arr !== 'undefined' && Array.isArray(arr),
-	number: num => num !== 'undefined' && typeof str === 'number',
+	number: num => num !== 'undefined' && typeof num === 'number',
 	object: obj => obj !== 'undefined' && typeof obj === 'object' && obj !== null,
 	string: str => str !== 'undefined' && typeof str === 'string',
 	url: url => {
@@ -15,11 +15,10 @@ export const validateTypes = {
 };
 
 export const validateParam = (param, type) => {
-	if (validateTypes[type](param)) {
+	const valid = validateTypes[type](param);
+	if (!valid) {
 		throw new Error(`Must be of type "${type}"! ${typeof param} was provided.`);
 	}
-
-	return false;
 };
 
 export const printInvalidOptionTypes = (options, types) => types.forEach(item => `'${item}' requires a type of "${types[item]}"! A type of ${typeof options[item]} was provided instead.`);

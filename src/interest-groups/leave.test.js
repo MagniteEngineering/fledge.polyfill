@@ -1,6 +1,7 @@
 import leaveAdInterestGroup from './leave';
 import {
 	mockAllOptions,
+	mockOptionals,
 } from './mock';
 
 describe('Interest Groups', () => {
@@ -14,19 +15,7 @@ describe('Interest Groups', () => {
 				describe('required option parameters', () => {
 					it('should throw an Error when no required options are provided', () => {
 						expect(() => leaveAdInterestGroup({})).toThrow();
-						expect(() => leaveAdInterestGroup(mockAllOptions)).toThrow();
-					});
-
-					it("should throw an Error when no 'owner' is provided", () => {
-						const mockOptionsOwner = mockAllOptions;
-						delete mockOptionsOwner.owner;
-						expect(() => leaveAdInterestGroup(mockOptionsOwner)).toThrow();
-					});
-
-					it("should throw an Error when no 'name' is provided", () => {
-						const mockOptionsName = mockAllOptions;
-						delete mockOptionsName.name;
-						expect(() => leaveAdInterestGroup(mockOptionsName)).toThrow();
+						expect(() => leaveAdInterestGroup(mockOptionals)).toThrow();
 					});
 				});
 
