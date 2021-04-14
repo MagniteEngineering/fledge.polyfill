@@ -10,25 +10,25 @@ describe('Interest Groups', () => {
 	describe('joinAdInterestGroup', () => {
 		describe('Errors', () => {
 			describe('function parameters', () => {
-				it('throw an Error when no parameters are provided', () => {
+				it('should throw an Error when no parameters are provided', () => {
 					expect(() => joinAdInterestGroup()).toThrow();
 				});
 
-				it('throw an Error when no required options are provided', () => {
+				it('should throw an Error when no required options are provided', () => {
 					expect(() => joinAdInterestGroup({}, mockExpiry)).toThrow();
 					expect(() => joinAdInterestGroup(mockOptionals, mockExpiry)).toThrow();
 				});
 
 				describe('expiry parameter', () => {
-					it('throw an Error when no expiry is provided', () => {
+					it('should throw an Error when no expiry is provided', () => {
 						expect(() => joinAdInterestGroup(mockAllOptions)).toThrow();
 					});
 
-					it('throw an Error when expiry is not a valid Number', () => {
+					it('should throw an Error when expiry is not a valid Number', () => {
 						expect(() => joinAdInterestGroup(mockAllOptions, 'mock')).toThrow();
 					});
 
-					it('throw an Error when expiry is set beyond the maximum time allowed', () => {
+					it('should throw an Error when expiry is set beyond the maximum time allowed', () => {
 						expect(() => joinAdInterestGroup(mockAllOptions, 2 * mockMaxExpiry)).toThrow();
 					});
 				});
