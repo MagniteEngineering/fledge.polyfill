@@ -50,8 +50,9 @@
     "dist": "echo 'No dist task specified' && exit 1",
     "lint": "eslint .",
     "release": "semantic-release",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js test/unit --passWithNoTests",
-    "integration-test": "node test/integration/webserver.js & export APP_PID=$! && jest --config test/integration/jest-integration-test.config.js; kill -9 $APP_PID",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js test/unit --passWithNoTests",
+    "test:integration": "node test/integration/webserver.js & export APP_PID=$! && jest --config test/integration/jest-integration-test.config.js; kill -9 $APP_PID",
     "webserver": "node test/integration/webserver.js"
   },
   "devDependencies": {
