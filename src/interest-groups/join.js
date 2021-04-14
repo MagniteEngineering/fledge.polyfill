@@ -16,7 +16,7 @@ export default function joinAdInterestGroup (options, expiry) {
 	hasInvalidOptionTypes(options, types);
 
 	if (expiry > MAX_EXPIRATION) {
-		throw new Error(`'expiry' is set past the allowed maximum value. You must provide an expiration that is less than or equal to ${MAX_EXPIRATION} (or 30 days in milliseconds per day).`);
+		throw new Error(`'expiry' is set past the allowed maximum value. You must provide an expiration that is less than or equal to ${MAX_EXPIRATION}.`);
 	}
 
 	return true;
