@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+
 describe('Initial test', () => {
 	beforeAll(async () => {
 		await page.goto('http://localhost:3000/test/integration/interest-groups/interest-groups.test.html');

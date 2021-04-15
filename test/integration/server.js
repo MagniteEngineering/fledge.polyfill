@@ -12,7 +12,6 @@ app.set('port', 3000);
 // for our static assets
 app.use(express.static(path.join(__dirname, '../../')));
 
-// Listen for requests
 app.listen(app.get('port'), () => {
 	// eslint-disable-next-line no-console
 	console.log(`The server is running on http://localhost:${app.get('port')}`);
