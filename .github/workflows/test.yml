@@ -64,7 +64,7 @@ jobs:
 
   integration:
     needs: lint
-    name: Unit test on node ${{ matrix.node }} and ${{ matrix.os }}
+    name: Integration test on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -80,7 +80,7 @@ jobs:
       - name: setup node
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 12
       - name: Install dependencies
         env:
           CI: true
