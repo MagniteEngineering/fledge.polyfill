@@ -52,7 +52,7 @@
     "release": "semantic-release",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js test/unit --passWithNoTests",
-    "test:integration": "node test/integration/server.js & export APP_PID=$! && jest --config test/integration/jest.config.js; kill -9 $APP_PID",
+    "test:integration": "npm run serve & export APP_PID=$! && jest --config test/integration/jest.config.js; kill -9 $APP_PID",
     "serve": "node test/integration/server.js"
   },
   "devDependencies": {
