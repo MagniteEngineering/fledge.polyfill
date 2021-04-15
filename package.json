@@ -52,7 +52,8 @@
     "release": "semantic-release",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js test/unit --passWithNoTests",
-    "test:integration": "export JEST_PUPPETEER_CONFIG=jest-puppeteer.config.cjs && jest --config test/integration/jest.config.js",
+    "test:integration": "export JEST_PUPPETEER_CONFIG=jest-puppeteer.config.cjs && npm run test:integration:ci",
+    "test:integration:ci": "jest --config test/integration/jest.config.js",
     "serve": "node test/integration/server.js"
   },
   "devDependencies": {
