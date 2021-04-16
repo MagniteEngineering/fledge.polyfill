@@ -12,6 +12,13 @@
   "wiki": "https://github.com/MagniteEngineering/fledge.polyfill/wiki",
   "license": "MIT",
   "babel": {
+    "env": {
+      "test": {
+        "plugins": [
+          "@babel/plugin-transform-runtime"
+        ]
+      }
+    },
     "presets": [
       "@theholocron"
     ]
@@ -58,6 +65,7 @@
     "test": "jest test/unit --passWithNoTests"
   },
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.13.15",
     "@theholocron/babel-preset": "^0.3.10",
     "@theholocron/commitlint-config": "^0.1.11",
     "@theholocron/eslint-config": "^0.4.1",
