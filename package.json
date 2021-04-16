@@ -58,5 +58,8 @@
     "@theholocron/lint-staged-config": "^0.1.6",
     "@theholocron/semantic-release-config": "^0.2.4",
     "jest-environment-node": "^26.6.2"
+  },
+  "dependencies": {
+    "idb": "^6.0.0"
   }
 }

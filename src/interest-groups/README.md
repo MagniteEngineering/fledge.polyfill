@@ -57,7 +57,7 @@ Type: [`<Number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refer
 
 A number of days (set in milliseconds) that the Interest Group will remain active, with a maximum of 30 days (or 2592000000).
 
-### leaveAdInterestGroup(options)
+### leaveAdInterestGroup(group)
 
 Returns `true` and removes an entry in a cross-domain Indexed dB store.
 
