@@ -36,7 +36,6 @@ jobs:
         run: npm run lint
 
   unit:
-    needs: lint
     name: Unit test on node ${{ matrix.node }} and ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -63,7 +62,6 @@ jobs:
         run: npm run test:unit
 
   integration:
-    needs: lint
     name: Integration test on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
