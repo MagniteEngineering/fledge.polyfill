@@ -36,13 +36,13 @@ export default async function joinAdInterestGroup (options, expiry) {
 		throw new Error(`'expiry' is set past the allowed maximum value. You must provide an expiration that is less than or equal to ${MAX_EXPIRATION}.`);
 	}
 
-	console.info('checking for an existing interest group');
+	// console.info('checking for an existing interest group');
 	const group = await db.read(options.owner, options.name);
 	if (group) {
-		console.info('updating a new interest group');
+		// console.info('updating a new interest group');
 		await db.update(group, options, expiry);
 	} else {
-		console.info('creating a new interest group');
+		// console.info('creating a new interest group');
 		await db.create(options, expiry);
 	}
 

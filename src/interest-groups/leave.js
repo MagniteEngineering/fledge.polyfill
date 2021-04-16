@@ -23,7 +23,7 @@ export default async function leaveAdInterestGroup (group) {
 	isMissingRequiredOptions(group, [ 'owner', 'name' ]);
 	hasInvalidOptionTypes(group, types);
 
-	console.info('deleting an existing interest group');
+	// console.info('deleting an existing interest group');
 	await db.delete(group);
 
 	return true;
