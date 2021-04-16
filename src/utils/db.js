@@ -1,4 +1,4 @@
-import { openDB } from '../../node_modules/idb/build/esm/index.js';
+import { openDB } from 'idb';
 
 /*
  * @const {number}
