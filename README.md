@@ -24,7 +24,7 @@ npm install --save @magnite/fledge.polyfill
 
 ### Directly in a browser
 
-```
+```html
 <script type="module">
     import { fledge } from "./node_modules/@magnite/fledge.polyfill/esm/index.js";
 
