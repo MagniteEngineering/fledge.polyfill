@@ -4,13 +4,25 @@
   "description": "A Fledge JavaScript polyfill",
   "author": "Newton Koumantzelis",
   "version": "0.0.0",
-  "main": "index.js",
-  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
   "repository": "https://github.com/MagniteEngineering/fledge.polyfill.git",
   "bugs": "https://github.com/MagniteEngineering/fledge.polyfill/issues",
   "releases": "https://github.com/MagniteEngineering/fledge.polyfill/releases",
   "wiki": "https://github.com/MagniteEngineering/fledge.polyfill/wiki",
   "license": "MIT",
+  "babel": {
+    "env": {
+      "test": {
+        "plugins": [
+          "@babel/plugin-transform-runtime"
+        ]
+      }
+    },
+    "presets": [
+      "@theholocron"
+    ]
+  },
   "commitlint": {
     "extends": [
       "@theholocron"
@@ -30,12 +42,13 @@
   },
   "jest": {
     "preset": "@theholocron/jest-preset",
-    "testEnvironment": "jest-environment-node",
+    "setupFiles": [
+      "fake-indexeddb/auto"
+    ],
     "testPathIgnorePatterns": [
       "<rootDir>/test/unit/mocks.js",
       "<rootDir>/node_modules/"
-    ],
-    "transform": {}
+    ]
   },
   "publishConfig": {
     "access": "public"
@@ -46,17 +59,25 @@
   },
   "scripts": {
     "commit": "commit",
-    "dist": "echo 'No dist task specified' && exit 1",
+    "dist": "rollup -c",
     "lint": "eslint .",
     "release": "semantic-release",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js test/unit --passWithNoTests"
+    "test": "jest test/unit --passWithNoTests"
   },
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.13.15",
+    "@theholocron/babel-preset": "^0.3.10",
     "@theholocron/commitlint-config": "^0.1.11",
     "@theholocron/eslint-config": "^0.4.1",
     "@theholocron/jest-preset": "^0.2.3",
     "@theholocron/lint-staged-config": "^0.1.6",
     "@theholocron/semantic-release-config": "^0.2.4",
-    "jest-environment-node": "^26.6.2"
+    "del": "^6.0.0",
+    "fake-indexeddb": "^3.1.2",
+    "rollup": "^2.45.2",
+    "rollup-plugin-terser": "^7.0.2"
+  },
+  "dependencies": {
+    "idb": "^6.0.0"
   }
 }

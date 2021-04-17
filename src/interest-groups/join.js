@@ -1,3 +1,4 @@
+import db from '../utils/db.js';
 import {
 	hasInvalidOptionTypes,
 	isMissingRequiredOptions,
@@ -25,7 +26,7 @@ const MAX_EXPIRATION = 2592000000;
  * @example
  *   joinAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' }, 2592000000);
  */
-export default function joinAdInterestGroup (options, expiry) {
+export default async function joinAdInterestGroup (options, expiry) {
 	validateParam(options, 'object');
 	validateParam(expiry, 'number');
 	isMissingRequiredOptions(options, [ 'owner', 'name', 'bidding_logic_url' ]);
@@ -33,6 +34,16 @@ export default function joinAdInterestGroup (options, expiry) {
 
 	if (expiry > MAX_EXPIRATION) {
 		throw new Error(`'expiry' is set past the allowed maximum value. You must provide an expiration that is less than or equal to ${MAX_EXPIRATION}.`);
+	}
+
+	// console.info('checking for an existing interest group');
+	const group = await db.read(options.owner, options.name);
+	if (group) {
+		// console.info('updating a new interest group');
+		await db.update(group, options, expiry);
+	} else {
+		// console.info('creating a new interest group');
+		await db.create(options, expiry);
 	}
 
 	return true;

@@ -17,8 +17,14 @@ $ npm install @magnite/fledge.polyfill
         name: "an-interest-group",
         bidding_logic_url: "https://dsp.com/bidding",
     };
-    const expiry = 864000000; // 10 days from now
-    fledge.joinAdInterestGroup(options, expiry);
+
+    // join an interest group
+    fledge.joinAdInterestGroup(options, 864000000).then(response => console.log(response));
+    // returns true if successful
+
+    // leave an interest group
+    fledge.leaveAdInterestGroup(options).then(response => console.log(response));
+    // returns true if successful
 </script>
 ```
 
@@ -57,7 +63,7 @@ Type: [`<Number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refer
 
 A number of days (set in milliseconds) that the Interest Group will remain active, with a maximum of 30 days (or 2592000000).
 
-### leaveAdInterestGroup(options)
+### leaveAdInterestGroup(group)
 
 Returns `true` and removes an entry in a cross-domain Indexed dB store.
 

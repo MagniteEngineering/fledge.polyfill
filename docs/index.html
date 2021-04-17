@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Fledge Prototype</title>
+	</head>
+	<body>
+		<script type="module">
+			import { fledge } from '../dist/esm/index.js';
+			const options = {
+				owner: 'www.rp.com',
+				name: 'womens-running-shoes',
+				bidding_logic_url: 'https://magnite.com/bidding',
+			};
+			fledge.joinAdInterestGroup(options, 2592000000).then(response => {
+				console.log({response});
+			});
+			/*
+			fledge.leaveAdInterestGroup(options).then(response => {
+				console.log({response});
+			});
+			*/
+		</script>
+	</body>
+</html>
