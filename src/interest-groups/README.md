@@ -17,8 +17,14 @@ $ npm install @magnite/fledge.polyfill
         name: "an-interest-group",
         bidding_logic_url: "https://dsp.com/bidding",
     };
-    const expiry = 864000000; // 10 days from now
-    fledge.joinAdInterestGroup(options, expiry);
+
+    // join an interest group
+    fledge.joinAdInterestGroup(options, 864000000).then(response => console.log(response));
+    // returns true if successful
+
+    // leave an interest group
+    fledge.leaveAdInterestGroup(options).then(response => console.log(response));
+    // returns true if successful
 </script>
 ```
 

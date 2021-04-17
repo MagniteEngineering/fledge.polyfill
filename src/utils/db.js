@@ -125,7 +125,7 @@ async function createInterestGroup (options, expiry) {
  * @description delete a record from Indexed dB
  * @author Newton <cnewton@magnite.com>
  * @param {string} key - a key made of the owner and name separated by a hyphen
- * @return {string}
+ * @return {undefined}
  *
  * @example
  *   db.delete('owner-name');
