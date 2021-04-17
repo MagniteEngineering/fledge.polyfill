@@ -54,7 +54,7 @@
     "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js test/unit --passWithNoTests",
     "test:integration": "export JEST_PUPPETEER_CONFIG=jest-puppeteer.config.cjs && npm run test:integration:ci",
     "test:integration:ci": "jest --config test/integration/jest.config.js",
-    "serve": "node test/integration/server.js"
+    "serve": "./node_modules/.bin/serve . -l 3000"
   },
   "devDependencies": {
     "@theholocron/commitlint-config": "^0.1.11",
@@ -62,9 +62,9 @@
     "@theholocron/jest-preset": "^0.2.3",
     "@theholocron/lint-staged-config": "^0.1.6",
     "@theholocron/semantic-release-config": "^0.2.4",
-    "express": "^4.17.1",
     "jest-environment-node": "^26.6.2",
     "jest-puppeteer": "^4.4.0",
-    "puppeteer": "^8.0.0"
+    "puppeteer": "^8.0.0",
+    "serve": "^11.3.2"
   }
 }
