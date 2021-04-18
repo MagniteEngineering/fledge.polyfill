@@ -64,6 +64,7 @@
     "lint": "eslint .",
     "release": "semantic-release",
     "test:unit": "jest test/unit --passWithNoTests",
+    "pretest:integration": "npm run dist",
     "test:integration": "jest --config test/integration/jest.config.js",
     "test": "npm run test:unit && npm run test:integration",
     "serve": "./node_modules/.bin/serve . -l 3000"
