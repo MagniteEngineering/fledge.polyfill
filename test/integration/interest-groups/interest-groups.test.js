@@ -11,7 +11,7 @@ describe('Initial test', () => {
 
 	it('should provide the fledge code', async () => {
 		await expect(await page.title()).toMatch('interest-groups.test');
-		const fledge = await page.evaluate(() => Object.keys(window.fledge));
-		expect(fledge).toEqual([ 'joinAdInterestGroup', 'leaveAdInterestGroup' ]);
+		const { fledge } = await page.evaluate(() => window.fledge);
+		expect(Object.keys(fledge)).toEqual([ 'joinAdInterestGroup', 'leaveAdInterestGroup' ]);
 	});
 });
