@@ -2,7 +2,7 @@
 
 describe('Initial test', () => {
 	beforeAll(async () => {
-		await page.goto('http://localhost:3000/test/integration/interest-groups/interest-groups.test.html');
+		await page.goto('http://localhost:3000/test/integration/interest-groups/index.html');
 	});
 
 	it('should be titled "interest-groups.test"', async () => {
@@ -11,7 +11,7 @@ describe('Initial test', () => {
 
 	it('should provide the fledge code', async () => {
 		await expect(await page.title()).toMatch('interest-groups.test');
-		const { fledge } = await page.evaluate(() => window.fledge);
-		expect(Object.keys(fledge)).toEqual([ 'joinAdInterestGroup', 'leaveAdInterestGroup' ]);
+		const fledge = await page.evaluate(() => Object.keys(window.fledge.fledge));
+		expect(fledge).toEqual([ 'joinAdInterestGroup', 'leaveAdInterestGroup' ]);
 	});
 });
