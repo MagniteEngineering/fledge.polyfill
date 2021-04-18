@@ -2,7 +2,7 @@
 
 describe('Initial test', () => {
 	beforeAll(async () => {
-		await page.goto('http://localhost:3000/test/integration/interest-groups/index.html');
+		await page.goto('http://localhost:3000/test/integration/interest-groups/test.html');
 	});
 
 	it('should be titled "interest-groups.test"', async () => {
