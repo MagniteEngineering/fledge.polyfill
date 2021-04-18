@@ -41,8 +41,7 @@ jobs:
     strategy:
       matrix:
         node:
-          - 12
-          - 13
+          - 14
         os:
           - ubuntu-latest
           - windows-latest
@@ -84,6 +83,4 @@ jobs:
           CI: true
         run: npm ci
       - name: Integration
-        run: npm run test:integration:ci
-        env:
-          JEST_PUPPETEER_CONFIG: jest-puppeteer.config.cjs
+        run: npm run test:integration

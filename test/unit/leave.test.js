@@ -1,4 +1,4 @@
-import fledge from '../../src/';
+import { fledge } from '../../src/';
 import {
 	mockAllOptions,
 	mockOptionals,
@@ -8,49 +8,50 @@ describe('Interest Groups', () => {
 	describe('leaveAdInterestGroup', () => {
 		describe('Errors', () => {
 			describe('function parameters', () => {
-				it('should throw an Error when no options are provided', () => {
-					expect(() => fledge.leaveAdInterestGroup()).toThrow();
+				it('should throw an Error when no options are provided', async () => {
+					await expect(() => fledge.leaveAdInterestGroup()).rejects.toThrow();
 				});
 
 				describe('required option parameters', () => {
-					it('should throw an Error when no required options are provided', () => {
-						expect(() => fledge.leaveAdInterestGroup({})).toThrow();
-						expect(() => fledge.leaveAdInterestGroup(mockOptionals)).toThrow();
+					it('should throw an Error when no required options are provided', async () => {
+						await expect(() => fledge.leaveAdInterestGroup({})).rejects.toThrow();
+						await expect(() => fledge.leaveAdInterestGroup(mockOptionals)).rejects.toThrow();
 					});
 				});
 
 				describe('data structures', () => {
-					it('should throw an Error when options is not a valid Object', () => {
-						expect(() => fledge.leaveAdInterestGroup(undefined)).toThrow();
-						expect(() => fledge.leaveAdInterestGroup(true)).toThrow();
-						expect(() => fledge.leaveAdInterestGroup(0)).toThrow();
-						expect(() => fledge.leaveAdInterestGroup('mock')).toThrow();
-						expect(() => fledge.leaveAdInterestGroup(() => { /* noOp */ })).toThrow();
-						expect(() => fledge.leaveAdInterestGroup(null)).toThrow();
+					it('should throw an Error when options is not a valid Object', async () => {
+						await expect(() => fledge.leaveAdInterestGroup(undefined)).rejects.toThrow();
+						await expect(() => fledge.leaveAdInterestGroup(true)).rejects.toThrow();
+						await expect(() => fledge.leaveAdInterestGroup(0)).rejects.toThrow();
+						await expect(() => fledge.leaveAdInterestGroup('mock')).rejects.toThrow();
+						await expect(() => fledge.leaveAdInterestGroup(() => { /* noOp */ })).rejects.toThrow();
+						await expect(() => fledge.leaveAdInterestGroup(null)).rejects.toThrow();
 					});
 
-					it("should throw an Error when 'owner' is not a valid String", () => {
+					it("should throw an Error when 'owner' is not a valid String", async () => {
 						const mockOptionsInvalidOwner = {
 							...mockAllOptions,
 							owner: 0,
 						};
-						expect(() => fledge.leaveAdInterestGroup(mockOptionsInvalidOwner)).toThrow();
+						await expect(() => fledge.leaveAdInterestGroup(mockOptionsInvalidOwner)).rejects.toThrow();
 					});
 
-					it("should throw an Error when 'name' is not a valid String", () => {
+					it("should throw an Error when 'name' is not a valid String", async () => {
 						const mockOptionsInvalidName = {
 							...mockAllOptions,
 							name: 0,
 						};
-						expect(() => fledge.leaveAdInterestGroup(mockOptionsInvalidName)).toThrow();
+						await expect(() => fledge.leaveAdInterestGroup(mockOptionsInvalidName)).rejects.toThrow();
 					});
 				});
 			});
 		});
 
 		describe('Return', () => {
-			it('should return true when all valid options are provided', () => {
-				expect(fledge.leaveAdInterestGroup(mockAllOptions)).toBe(true);
+			it('should return true when all valid options are provided', async () => {
+				const ig = await fledge.leaveAdInterestGroup(mockAllOptions);
+				await expect(ig).toBe(true);
 			});
 		});
 	});

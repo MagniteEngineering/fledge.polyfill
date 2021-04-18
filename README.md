@@ -22,11 +22,31 @@ npm install --save @magnite/fledge.polyfill
 
 ## Usage
 
-<!-- insert usage -->
+### Directly in a browser
+
+```html
+<script type="module">
+    import { fledge } from "./node_modules/@magnite/fledge.polyfill/esm/index.js";
+
+    const options = {
+        owner: "www.buyer.com",
+        name: "an-interest-group",
+        bidding_logic_url: "https://dsp.com/bidding",
+    };
+
+    // join an interest group
+    fledge.joinAdInterestGroup(options, 864000000).then(response => console.log(response));
+
+    // leave an interest group
+    fledge.leaveAdInterestGroup(options).then(response => console.log(response));
+</script>
+```
 
 ## Where to Find Documentation
 
 The best way to find out what's available is to dig through source code, as each directory has a README file to describe each feature.
+
+* [Interest Groups](./src/interest-groups/README.md)
 
 ## How We Track Changes [![Keep a Changelog](https://img.shields.io/badge/Keep%20a%20Changelog-1.0.0-orange)](https://keepachangelog.com/en/1.0.0/)
 
