@@ -23,11 +23,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: setup node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: 12
+          node-version: '14'
+          check-latest: true
       - name: Install dependencies
         env:
           CI: true
@@ -48,16 +49,17 @@ jobs:
           - macOS-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: setup node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node }}
+          node-version: '14'
+          check-latest: true
       - name: Install dependencies
         env:
           CI: true
         run: npm ci
-      - name: Test
+      - name: Unit Test
         run: npm run test:unit
 
   integration:
@@ -66,21 +68,22 @@ jobs:
     strategy:
       matrix:
         node:
-          - 12
+          - 14
         os:
           - ubuntu-latest
           - windows-latest
           - macOS-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: setup node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: 12
+          node-version: 14
+          check-latest: true
       - name: Install dependencies
         env:
           CI: true
         run: npm ci
-      - name: Integration
+      - name: Integration Test
         run: npm run test:integration
