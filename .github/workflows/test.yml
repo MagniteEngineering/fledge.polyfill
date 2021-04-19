@@ -11,15 +11,8 @@ on:
       - '!main'
 
 jobs:
-  prepare:
-    runs-on: ubuntu-latest
-    if: "! contains(github.event.head_commit.message, '[skip ci]')"
-    steps:
-      - run: echo "${{ github.event.head_commit.message }}"
-
   unit:
-    needs: prepare
-    name: Unit test on node ${{ matrix.node }} and ${{ matrix.os }}
+    name: Unit test
     runs-on: ubuntu-latest
     steps:
       - name: checkout
@@ -42,8 +35,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node:
-          - 14
         os:
           - ubuntu-latest
           - windows-latest
@@ -53,6 +44,9 @@ jobs:
         uses: actions/checkout@v2
       - name: setup node
         uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          check-latest: true
       - name: Install dependencies
         env:
           CI: true
