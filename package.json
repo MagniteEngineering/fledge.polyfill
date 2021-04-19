@@ -4,16 +4,25 @@
   "description": "A Fledge JavaScript polyfill",
   "author": "Newton Koumantzelis",
   "version": "0.0.0",
-  "main": "index.js",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
   "repository": "https://github.com/MagniteEngineering/fledge.polyfill.git",
   "bugs": "https://github.com/MagniteEngineering/fledge.polyfill/issues",
   "releases": "https://github.com/MagniteEngineering/fledge.polyfill/releases",
   "wiki": "https://github.com/MagniteEngineering/fledge.polyfill/wiki",
   "license": "MIT",
+  "babel": {
+    "presets": [
+      "@theholocron"
+    ]
+  },
   "commitlint": {
     "extends": [
       "@theholocron"
     ]
+  },
+  "engines": {
+    "node": "^12.16.0 || >=13.2.0"
   },
   "eslintConfig": {
     "extends": "@theholocron"
@@ -25,7 +34,23 @@
     }
   },
   "jest": {
-    "preset": "@theholocron/jest-preset"
+    "projects": [
+      {
+        "preset": "@theholocron/jest-preset",
+        "setupFiles": [
+          "fake-indexeddb/auto"
+        ]
+      },
+      {
+        "displayName": "End-to-End Integration Tests",
+        "setupFiles": [
+          "fake-indexeddb/auto"
+        ],
+        "testMatch": [
+          "<rootDir>/test/e2e/**/*.js"
+        ]
+      }
+    ]
   },
   "publishConfig": {
     "access": "public"
@@ -36,16 +61,29 @@
   },
   "scripts": {
     "commit": "commit",
-    "dist": "echo 'No dist task specified' && exit 1",
+    "dist": "rollup -c node:@theholocron/rollup-config --name=fledge",
     "lint": "eslint .",
     "release": "semantic-release",
-    "test": "jest --passWithNoTests"
+    "test:unit": "jest test/unit --passWithNoTests",
+    "pretest:e2e": "npm run dist",
+    "test:e2e": "jest --config test/e2e/jest.config.js",
+    "test": "npm run test:unit && npm run test:e2e",
+    "serve": "./node_modules/.bin/serve . -l 3000"
   },
   "devDependencies": {
-    "@theholocron/commitlint-config": "^0.1.11",
-    "@theholocron/eslint-config": "^0.4.1",
-    "@theholocron/lint-staged-config": "^0.1.6",
+    "@theholocron/babel-preset": "^0.4.0",
+    "@theholocron/commitlint-config": "^0.1.12",
+    "@theholocron/eslint-config": "^0.4.2",
     "@theholocron/jest-preset": "^0.3.0",
-    "@theholocron/semantic-release-config": "^0.2.4"
+    "@theholocron/lint-staged-config": "^0.1.7",
+    "@theholocron/rollup-config": "^0.2.3",
+    "@theholocron/semantic-release-config": "^0.2.5",
+    "fake-indexeddb": "^3.1.2",
+    "jest-puppeteer": "^4.4.0",
+    "puppeteer": "^8.0.0",
+    "serve": "^11.3.2"
+  },
+  "dependencies": {
+    "idb": "^6.0.0"
   }
 }
