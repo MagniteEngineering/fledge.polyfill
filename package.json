@@ -34,9 +34,20 @@
     }
   },
   "jest": {
-    "preset": "@theholocron/jest-preset",
-    "setupFiles": [
-      "fake-indexeddb/auto"
+    "projects": [
+      {
+        "preset": "@theholocron/jest-preset",
+        "setupFiles": [
+          "fake-indexeddb/auto"
+        ]
+      },
+      {
+        "displayName": "End-to-End Integration Tests",
+        "setupFiles": [
+          "fake-indexeddb/auto"
+        ],
+        "testMatch": ["<rootDir>/test/e2e/**/*.js"]
+      }
     ]
   },
   "publishConfig": {
