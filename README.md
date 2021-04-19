@@ -1,4 +1,4 @@
-# fledge.polyfill [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release) [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=the-holocron/threepio)](https://dependabot.com)
+# fledge.polyfill [![npm version](https://badge.fury.io/js/%40magnite%2Ffledge.polyfill.svg)](https://badge.fury.io/js/%40magnite%2Ffledge.polyfill) [![codecov](https://codecov.io/gh/MagniteEngineering/fledge.polyfill/branch/main/graph/badge.svg?token=8NUU67BFAH)](https://codecov.io/gh/MagniteEngineering/fledge.polyfill)  [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=the-holocron/threepio)](https://dependabot.com)
 
 A [Fledge](https://github.com/WICG/turtledove/blob/main/FLEDGE.md) JavaScript polyfill.
 
@@ -12,17 +12,19 @@ npm install --save @magnite/fledge.polyfill
 
 - [Usage](#usage)
 - [Documentation](#where-to-find-documentation)
-- [Changelog](#how-we-track-changes)
-- [Versioning](#how-we-version)
-- [Contribution](#how-to-contribute)
-- [Support](#where-to-find-suport)
+- [Changelog](#how-we-track-changes-)
+- [Versioning](#how-we-version-)
+- [Contribution](#how-to-contribute-)
+- [Support](#where-to-find-suport-)
 - [Tools](#tools-we-use)
 - [Support](#where-to-find-suport)
-- [License](#license)
+- [License](#license-)
 
 ## Usage
 
-### Directly in a browser
+### Interest Groups
+
+As of this moment, the polyfill is intended to work within the Chrome browser at a version greater than 91.  There are several ways to invoke the polyfill, but given the modern capabilities of support required, the following is the recoommended way to invoke the API.
 
 ```html
 <script type="module">
