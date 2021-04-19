@@ -37,11 +37,6 @@
     "preset": "@theholocron/jest-preset",
     "setupFiles": [
       "fake-indexeddb/auto"
-    ],
-    "testPathIgnorePatterns": [
-      "<rootDir>/node_modules/",
-      "<rootDir>/test/unit/mocks.js",
-      "<rootDir>/test/unit/coverage/"
     ]
   },
   "publishConfig": {
