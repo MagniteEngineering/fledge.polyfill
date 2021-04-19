@@ -12,13 +12,6 @@
   "wiki": "https://github.com/MagniteEngineering/fledge.polyfill/wiki",
   "license": "MIT",
   "babel": {
-    "env": {
-      "test": {
-        "plugins": [
-          "@babel/plugin-transform-runtime"
-        ]
-      }
-    },
     "presets": [
       "@theholocron"
     ]
@@ -60,7 +53,7 @@
   },
   "scripts": {
     "commit": "commit",
-    "dist": "rollup -c",
+    "dist": "rollup -c node:@theholocron/rollup-config --name=fledge",
     "lint": "eslint .",
     "release": "semantic-release",
     "test:unit": "jest test/unit --passWithNoTests",
@@ -70,19 +63,16 @@
     "serve": "./node_modules/.bin/serve . -l 3000"
   },
   "devDependencies": {
-    "@babel/plugin-transform-runtime": "^7.13.15",
-    "@theholocron/babel-preset": "^0.3.10",
-    "@theholocron/commitlint-config": "^0.1.11",
-    "@theholocron/eslint-config": "^0.4.1",
-    "@theholocron/jest-preset": "^0.2.3",
-    "@theholocron/lint-staged-config": "^0.1.6",
-    "@theholocron/semantic-release-config": "^0.2.4",
-    "del": "^6.0.0",
+    "@theholocron/babel-preset": "^0.4.0",
+    "@theholocron/commitlint-config": "^0.1.12",
+    "@theholocron/eslint-config": "^0.4.2",
+    "@theholocron/jest-preset": "^0.3.0",
+    "@theholocron/lint-staged-config": "^0.1.7",
+    "@theholocron/rollup-config": "^0.2.3",
+    "@theholocron/semantic-release-config": "^0.2.5",
     "fake-indexeddb": "^3.1.2",
     "jest-puppeteer": "^4.4.0",
     "puppeteer": "^8.0.0",
-    "rollup": "^2.45.2",
-    "rollup-plugin-terser": "^7.0.2",
     "serve": "^11.3.2"
   },
   "dependencies": {
