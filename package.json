@@ -45,7 +45,7 @@
     "@theholocron/commitlint-config": "^0.1.11",
     "@theholocron/eslint-config": "^0.4.1",
     "@theholocron/lint-staged-config": "^0.1.6",
-    "@theholocron/jest-preset": "^0.2.3",
+    "@theholocron/jest-preset": "^0.3.0",
     "@theholocron/semantic-release-config": "^0.2.4"
   }
 }
