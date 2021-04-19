@@ -46,7 +46,9 @@
         "setupFiles": [
           "fake-indexeddb/auto"
         ],
-        "testMatch": ["<rootDir>/test/e2e/**/*.js"]
+        "testMatch": [
+          "<rootDir>/test/e2e/**/*.js"
+        ]
       }
     ]
   },
