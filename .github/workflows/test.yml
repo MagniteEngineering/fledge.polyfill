@@ -17,30 +17,45 @@ jobs:
     steps:
       - run: echo "${{ github.event.head_commit.message }}"
 
-  test:
+  unit:
     needs: prepare
-    name: Test on node ${{ matrix.node }} and ${{ matrix.os }}
+    name: Unit test on node ${{ matrix.node }} and ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          check-latest: true
+      - name: Install dependencies
+        env:
+          CI: true
+        run: npm ci
+      - name: Unit Test
+        run: npm run test:unit
+
+  e2e:
+    needs: prepare
+    name: End-to-End test on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         node:
-          - 13
+          - 14
         os:
           - ubuntu-latest
           - windows-latest
           - macOS-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: setup node
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node }}
+        uses: actions/setup-node@v2
       - name: Install dependencies
         env:
           CI: true
         run: npm ci
-      - name: Lint
-        run: npm run lint
-      - name: Test
-        run: npm run test
+      - name: e2e Test
+        run: npm run test:e2e
