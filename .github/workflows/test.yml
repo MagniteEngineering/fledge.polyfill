@@ -32,7 +32,7 @@ jobs:
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          directory: coverage
+          directory: ./coverage/
           flags: unittests
 
   e2e:
