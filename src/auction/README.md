@@ -29,7 +29,7 @@ $ npm install @magnite/fledge.polyfill
 
 ### runAdAuction(options)
 
-Returns `true` and creates an entry in a cross-domain Indexed dB store.
+Returns `null` if no winning bid is found.  Returns a `Promise` with a token representation of the winning bids rendering URL.
 
 If an invalid option is passed, then an `Error` will be thrown with a reason to help debug.
 
