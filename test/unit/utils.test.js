@@ -6,7 +6,7 @@ import {
 	validateParam,
 	validateType,
 } from '../../src/utils/';
-import { mockAllOptions } from './mocks';
+import { mockAllOptions } from './interest-groups.mock';
 
 describe('Utilities', () => {
 	describe('hasInvalidOptionTypes', () => {

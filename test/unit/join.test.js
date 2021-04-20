@@ -4,7 +4,7 @@ import {
 	mockExpiry,
 	mockMaxExpiry,
 	mockOptionals,
-} from './mocks';
+} from './interest-groups.mock';
 
 describe('Interest Groups', () => {
 	describe('joinAdInterestGroup', () => {
