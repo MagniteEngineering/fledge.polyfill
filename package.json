@@ -100,7 +100,7 @@
     "@theholocron/semantic-release-config": "^0.3.0",
     "alex": "^9.1.0",
     "fake-indexeddb": "^3.1.2",
-    "jest-puppeteer": "^4.4.0",
+    "jest-puppeteer": "^5.0.1",
     "puppeteer": "^8.0.0",
     "serve": "^11.3.2"
   },
