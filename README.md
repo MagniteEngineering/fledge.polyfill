@@ -22,9 +22,9 @@ npm install --save @magnite/fledge.polyfill
 
 ## Usage
 
-### Interest Groups
+As of this moment, the polyfill is intended to work within the Chrome browser at a version greater than 91.  There are several ways to invoke the polyfill, but given the modern capabilities of support required, the following is the recommended way to invoke the API.
 
-As of this moment, the polyfill is intended to work within the Chrome browser at a version greater than 91.  There are several ways to invoke the polyfill, but given the modern capabilities of support required, the following is the recoommended way to invoke the API.
+### Interest Groups
 
 ```html
 <script type="module">
@@ -43,6 +43,26 @@ As of this moment, the polyfill is intended to work within the Chrome browser at
     fledge.leaveAdInterestGroup(options).then(response => console.log(response));
 </script>
 ```
+
+### Auctions
+
+```html
+<script type="module">
+    import { fledge } from "./node_modules/@magnite/fledge.polyfill/esm/index.js";
+
+    const options = {
+        "seller": "www.seller.com",
+        "decision_logic_url": "https://ssp.com/auction",
+        "interest_group_buyers": [
+            "www.buyer1.com",
+            "www.buyer2.com",
+        ],
+    };
+
+    const auctionResults = await fledge.runAdAuction(options);
+</script>
+```
+
 
 ## Where to Find Documentation
 
