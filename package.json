@@ -57,7 +57,9 @@
   },
   "release": {
     "extends": "@theholocron/semantic-release-config",
-    "branch": "main"
+    "branches": [
+      "main"
+    ]
   },
   "scripts": {
     "commit": "commit",
