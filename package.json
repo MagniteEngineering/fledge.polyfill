@@ -90,7 +90,7 @@
   },
   "devDependencies": {
     "@theholocron/babel-preset": "^0.4.1",
-    "@theholocron/bundlewatch-config": "^0.3.0",
+    "@theholocron/bundlewatch-config": "^0.3.1",
     "@theholocron/commitlint-config": "^0.1.13",
     "@theholocron/eslint-config": "^0.4.3",
     "@theholocron/jest-preset": "^0.4.0",
