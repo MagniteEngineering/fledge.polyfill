@@ -26,7 +26,7 @@ This demo was setup to answer the question of the possibility for posting data t
 
 ### Running the Demo
 
-You will need to run a server and host both HTML files within the each of the subsequent directories.  Using `npx serve __proto__/cross-domain` within the current working directory would suffice.  It will provide you a URL that you can paste into the browser. But you'll need to find a way to host it with a different domain to truly test the cross-domain message posting.  Hosting one file using a service like <https://glitch.com> or <https://github.com> are both viable options.
+You will need to run a server for both HTML files within the each of the subsequent directories.  Using `npx serve __proto__/cross-domain` within the current working directory would suffice.  It will provide you a URL that you can paste into the browser. But you'll need to find a way to serve it with a different domain to truly test the cross-domain message posting.  Hosting one file using a service like <https://glitch.com> or <https://github.com> are both viable options.
 
 From that URL, you should see that the `index.html` page is calling a script and in order to confirm that groups were stored, check in the DevTools "Application" tab under the "IndexedDB" tab.
 
@@ -65,7 +65,7 @@ From that URL, you should see that the `index.html` page is calling a script whi
 
 ### Auction
 
-The **auction** demo was set up to showcase what a simple auction might look like importing the various logic URLs using ES Modules.
+The **auction** demo was set up to showcase what an auction might look like importing the various logic URLs using ES Modules.
 
 ### Running the Demo
 

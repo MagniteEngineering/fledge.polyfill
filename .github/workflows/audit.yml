@@ -1,0 +1,31 @@
+name: Audit
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+      - '!main'
+
+jobs:
+  unit:
+    name: Bundlesize
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          check-latest: true
+      - name: Install dependencies
+        env:
+          CI: true
+        run: npm ci
+      - name: Bundlesize
+        run: npm run audit
+        env:
+          BUNDLEWATCH_GITHUB_TOKEN: ${{ secrets.BUNDLEWATCH_GITHUB_TOKEN }}

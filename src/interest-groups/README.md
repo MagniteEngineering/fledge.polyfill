@@ -61,7 +61,7 @@ Options that are passed to the `createInterestGroup` function.
 
 Type: [`<Number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
 
-A number of days (set in milliseconds) that the Interest Group will remain active, with a maximum of 30 days (or 2592000000).
+A number of days (set in milliseconds) that the Interest Group will stay active, with a maximum of 30 days (or 2592000000).
 
 ### leaveAdInterestGroup(group)
 

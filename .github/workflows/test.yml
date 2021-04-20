@@ -11,6 +11,23 @@ on:
       - '!main'
 
 jobs:
+  docs:
+    name: Inclusive language
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          check-latest: true
+      - name: Install dependencies
+        env:
+          CI: true
+        run: npm ci
+      - name: Alex
+        run: npm run test:docs
   unit:
     name: Unit test
     runs-on: ubuntu-latest
