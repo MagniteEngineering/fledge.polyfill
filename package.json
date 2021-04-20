@@ -80,7 +80,7 @@
     "commit": "commit",
     "dist": "rollup -c node:@theholocron/rollup-config --name=fledge",
     "lint": "eslint .",
-    "serve": "./node_modules/.bin/serve . -l 3000",
+    "serve": "serve . -l 3000",
     "release": "semantic-release",
     "test": "npm run test:docs && npm run test:unit && npm run test:e2e",
     "test:docs": "alex .",
