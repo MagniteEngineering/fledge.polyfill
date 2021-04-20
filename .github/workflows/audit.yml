@@ -25,6 +25,8 @@ jobs:
         env:
           CI: true
         run: npm ci
+      - name: Compile
+        run: npm run dist
       - name: Bundlesize
         run: npm run audit
         env:
