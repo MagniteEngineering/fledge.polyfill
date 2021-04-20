@@ -68,6 +68,7 @@ As of this moment, the polyfill is intended to work within the Chrome browser at
 
 The best way to find out what's available is to dig through source code, as each directory has a README file to describe each feature.
 
+* [Auctions](./src/auctions/README.md)
 * [Interest Groups](./src/interest-groups/README.md)
 
 ## How We Track Changes [![Keep a Changelog](https://img.shields.io/badge/Keep%20a%20Changelog-1.0.0-orange)](https://keepachangelog.com/en/1.0.0/)
