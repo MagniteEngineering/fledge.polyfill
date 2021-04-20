@@ -6,6 +6,10 @@
   "version": "0.1.0",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
+  "files": [
+    "dist",
+    "src"
+  ],
   "repository": "https://github.com/MagniteEngineering/fledge.polyfill.git",
   "bugs": "https://github.com/MagniteEngineering/fledge.polyfill/issues",
   "releases": "https://github.com/MagniteEngineering/fledge.polyfill/releases",
