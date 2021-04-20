@@ -1,17 +1,16 @@
 /* eslint-disable no-undef */
 
-describe('Initial test', () => {
+describe('Fledge', () => {
 	beforeAll(async () => {
 		await page.goto('http://localhost:3000/test/e2e/interest-groups/');
 	});
 
-	it('should be titled "interest-groups.test"', async () => {
-		await expect(await page.title()).toMatch('interest-groups.test');
+	it('should be contain "fledge" in the title', async () => {
+		await expect(await page.title()).toMatch(/fledge/i);
 	});
 
-	it('should provide the fledge code', async () => {
-		await expect(await page.title()).toMatch('interest-groups.test');
+	it('should provide the API methods', async () => {
 		const fledge = await page.evaluate(() => window.fledge.fledge);
-		expect(Object.keys(fledge)).toEqual([ 'joinAdInterestGroup', 'leaveAdInterestGroup' ]);
+		expect(Object.keys(fledge)).toEqual([ 'runAdAuction', 'joinAdInterestGroup', 'leaveAdInterestGroup' ]);
 	});
 });
