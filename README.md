@@ -51,9 +51,9 @@ As of this moment, the polyfill is intended to work within the Chrome browser at
     import { fledge } from "./node_modules/@magnite/fledge.polyfill/esm/index.js";
 
     const options = {
-        "seller": "www.seller.com",
-        "decision_logic_url": "https://ssp.com/auction",
-        "interest_group_buyers": [
+        seller: "www.seller.com",
+        decision_logic_url: "https://ssp.com/auction",
+        interest_group_buyers: [
             "www.buyer1.com",
             "www.buyer2.com",
         ],
