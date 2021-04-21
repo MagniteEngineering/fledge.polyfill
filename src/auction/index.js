@@ -1,3 +1,4 @@
+import db, { IG_STORE } from '../utils/db.js';
 import {
 	hasInvalidOptionTypes,
 	isMissingRequiredOptions,
@@ -21,6 +22,9 @@ export default async function runAdAuction (options) {
 	validateParam(options, 'object');
 	isMissingRequiredOptions(options, [ 'seller', 'decision_logic_url', 'interest_group_buyers' ]);
 	hasInvalidOptionTypes(options, types);
+
+	const groups = await db.store.getAll(IG_STORE);
+	console.log({ groups });
 
 	return 'token goes here';
 }

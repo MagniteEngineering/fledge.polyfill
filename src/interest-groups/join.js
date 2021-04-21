@@ -1,10 +1,13 @@
-import db from '../utils/db.js';
+import db, { IG_STORE } from '../utils/db.js';
 import {
 	hasInvalidOptionTypes,
 	isMissingRequiredOptions,
 	validateParam,
 } from '../utils/index.js';
 import types from './types.js';
+import {
+	getIGKey,
+} from './utils.js';
 
 /*
  * @const {number}
@@ -37,13 +40,20 @@ export default async function joinAdInterestGroup (options, expiry) {
 	}
 
 	// console.info('checking for an existing interest group');
-	const group = await db.read(options.owner, options.name);
+	const group = await db.store.get(IG_STORE, getIGKey(options.owner, options.name));
 	if (group) {
 		// console.info('updating a new interest group');
-		await db.update(group, options, expiry);
+		await db.store.put(IG_STORE, group, {
+			_expired: Date.now() + expiry,
+			options,
+		});
 	} else {
 		// console.info('creating a new interest group');
-		await db.create(options, expiry);
+		await db.store.add(IG_STORE, {
+			_key: getIGKey(options.owner, options.name),
+			_expired: Date.now() + expiry,
+			options,
+		});
 	}
 
 	return true;

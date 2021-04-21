@@ -1,10 +1,13 @@
+import db, { IG_STORE } from '../utils/db.js';
 import {
 	hasInvalidOptionTypes,
 	isMissingRequiredOptions,
 	validateParam,
 } from '../utils/index.js';
-import db from '../utils/db.js';
 import types from './types.js';
+import {
+	getIGKey,
+} from './utils.js';
 
 /*
  * @function
@@ -24,7 +27,7 @@ export default async function leaveAdInterestGroup (group) {
 	hasInvalidOptionTypes(group, types);
 
 	// console.info('deleting an existing interest group');
-	await db.delete(group);
+	await db.store.delete(IG_STORE, getIGKey(group.owner, group.name));
 
 	return true;
 }
