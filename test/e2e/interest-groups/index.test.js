@@ -22,15 +22,14 @@ describe('joinAdInterestGroup', () => {
 	});
 
 	it('should error when no parameters sent', async () => {
-		const result = await page.evaluate(() => {
-			let response = 'no error';
-			try {
-				window.fledge.fledge.joinAdInterestGroup();
-			} catch (e) {
-				response = 'error';
-			}
-			return response;
-		});
-		expect(result).toEqual('error');
+		let errorThrown = false;
+		try {
+			await page.evaluate(async () => {
+				await window.fledge.fledge.joinAdInterestGroup();
+			});
+		} catch (e) {
+			errorThrown = true;
+		}
+		expect(errorThrown).toBe(true);
 	});
 });
