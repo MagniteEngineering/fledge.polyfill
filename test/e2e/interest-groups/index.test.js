@@ -22,15 +22,11 @@ describe('joinAdInterestGroup', () => {
 	});
 
 	it('should error when no parameters sent', async () => {
-		let errorThrown = false;
-		try {
+		await expect(async () => {
 			await page.evaluate(() =>
 				window.fledge.fledge.joinAdInterestGroup(),
 			);
-		} catch (e) {
-			errorThrown = true;
-		}
-		expect(errorThrown).toBe(true);
+		}).rejects.toThrow();
 	});
 
 	it('should not error went provided minimum required params', async () => {
