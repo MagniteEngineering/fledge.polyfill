@@ -19,6 +19,22 @@ await db.store.put(store, item, newOptions);
 
 // delete an entry from the IndexedDB
 await db.store.delete(store, id);
+
+// validate an object has required keys
+validate.hasRequiredKeys(object, keys)
+
+// print out any invalid options based on their types 
+validate.printInvalidOptionTypes(options, invalid, types)
+
+// validates data types
+validate.type
+
+// validate parameter types passed to a function
+validate.param(param, type)
+
+// validates options passed to a function are the correct data types
+validate.hasInvalidOptionTypes(options, types)
+
 ```
 
 ## API
