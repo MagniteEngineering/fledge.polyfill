@@ -97,3 +97,6 @@ export const getScores = async (bids, conf) => {
 		.filter(({ score }) => score > 0)
 		.sort((a, b) => (a.score > b.score) ? 1 : -1);
 };
+
+export const uuidv4 = () => ([ 1e7 ] + -1e3 + -4e3 + -8e3 + -1e11)
+	.replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));

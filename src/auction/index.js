@@ -1,10 +1,11 @@
-import db, { IG_STORE } from '../utils/db.js';
+import db, { AUCTION_STORE, IG_STORE } from '../utils/db.js';
 import validate from '../utils/validation.js';
 import types from './types.js';
 import {
 	getBids,
 	getEligibleBuyers,
 	getScores,
+	uuidv4,
 } from './utils.js';
 
 /*
@@ -40,7 +41,14 @@ export default async function runAdAuction (conf) {
 	}
 
 	// console.info('get the winning bid');
-	const [ winner ] = await getScores(bids, conf);
+	const scores = await getScores(bids, conf);
+	const token = uuidv4();
 
-	return `${winner.render} token goes here`;
+	// console.info('creating an entry in the auction store');
+	const entries = await db.store.add(AUCTION_STORE, {
+		_id: token,
+		scores,
+	});
+
+	return entries;
 }

@@ -2,8 +2,13 @@ import { openDB } from 'idb';
 
 /*
  * @const {string}
+ * @summary the name of the Auction store within IndexedDB
+ */
+export const AUCTION_STORE = 'auction';
+
+/*
+ * @const {string}
  * @summary the name of the Interest Group store within IndexedDB
- * @description Milliseconds occuring per day multiplied by the maximum number of days (maximum dayus (30) * hours per day (24) * minutes per hour (60) * seconds per minute (60) * milliseconds per second (1000))
  */
 export const IG_STORE = 'interest-groups';
 
@@ -17,14 +22,19 @@ export const IG_STORE = 'interest-groups';
 const db = openDB('Fledge', 1, {
 	upgrade (db) {
 		// Create a store of objects
-		const store = db.createObjectStore(IG_STORE, {
+		const igStore = db.createObjectStore(IG_STORE, {
 			// The '_key' property of the object will be the key.
 			keyPath: '_key',
 		});
 
 		// Create an index on the a few properties of the objects.
 		[ 'owner', 'name', '_expired' ].forEach(index => {
-			store.createIndex(index, index, { unique: false });
+			igStore.createIndex(index, index, { unique: false });
+		});
+
+		db.createObjectStore(AUCTION_STORE, {
+			// The 'id' property of the object will be the key.
+			keyPath: '_id',
 		});
 	},
 });
