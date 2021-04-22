@@ -59,6 +59,7 @@ const validateType = {
 	number: num => num !== 'undefined' && typeof num === 'number',
 	object: obj => obj !== 'undefined' && typeof obj === 'object' && obj !== null && !Array.isArray(obj),
 	string: str => str !== 'undefined' && typeof str === 'string',
+	mixed: type => type !== 'undefined' && (Array.isArray(type) || typeof type === 'string'),
 	url: url => {
 		try {
 			return Boolean(new URL(url));

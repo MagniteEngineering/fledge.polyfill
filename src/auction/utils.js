@@ -10,6 +10,10 @@
  * @return {Array<Object> | null} an array of objects; null if none found;
  */
 export const getEligibleBuyers = (buyers, eligible) => {
+	if (eligible === '*') {
+		return buyers;
+	}
+
 	const eligibleBuyers = buyers.filter(({ owner }) => eligible.includes(owner));
 
 	if (eligibleBuyers.length) {

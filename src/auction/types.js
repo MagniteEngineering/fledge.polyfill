@@ -1,7 +1,7 @@
 export default {
 	seller: 'string',
 	decision_logic_url: 'url',
-	interest_group_buyers: 'array', // @TODO convert to mixed data store
+	interest_group_buyers: 'mixed',
 	trusted_scoring_signals_url: 'url',
 	additional_bids: 'array',
 	auction_signals: 'object',
