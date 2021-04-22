@@ -17,19 +17,35 @@ describe('Initial test', () => {
 });
 
 describe('joinAdInterestGroup', () => {
-	beforeAll(async () => {
+	beforeEach(async () => {
 		await page.goto('http://localhost:3000/test/e2e/interest-groups/');
 	});
 
 	it('should error when no parameters sent', async () => {
 		let errorThrown = false;
 		try {
-			await page.evaluate(async () => {
-				await window.fledge.fledge.joinAdInterestGroup();
-			});
+			await page.evaluate(() =>
+				window.fledge.fledge.joinAdInterestGroup(),
+			);
 		} catch (e) {
 			errorThrown = true;
 		}
 		expect(errorThrown).toBe(true);
+	});
+
+	it('should not error went provided minimum required params', async () => {
+		let errorThrown = false;
+		try {
+			await page.evaluate(() =>
+				window.fledge.fledge.joinAdInterestGroup({
+					owner: 'magnite.com',
+					name: 'test-interest',
+					bidding_logic_url: 'https://fledge.magnite.com/bl.js',
+				}, 60000),
+			);
+		} catch (e) {
+			errorThrown = true;
+		}
+		expect(errorThrown).toBe(false);
 	});
 });
