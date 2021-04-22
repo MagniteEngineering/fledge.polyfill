@@ -45,14 +45,14 @@ export default async function joinAdInterestGroup (options, expiry) {
 		// console.info('updating a new interest group');
 		await db.store.put(IG_STORE, group, {
 			_expired: Date.now() + expiry,
-			options,
+			...options,
 		});
 	} else {
 		// console.info('creating a new interest group');
 		await db.store.add(IG_STORE, {
 			_key: getIGKey(options.owner, options.name),
 			_expired: Date.now() + expiry,
-			options,
+			...options,
 		});
 	}
 
