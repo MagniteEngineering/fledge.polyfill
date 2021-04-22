@@ -1,9 +1,5 @@
 import db, { IG_STORE } from '../utils/db.js';
-import {
-	hasInvalidOptionTypes,
-	isMissingRequiredOptions,
-	validateParam,
-} from '../utils/index.js';
+import validate from '../utils/validation.js';
 import types from './types.js';
 import {
 	getIGKey,
@@ -22,9 +18,9 @@ import {
  *   leaveAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' });
  */
 export default async function leaveAdInterestGroup (group) {
-	validateParam(group, 'object');
-	isMissingRequiredOptions(group, [ 'owner', 'name' ]);
-	hasInvalidOptionTypes(group, types);
+	validate.param(group, 'object');
+	validate.hasRequiredKeys(group, [ 'owner', 'name' ]);
+	validate.hasInvalidOptionTypes(group, types);
 
 	// console.info('deleting an existing interest group');
 	await db.store.delete(IG_STORE, getIGKey(group.owner, group.name));

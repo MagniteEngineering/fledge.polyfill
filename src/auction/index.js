@@ -1,14 +1,10 @@
 import db, { IG_STORE } from '../utils/db.js';
-import {
-	hasInvalidOptionTypes,
-	isMissingRequiredOptions,
-	validateParam,
-} from '../utils/index.js';
+import validate from '../utils/validation.js';
 import types from './types.js';
 import {
 	getBids,
+	getEligibleBuyers,
 	getScores,
-	filterBuyers,
 } from './utils.js';
 
 /*
@@ -24,12 +20,12 @@ import {
  *   runAdAuction({ seller: 'foo', decision_logic_url: 'http://example.com/auction', interst_group_buyers: [ 'www.buyer.com' ] });
  */
 export default async function runAdAuction (conf) {
-	validateParam(conf, 'object');
-	isMissingRequiredOptions(conf, [ 'seller', 'decision_logic_url', 'interest_group_buyers' ]);
-	hasInvalidOptionTypes(conf, types);
+	validate.param(conf, 'object');
+	validate.hasRequiredKeys(conf, [ 'seller', 'decision_logic_url', 'interest_group_buyers' ]);
+	validate.hasInvalidOptionTypes(conf, types);
 
 	const buyers = await db.store.getAll(IG_STORE);
-	const eligibleBuyers = filterBuyers(buyers, conf.interest_group_buyers);
+	const eligibleBuyers = getEligibleBuyers(buyers, conf.interest_group_buyers);
 	if (!eligibleBuyers) {
 		return null;
 	}

@@ -2,7 +2,7 @@
 
 /*
  * @function
- * @name isMissingRequiredOptions
+ * @name hasRequiredKeys
  * @description Searches an object for required keys
  * @author Newton <cnewton@magnite.com>
  * @param {object} obj - An object to validate that required keys are present
@@ -11,9 +11,9 @@
  * @return {false} If no required keys are missing
  *
  * @example
- *   isMissingRequiredOptions({ foo: 'bar', baz: 'qux' }, [ 'foo' ]));
+ *   hasRequiredKeys({ foo: 'bar', baz: 'qux' }, [ 'foo' ]));
  */
-export const isMissingRequiredOptions = (obj, keys) => {
+const hasRequiredKeys = (obj, keys) => {
 	const missing = keys.filter(key => !obj.hasOwnProperty(key));
 
 	if (missing.length) {
@@ -37,7 +37,7 @@ export const isMissingRequiredOptions = (obj, keys) => {
  *   printInvalidOptionTypes({ foo: 0 }, [ 'foo' ], { foo: 'string' }));
  *   // [ `'mock' requires a type of "string"! A type of number was provided instead.` ]
  */
-export const printInvalidOptionTypes = (options, invalid, types) => invalid.map(item => `'${item}' requires a type of "${types[item]}"! A type of ${typeof options[item]} was provided instead.`);
+const printInvalidOptionTypes = (options, invalid, types) => invalid.map(item => `'${item}' requires a type of "${types[item]}"! A type of ${typeof options[item]} was provided instead.`);
 
 /*
  * @function
@@ -54,7 +54,7 @@ export const printInvalidOptionTypes = (options, invalid, types) => invalid.map(
  *   validateType.string('foo');
  *   validateType.url({ foo: 'bar' });
  */
-export const validateType = {
+const validateType = {
 	array: arr => arr !== 'undefined' && Array.isArray(arr),
 	number: num => num !== 'undefined' && typeof num === 'number',
 	object: obj => obj !== 'undefined' && typeof obj === 'object' && obj !== null && !Array.isArray(obj),
@@ -81,7 +81,7 @@ export const validateType = {
  * @example
  *    validateParam('a-string', 'number'));
  */
-export const validateParam = (param, type) => {
+const validateParam = (param, type) => {
 	const valid = validateType[type](param);
 	if (!valid) {
 		throw new Error(`Must be of type "${type}"! ${typeof param} was provided.`);
@@ -103,7 +103,7 @@ export const validateParam = (param, type) => {
  * @example
  *    hasInvalideOptionTypes({ foo: 'bar' }, { 'foo': 'string' }));
  */
-export const hasInvalidOptionTypes = (options, types) => {
+const hasInvalidOptionTypes = (options, types) => {
 	const invalid = Object
 		.entries(options)
 		.filter(([ key, value ]) => !validateType[types[key]](value))
@@ -114,4 +114,12 @@ export const hasInvalidOptionTypes = (options, types) => {
 	}
 
 	return false;
+};
+
+export default {
+	hasInvalidOptionTypes,
+	hasRequiredKeys,
+	printInvalidOptionTypes,
+	type: validateType,
+	param: validateParam,
 };
