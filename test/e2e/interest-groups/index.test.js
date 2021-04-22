@@ -15,3 +15,22 @@ describe('Initial test', () => {
 		expect(Object.keys(fledge)).toEqual([ 'joinAdInterestGroup', 'leaveAdInterestGroup' ]);
 	});
 });
+
+describe('joinAdInterestGroup', () => {
+	beforeAll(async () => {
+		await page.goto('http://localhost:3000/test/e2e/interest-groups/');
+	});
+
+	it('should error when no parameters sent', async () => {
+		const result = await page.evaluate(() => {
+			let response = 'no error';
+			try {
+				window.fledge.fledge.joinAdInterestGroup();
+			} catch (e) {
+				response = 'error';
+			}
+			return response;
+		});
+		expect(result).toEqual('error');
+	});
+});
