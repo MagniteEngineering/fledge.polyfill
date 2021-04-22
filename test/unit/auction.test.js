@@ -52,10 +52,10 @@ describe('Interest Groups', () => {
 						await expect(() => fledge.runAdAuction(mockOptionsInvalidTrustedSignalsUrl)).rejects.toThrow();
 					});
 
-					it("should throw an Error when 'interest_group_buyers' is not a valid Array of Strings", async () => {
+					it("should throw an Error when 'interest_group_buyers' is not a valid Array of Strings or a wildcard (*)", async () => {
 						const mockOptionsInvalidInterestGroupBuyers = {
 							...mockAllOptions,
-							interest_group_buyers: 'mock',
+							interest_group_buyers: 0,
 						};
 						await expect(() => fledge.runAdAuction(mockOptionsInvalidInterestGroupBuyers)).rejects.toThrow();
 					});
