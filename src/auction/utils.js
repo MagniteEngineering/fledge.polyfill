@@ -1,6 +1,15 @@
 /* eslint-disable camelcase, compat/compat */
 
-export const filterBuyers = (buyers, eligible) => {
+/*
+ * @function
+ * @name getEligibleBuyers
+ * @description filter all buyers by their owner field to ensure they're eligible to bid
+ * @author Newton <cnewton@magnite.com>
+ * @param {array<Object>} buyers - an array of objects containing interest group buyers
+ * @param {array<String>} eligible - a list of eligible owners to check against
+ * @return {Array<Object> | null} an array of objects; null if none found;
+ */
+export const getEligibleBuyers = (buyers, eligible) => {
 	const eligibleBuyers = buyers.filter(({ owner }) => eligible.includes(owner));
 
 	if (eligibleBuyers.length) {
@@ -10,6 +19,15 @@ export const filterBuyers = (buyers, eligible) => {
 	return null;
 };
 
+/*
+ * @function
+ * @name getBids
+ * @description given a set of bidders, grab their bid
+ * @author Newton <cnewton@magnite.com>
+ * @param {array<Object>} bidders - a list of eligible owners to bid
+ * @param {array<Object>} conf - an auction configuration object
+ * @return {object | null} an array of objects containing bids; null if none found
+ */
 export const getBids = async (bidders, conf) => Promise.all(
 	bidders.map(async bidder => {
 		const { generate_bid } = await import(bidder.bidding_logic_url);
@@ -20,6 +38,7 @@ export const getBids = async (bidders, conf) => Promise.all(
 			return null;
 		}
 
+		// @TODO: need to figure out how to pull in trusted bidding signals
 		const bid = generate_bid(bidder, conf?.auction_signals, conf?.per_buyer_signals?.[bidder.owner], conf?.trusted_bidding_signals, {
 			top_window_hostname: window.top.location.hostname,
 			seller: conf.seller,
@@ -42,6 +61,15 @@ export const getBids = async (bidders, conf) => Promise.all(
 	}),
 );
 
+/*
+ * @function
+ * @name getScores
+ * @description given a set of bids, grab their score
+ * @author Newton <cnewton@magnite.com>
+ * @param {array<Object>} bids - a list of eligible owners to bid
+ * @param {array<Object>} conf - an auction configuration object
+ * @return {object | null} a sorted, filtered array of objects containing scores
+ */
 export const getScores = async (bids, conf) => {
 	const { score_ad } = await import(conf.decision_logic_url);
 	// check if there is even a score_ad function
