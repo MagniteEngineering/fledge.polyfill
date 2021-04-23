@@ -2,22 +2,21 @@
 
 /*
  * @function
- * @name getEligibleBuyers
+ * @name getEligible
  * @description filter all buyers by their owner field to ensure they're eligible to bid
  * @author Newton <cnewton@magnite.com>
  * @param {array<Object>} buyers - an array of objects containing interest group buyers
  * @param {array<String>} eligible - a list of eligible owners to check against
  * @return {Array<Object> | null} an array of objects; null if none found;
  */
-export const getEligibleIGBuyers = (groups, eligibility) => {
+export const getEligible = (groups, eligibility) => {
 	if (eligibility === '*') {
 		return groups;
 	}
 
-	const eligibleIGBuyers = groups.filter(({ owner }) => eligibility.includes(owner));
-
-	if (eligibleIGBuyers.length) {
-		return eligibleIGBuyers;
+	const eligible = groups.filter(({ owner }) => eligibility.includes(owner));
+	if (eligible.length) {
+		return eligible;
 	}
 
 	return null;

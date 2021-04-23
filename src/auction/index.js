@@ -3,7 +3,7 @@ import validate from '../utils/validation.js';
 import types from './types.js';
 import {
 	getBids,
-	getEligibleIGBuyers,
+	getEligible,
 	getScores,
 	uuidv4,
 } from './utils.js';
@@ -29,13 +29,13 @@ export default async function runAdAuction (conf) {
 	const interestGroups = await db.store.getAll(IG_STORE);
 
 	// console.info('checking eligibility of buyers based on "interest_group_buyers"');
-	const eligibleIGBuyers = getEligibleIGBuyers(interestGroups, conf.interest_group_buyers);
-	if (!eligibleIGBuyers) {
+	const eligible = getEligible(interestGroups, conf.interest_group_buyers);
+	if (!eligible) {
 		return null;
 	}
 
 	// console.info('get all bids from each buyer');
-	const bids = await getBids(eligibleIGBuyers, conf);
+	const bids = await getBids(eligible, conf);
 	if (!bids.length) {
 		return null;
 	}
