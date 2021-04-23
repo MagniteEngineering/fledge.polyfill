@@ -1,26 +1,16 @@
 import { openDB } from 'idb';
 
 /*
- * @const {number}
- * @summary the name of the Interest Group store within IndexedDB
- * @description Milliseconds occuring per day multiplied by the maximum number of days (maximum dayus (30) * hours per day (24) * minutes per hour (60) * seconds per minute (60) * milliseconds per second (1000))
+ * @const {string}
+ * @summary the name of the Auction store within IndexedDB
  */
-const IG_STORE = 'interest-groups';
+export const AUCTION_STORE = 'auction';
 
 /*
- * @function
- * @name getKey
- * @description retrieve the key for an interest group form the store
- * @author Newton <cnewton@magnite.com>
- * @param {string} owner - owner of the interest group
- * @param {string} name - name of the interest group
- * @return {object} an object representing an interest group
- *
- * @example
- *   getKey('foo', 'bar');
- *   // 'foo-bar'
+ * @const {string}
+ * @summary the name of the Interest Group store within IndexedDB
  */
-const getKey = (owner, name) => `${owner}-${name}`;
+export const IG_STORE = 'interest-groups';
 
 /*
  * @function
@@ -28,44 +18,44 @@ const getKey = (owner, name) => `${owner}-${name}`;
  * @description create an Indexed dB
  * @author Newton <cnewton@magnite.com>
  * @return {promise} a promise
- *
- * @example
- *   getKey('foo', 'bar');
- *   // 'foo-bar'
  */
 const db = openDB('Fledge', 1, {
 	upgrade (db) {
 		// Create a store of objects
-		const store = db.createObjectStore(IG_STORE, {
+		const igStore = db.createObjectStore(IG_STORE, {
 			// The '_key' property of the object will be the key.
 			keyPath: '_key',
 		});
 
 		// Create an index on the a few properties of the objects.
 		[ 'owner', 'name', '_expired' ].forEach(index => {
-			store.createIndex(index, index, { unique: false });
+			igStore.createIndex(index, index, { unique: false });
+		});
+
+		db.createObjectStore(AUCTION_STORE, {
+			// The 'id' property of the object will be the key.
+			keyPath: 'id',
 		});
 	},
 });
 
 /*
  * @function
- * @name getInterestGroup
- * @description retrieve the key for an interest group form the store
+ * @name getItemFromStore
+ * @description retrieve an item from an IDB store
  * @author Newton <cnewton@magnite.com>
- * @param {string} owner - owner of the interest group
- * @param {string} name - name of the interest group
+ * @param {string} store - the name of the store from which to retreive
+ * @param {string} id - the id; typically matches the keyPath of a store
  * @return {object} an object representing an interest group
  *
  * @example
- *   db.read('foo', 'bar');
- *   // 'foo-bar'
+ *   store.get('someStore', 'foo');
  */
-async function getInterestGroup (owner, name) {
-	const group = (await db).get(IG_STORE, getKey(owner, name));
+async function getItemFromStore (store, id) {
+	const item = (await db).get(store, id);
 
-	if (group) {
-		return group;
+	if (item) {
+		return item;
 	}
 
 	return null;
@@ -73,70 +63,91 @@ async function getInterestGroup (owner, name) {
 
 /*
  * @function
- * @name updateInterestGroup
- * @description update an interest groups values
+ * @name getAllFromStore
+ * @description retrieve all items from an IDB store
  * @author Newton <cnewton@magnite.com>
- * @param {object} group - An existing interest group
- * @param {object} options - An object of options to create an interest group {@link types}
- * @param {number} expiry - A number of the days (in milliseconds) an interest group should exist, not to exceed 30 days
- * @return {string} the key of the interest group
+ * @param {string} store - the name of the store from which to retreive
+ * @return {array<Object>} an array of objects representing all items from a store
  *
  * @example
- *   db.update({ bidding_logic_url: '://v2/bid' }, { owner: 'foo', name: 'bar' }, 1234);
- *   // 'foo-bar'
+ *   store.getAll('someStore');
  */
-async function updateInterestGroup (group, options, expiry) {
-	const updated = {
-		...group,
-		...options,
-		_expired: expiry,
-		_updated: Date.now(),
-	};
+async function getAllFromStore (store) {
+	const items = (await db).getAll(store);
 
-	return (await db).put(IG_STORE, updated);
+	if (items) {
+		return items;
+	}
+
+	return null;
 }
 
 /*
  * @function
- * @name createInterestGroup
- * @description create a interest group in the Indexed dB
+ * @name updateItemInStore
+ * @description update an item in an IDB store
  * @author Newton <cnewton@magnite.com>
- * @param {object} options - An object of options to create an interest group {@link types}
- * @param {number} expiry - A number of the days (in milliseconds) an interest group should exist, not to exceed 30 days
- * @return {string} the key of the interest group
+ * @param {string} store - the name of the store from which to retreive
+ * @param {object} item - An existing item
+ * @param {object} newOptions - a new set of options to merge with the item
+ * @return {string} the key of the item updated
  *
  * @example
- *   db.create({ owner: 'foo', name: 'bar' }, 1234);
- *   // { owner: 'foo', name: 'bar', ... }
+ *   store.put('someStore', { bidding_logic_url: '://v2/bid' }, { owner: 'foo', name: 'bar' }, 1234);
  */
-async function createInterestGroup (options, expiry) {
-	return (await db).add(IG_STORE, {
-		_key: getKey(options.owner, options.name),
+async function updateItemInStore (store, item, newOptions) {
+	const updated = {
+		...item,
+		...newOptions,
+		_updated: Date.now(),
+	};
+
+	return (await db).put(store, updated);
+}
+
+/*
+ * @function
+ * @name createItemInStore
+ * @description create an item in an IDB store
+ * @author Newton <cnewton@magnite.com>
+ * @param {string} store - the name of the store from which to retreive
+ * @param {object} options - An object of options to make up item
+ * @return {string} the key of the item created
+ *
+ * @example
+ *   store.add('someStore', { owner: 'foo', name: 'bar' });
+ */
+async function createItemInStore (store, options) {
+	return (await db).add(store, {
+		...options,
 		_created: Date.now(),
 		_updated: Date.now(),
-		_expired: Date.now() + expiry,
-		...options,
 	});
 }
 
 /*
  * @function
- * @name deleteInterestGroup
+ * @name deleteItemFromStore
  * @description delete a record from Indexed dB
  * @author Newton <cnewton@magnite.com>
- * @param {string} key - a key made of the owner and name separated by a hyphen
+ * @param {string} store - the name of the store from which to retreive
+ * @param {string} id - the id; typically matches the keyPath of a store
  * @return {undefined}
  *
  * @example
- *   db.delete('owner-name');
+ *   store.delete('owner-name');
  */
-async function deleteInterestGroup (group) {
-	return (await db).delete(IG_STORE, getKey(group.owner, group.name));
+async function deleteItemFromStore (store, id) {
+	return (await db).delete(store, id);
 }
 
 export default {
-	create: createInterestGroup,
-	read: getInterestGroup,
-	update: updateInterestGroup,
-	delete: deleteInterestGroup,
+	db,
+	store: {
+		add: createItemInStore,
+		get: getItemFromStore,
+		getAll: getAllFromStore,
+		put: updateItemInStore,
+		delete: deleteItemFromStore,
+	},
 };

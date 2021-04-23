@@ -1,10 +1,10 @@
-import { fledge } from '../../src/';
+import fledge from '../../src/';
 import {
 	mockAllOptions,
 	mockExpiry,
 	mockMaxExpiry,
 	mockOptionals,
-} from './mocks';
+} from './interest-groups.mock';
 
 describe('Interest Groups', () => {
 	describe('joinAdInterestGroup', () => {
