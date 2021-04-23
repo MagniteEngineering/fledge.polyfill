@@ -41,13 +41,13 @@ export default async function runAdAuction (conf) {
 	}
 
 	// console.info('get the winning bid');
-	const scores = await getScores(bids, conf);
-	if (!scores.length) {
+	const [ winner ] = await getScores(bids, conf);
+	if (!winner) {
 		return null;
 	}
 
 	// console.info('creating an entry in the auction store');
-	const token = await db.store.add(AUCTION_STORE, { id: uuidv4(), scores });
+	const token = await db.store.add(AUCTION_STORE, { id: uuidv4(), ...winner });
 	if (!token) {
 		return null;
 	}
