@@ -27,7 +27,7 @@ export const getEligible = (groups, eligibility) => {
  * @name getBids
  * @description given a set of bidders, grab their bid
  * @author Newton <cnewton@magnite.com>
- * @param {array<Object>} bidders - a list of eligible owners to bid
+ * @param {array<Object>} bidders - a list of bidders (also referred to as interest groups)
  * @param {array<Object>} conf - an auction configuration object
  * @return {object | null} an array of objects containing bids; null if none found
  */
@@ -91,7 +91,7 @@ export const getScores = async (bids, conf) => {
 		});
 
 		return {
-			...bid,
+			bid,
 			score,
 		};
 	})
