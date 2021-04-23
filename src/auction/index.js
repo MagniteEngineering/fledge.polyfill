@@ -26,10 +26,10 @@ export default async function runAdAuction (conf) {
 	validate.hasInvalidOptionTypes(conf, types);
 
 	// console.info('get all interest groups');
-	const buyers = await db.store.getAll(IG_STORE);
+	const interestGroups = await db.store.getAll(IG_STORE);
 
 	// console.info('checking eligibility of buyers based on "interest_group_buyers"');
-	const eligibleBuyers = getEligibleBuyers(buyers, conf.interest_group_buyers);
+	const eligibleIntestGroups = getEligibleInterestGroups(interestGroups, conf.interest_group_buyers);
 	if (!eligibleBuyers) {
 		return null;
 	}
@@ -42,13 +42,16 @@ export default async function runAdAuction (conf) {
 
 	// console.info('get the winning bid');
 	const scores = await getScores(bids, conf);
-	const token = uuidv4();
+	if (!scores.length) {
+		return null;
+ 	}
+	const uuid = uuidv4();
 
 	// console.info('creating an entry in the auction store');
-	const entries = await db.store.add(AUCTION_STORE, {
-		_id: token,
+	const token = await db.store.add(AUCTION_STORE, {
+		_id: uuid,
 		scores,
 	});
 
-	return entries;
+	return token;
 }
