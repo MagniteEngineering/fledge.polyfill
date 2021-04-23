@@ -5,7 +5,7 @@ import {
 	getBids,
 	getEligible,
 	getScores,
-	uuidv4,
+	uuid,
 } from './utils.js';
 
 /*
@@ -47,7 +47,7 @@ export default async function runAdAuction (conf) {
 	}
 
 	// console.info('creating an entry in the auction store');
-	const token = await db.store.add(AUCTION_STORE, { id: uuidv4(), ...winner });
+	const token = await db.store.add(AUCTION_STORE, { id: uuid(), ...winner });
 	if (!token) {
 		return null;
 	}
