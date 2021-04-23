@@ -144,5 +144,16 @@ export const getTrustedSignals = async (url, keys) => {
 			throw new Error('There was a problem with your fetch operation:', error);
 		});
 
-	return response;
+	const signals = {};
+	for (const [ key, value ] of response) {
+		if (keys.includes(key)) {
+			signals[key] = value;
+		}
+	}
+
+	if (!(signals && Object.keys(signals).length === 0 && signals.constructor === Object)) {
+		return null;
+	}
+
+	return signals;
 };
