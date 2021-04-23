@@ -6,7 +6,7 @@
 	</head>
 	<body>
 		<script type="module">
-			import { fledge } from '../../dist/esm/index.js';
+			import fledge from '../../dist/esm/index.js';
 
 			const options = {
 				seller: 'www.ssp.com',
@@ -15,6 +15,7 @@
 			};
 
 			const auctionResults = await fledge.runAdAuction(options);
+			console.log({auctionResults});
 		</script>
 	</body>
 </html>
