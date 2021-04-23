@@ -5,8 +5,8 @@
  * @name getEligible
  * @description filter all buyers by their owner field to ensure they're eligible to bid
  * @author Newton <cnewton@magnite.com>
- * @param {array<Object>} buyers - an array of objects containing interest group buyers
- * @param {array<String>} eligible - a list of eligible owners to check against
+ * @param {array<Object>} groups - an array of objects containing interest group buyers
+ * @param {array<String>} eligibility - a list of eligible owners to check against
  * @return {Array<Object> | null} an array of objects; null if none found;
  */
 export const getEligible = (groups, eligibility) => {
@@ -69,7 +69,7 @@ export const getBids = async (bidders, conf) => Promise.all(
  * @name getScores
  * @description given a set of bids, grab their score
  * @author Newton <cnewton@magnite.com>
- * @param {array<Object>} bids - a list of eligible owners to bid
+ * @param {array<Object>} bids - a list of bids to score
  * @param {array<Object>} conf - an auction configuration object
  * @return {object | null} a sorted, filtered array of objects containing scores
  */
