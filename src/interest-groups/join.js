@@ -1,10 +1,9 @@
-import db from '../utils/db.js';
-import {
-	hasInvalidOptionTypes,
-	isMissingRequiredOptions,
-	validateParam,
-} from '../utils/index.js';
+import db, { IG_STORE } from '../utils/db.js';
+import validate from '../utils/validation.js';
 import types from './types.js';
+import {
+	getIGKey,
+} from './utils.js';
 
 /*
  * @const {number}
@@ -27,23 +26,30 @@ const MAX_EXPIRATION = 2592000000;
  *   joinAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' }, 2592000000);
  */
 export default async function joinAdInterestGroup (options, expiry) {
-	validateParam(options, 'object');
-	validateParam(expiry, 'number');
-	isMissingRequiredOptions(options, [ 'owner', 'name', 'bidding_logic_url' ]);
-	hasInvalidOptionTypes(options, types);
+	validate.param(options, 'object');
+	validate.param(expiry, 'number');
+	validate.hasRequiredKeys(options, [ 'owner', 'name', 'bidding_logic_url' ]);
+	validate.hasInvalidOptionTypes(options, types);
 
 	if (expiry > MAX_EXPIRATION) {
 		throw new Error(`'expiry' is set past the allowed maximum value. You must provide an expiration that is less than or equal to ${MAX_EXPIRATION}.`);
 	}
 
 	// console.info('checking for an existing interest group');
-	const group = await db.read(options.owner, options.name);
+	const group = await db.store.get(IG_STORE, getIGKey(options.owner, options.name));
 	if (group) {
 		// console.info('updating a new interest group');
-		await db.update(group, options, expiry);
+		await db.store.put(IG_STORE, group, {
+			_expired: Date.now() + expiry,
+			...options,
+		});
 	} else {
 		// console.info('creating a new interest group');
-		await db.create(options, expiry);
+		await db.store.add(IG_STORE, {
+			_key: getIGKey(options.owner, options.name),
+			_expired: Date.now() + expiry,
+			...options,
+		});
 	}
 
 	return true;
