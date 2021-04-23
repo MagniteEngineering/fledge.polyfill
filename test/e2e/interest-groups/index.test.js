@@ -11,7 +11,7 @@ describe('joinAdInterestGroup', () => {
 	});
 
 	it('should return true when provided minimum required params', async () => {
-		const fledge = await page.evaluate(() =>
+		const result = await page.evaluate(() =>
 			window.fledge.fledge.joinAdInterestGroup({
 				owner: 'magnite.com',
 				name: 'test-interest',
