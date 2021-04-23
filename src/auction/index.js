@@ -3,7 +3,7 @@ import validate from '../utils/validation.js';
 import types from './types.js';
 import {
 	getBids,
-	getEligibleBuyers,
+	getEligibleIGBuyers,
 	getScores,
 	uuidv4,
 } from './utils.js';
@@ -29,13 +29,13 @@ export default async function runAdAuction (conf) {
 	const interestGroups = await db.store.getAll(IG_STORE);
 
 	// console.info('checking eligibility of buyers based on "interest_group_buyers"');
-	const eligibleIntestGroups = getEligibleInterestGroups(interestGroups, conf.interest_group_buyers);
-	if (!eligibleBuyers) {
+	const eligibleIGBuyers = getEligibleIGBuyers(interestGroups, conf.interest_group_buyers);
+	if (!eligibleIGBuyers) {
 		return null;
 	}
 
 	// console.info('get all bids from each buyer');
-	const bids = await getBids(eligibleBuyers, conf);
+	const bids = await getBids(eligibleIGBuyers, conf);
 	if (!bids.length) {
 		return null;
 	}
@@ -44,14 +44,13 @@ export default async function runAdAuction (conf) {
 	const scores = await getScores(bids, conf);
 	if (!scores.length) {
 		return null;
- 	}
-	const uuid = uuidv4();
+	}
 
 	// console.info('creating an entry in the auction store');
-	const token = await db.store.add(AUCTION_STORE, {
-		_id: uuid,
-		scores,
-	});
+	const token = await db.store.add(AUCTION_STORE, { id: uuidv4(), scores });
+	if (!token) {
+		return null;
+	}
 
 	return token;
 }

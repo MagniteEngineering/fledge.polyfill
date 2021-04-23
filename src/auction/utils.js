@@ -9,15 +9,15 @@
  * @param {array<String>} eligible - a list of eligible owners to check against
  * @return {Array<Object> | null} an array of objects; null if none found;
  */
-export const getEligibleBuyers = (buyers, eligible) => {
-	if (eligible === '*') {
-		return buyers;
+export const getEligibleIGBuyers = (groups, eligibility) => {
+	if (eligibility === '*') {
+		return groups;
 	}
 
-	const eligibleBuyers = buyers.filter(({ owner }) => eligible.includes(owner));
+	const eligibleIGBuyers = groups.filter(({ owner }) => eligibility.includes(owner));
 
-	if (eligibleBuyers.length) {
-		return eligibleBuyers;
+	if (eligibleIGBuyers.length) {
+		return eligibleIGBuyers;
 	}
 
 	return null;

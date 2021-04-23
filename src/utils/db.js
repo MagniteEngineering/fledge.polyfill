@@ -34,7 +34,7 @@ const db = openDB('Fledge', 1, {
 
 		db.createObjectStore(AUCTION_STORE, {
 			// The 'id' property of the object will be the key.
-			keyPath: '_id',
+			keyPath: 'id',
 		});
 	},
 });
