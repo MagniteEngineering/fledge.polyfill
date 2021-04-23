@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Fledge Auction Testing</title>
+	</head>
+	<body>
+		<script type="module">
+			import fledge from '../../dist/esm/index.js';
+
+			const options = {
+				seller: 'www.ssp.com',
+				interest_group_buyers: '*',
+				decision_logic_url: 'https://entertaining-glitter-bowler.glitch.me/score.js',
+			};
+
+			const auctionResults = await fledge.runAdAuction(options);
+			console.log({auctionResults});
+		</script>
+	</body>
+</html>
