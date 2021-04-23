@@ -18,7 +18,7 @@ describe('joinAdInterestGroup', () => {
 				bidding_logic_url: 'https://fledge.magnite.com/bl.js',
 			}, 60000),
 		);
-		expect(fledge).toBe(true);
+		expect(result).toBe(true);
 	});
 
 	it('should store expected data in local storage', async () => {
