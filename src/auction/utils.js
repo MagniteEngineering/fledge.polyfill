@@ -41,8 +41,10 @@ export const getBids = async (bidders, conf) => Promise.all(
 			return null;
 		}
 
-		// @TODO: need to figure out how to pull in trusted bidding signals
-		const bid = generate_bid(bidder, conf?.auction_signals, conf?.per_buyer_signals?.[bidder.owner], conf?.trusted_bidding_signals, {
+		const trustedSignals = await getTrustedSignals(bidder?.trusted_bidding_signals_url, bidder?.trusted_bidding_signals_keys);
+
+		// generate a bid by providing all of the necessary information
+		const bid = generate_bid(bidder, conf?.auction_signals, conf?.per_buyer_signals?.[bidder.owner], trustedSignals, {
 			top_window_hostname: window.top.location.hostname,
 			seller: conf.seller,
 		});
@@ -107,3 +109,40 @@ export const getScores = async (bids, conf) => {
  */
 export const uuid = () => ([ 1e7 ] + -1e3 + -4e3 + -8e3 + -1e11)
 	.replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+
+/*
+ * @function
+ * @name getTrustedSignals
+ * @description grab the data from trusted bidding signals URL and keys
+ * @author Newton <cnewton@magnite.com>
+ * @param {string} a valid URL in the form of a string
+ * @param {array<String>} an array of strings
+ * @return {object} a JSON response
+ */
+export const getTrustedSignals = async (url, keys) => {
+	const hostname = `hostname=${window.top.location.hostname}`;
+
+	if (!(url && keys)) {
+		return undefined;
+	}
+
+	const isJSON = response => /\bapplication\/json\b/.test(response?.headers?.get('content-type'));
+
+	const response = await fetch(`${url}?${hostname}&keys=${keys.join(',')}`)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error('Something went wrong! The response returned was not ok.');
+			}
+
+			if (!isJSON(response)) {
+				throw new Error('Response was not in the format of JSON.');
+			}
+
+			return response.json();
+		})
+		.catch(error => {
+			throw new Error('There was a problem with your fetch operation:', error);
+		});
+
+	return response;
+};
