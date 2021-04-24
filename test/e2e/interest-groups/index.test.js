@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 describe('Fledge', () => {
 	describe('joinAdInterestGroup', () => {
-		beforeAll(async () => {
+		beforeEach(async () => {
 			await page.goto('http://localhost:3000/test/e2e/interest-groups/');
 		});
 
