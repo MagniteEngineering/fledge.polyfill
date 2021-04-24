@@ -78,7 +78,7 @@
   "scripts": {
     "audit": "bundlesize --config ./node_modules/@theholocron/bundlewatch-config/index.js",
     "commit": "commit",
-    "dist": "rollup -c node:@theholocron/rollup-config --name=fledge --exports=default",
+    "dist": "rollup -c node:@theholocron/rollup-config --name=fledge",
     "lint": "eslint .",
     "serve": "serve . -l 3000",
     "release": "semantic-release",

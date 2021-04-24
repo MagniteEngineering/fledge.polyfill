@@ -1,18 +1,18 @@
 /* eslint-disable no-undef */
 describe('Fledge', () => {
 	describe('joinAdInterestGroup', () => {
-		beforeEach(async () => {
+		beforeAll(async () => {
 			await page.goto('http://localhost:3000/test/e2e/interest-groups/');
 		});
 
 		it('should error when no parameters sent', async () => {
-			const fledge = await page.evaluate(() => window.fledge.fledge);
+			const fledge = await page.evaluate(() => window.fledge);
 			expect(() => fledge.joinAdInterestGroup()).toThrow();
 		});
 
 		it('should return true when provided minimum required params', async () => {
 			const result = await page.evaluate(() =>
-				window.fledge.fledge.joinAdInterestGroup({
+				window.fledge.joinAdInterestGroup({
 					owner: 'magnite.com',
 					name: 'test-interest',
 					bidding_logic_url: 'https://fledge.magnite.com/bl.js',
