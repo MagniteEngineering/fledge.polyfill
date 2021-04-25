@@ -2,7 +2,7 @@
 describe('Fledge', () => {
 	describe('joinAdInterestGroup', () => {
 		beforeEach(async () => {
-			await page.goto('http://localhost:3000/test/e2e/interest-groups/');
+			await page.goto('http://localhost:3000/test/e2e/');
 		});
 
 		it('should error when no parameters sent', async () => {
