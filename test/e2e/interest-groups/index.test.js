@@ -6,27 +6,19 @@ describe('Fledge', () => {
 		});
 
 		it('should error when no parameters sent', async () => {
-			await expect(async () => {
-				await page.evaluate(() =>
-					window.fledge.joinAdInterestGroup(),
-				);
-			}).rejects.toThrow();
+			const fledge = await page.evaluate(() => window.fledge);
+			expect(() => fledge.joinAdInterestGroup()).toThrow();
 		});
 
-		it('should not error went provided minimum required params', async () => {
-			let errorThrown = false;
-			try {
-				await page.evaluate(() =>
-					window.fledge.joinAdInterestGroup({
-						owner: 'magnite.com',
-						name: 'test-interest',
-						bidding_logic_url: 'https://fledge.magnite.com/bl.js',
-					}, 60000),
-				);
-			} catch (e) {
-				errorThrown = true;
-			}
-			expect(errorThrown).toBe(false);
+		it('should return true when provided minimum required params', async () => {
+			const result = await page.evaluate(() =>
+				window.fledge.joinAdInterestGroup({
+					owner: 'magnite.com',
+					name: 'test-interest',
+					bidding_logic_url: 'https://fledge.magnite.com/bl.js',
+				}, 60000),
+			);
+			expect(result).toBe(true);
 		});
 
 		it('should store expected data in local storage', async () => {
@@ -36,11 +28,7 @@ describe('Fledge', () => {
 				bidding_logic_url: 'https://fledge.magnite.com/bl.js',
 			};
 			const expiry = 60000;
-			await page.evaluate((igObject, expiry) =>
-				window.fledge.joinAdInterestGroup(igObject, expiry),
-			igObject,
-			expiry,
-			);
+			await page.evaluate((igObject, expiry) => window.fledge.joinAdInterestGroup(igObject, expiry), igObject, expiry);
 			const result = await page.evaluate(() => {
 				// eslint-disable-next-line
 				const myPromise = new Promise((resolve, reject) => {
