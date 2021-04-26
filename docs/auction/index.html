@@ -5,6 +5,7 @@
 		<title>Fledge Auction Testing</title>
 	</head>
 	<body>
+		<div id="ad-slot-1"></div>
 		<script type="module">
 			import fledge from '../../dist/esm/index.js';
 
@@ -16,6 +17,8 @@
 
 			const auctionResults = await fledge.runAdAuction(options);
 			console.log({auctionResults});
+
+			await fledge.renderAd('#ad-slot-1', auctionResults);
 		</script>
 	</body>
 </html>
