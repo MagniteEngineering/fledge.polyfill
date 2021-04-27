@@ -41,8 +41,8 @@ export default async function renderAd (selector, token, debug = false) {
 	}
 
 	debug && echo.info('checking that winner to be rendered is on the same hostname as the auction');
-	if (winner?.hostname !== window.top.location.hostname) {
-		debug && echo.error(`Attempting to render the winner on a location that doesn't match the auctions hostname`, { winner: winner.hostname, auction: window.top.location.hostname });
+	if (winner?.origin !== `${window.top.location.origin}${window.top.location.pathname}`) {
+		debug && echo.error(`Attempting to render the winner on a location that doesn't match the auctions hostname`, { winner: winner.origin, auction: `${window.top.location.origin}${window.top.location.pathname}` });
 		throw new Error('Something went wrong! No ad was rendered.');
 	}
 	debug && echo.info('rendering an iframe with the winning ad');

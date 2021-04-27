@@ -6,7 +6,7 @@ jest.mock('../../src/utils/db', () => ({
 		get: () => new Promise(resolve => {
 			resolve({
 				id: 'c6b3fd61-4d16-44d1-9364-acc9ceb286f3',
-				hostname: 'localhost',
+				origin: 'http://localhost/',
 			});
 		}),
 	},

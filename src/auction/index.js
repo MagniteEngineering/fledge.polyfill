@@ -43,13 +43,16 @@ export default async function runAdAuction (conf, debug = false) {
 	debug && echo.info('getting all bids from each buyer');
 	const bids = await getBids(eligible, conf);
 	debug && echo.table(bids);
-	if (!bids.length) {
+	debug && echo.info('filtering out invalid bids');
+	const filteredBids = bids.filter(item => item);
+	debug && echo.table(filteredBids);
+	if (!filteredBids.length) {
 		debug && echo.error('No bids found!');
 		return null;
 	}
 
 	debug && echo.info('getting all scores, filtering and sorting');
-	const [ winner ] = await getScores(bids, conf);
+	const [ winner ] = await getScores(filteredBids, conf);
 	debug && echo.log('winner:', winner);
 	if (!winner) {
 		debug && echo.error('No winner found!');
@@ -57,7 +60,12 @@ export default async function runAdAuction (conf, debug = false) {
 	}
 
 	debug && echo.info('creating an entry in the auction store');
-	const token = await db.store.add(AUCTION_STORE, { id: uuid(), ...winner, hostname: window.top.location.hostname });
+	const token = await db.store.add(AUCTION_STORE, {
+		id: uuid(),
+		origin: `${window.top.location.origin}${window.top.location.pathname}`,
+		timestamp: Date.now(),
+		...winner,
+	});
 	debug && echo.log('auction token:', token);
 	if (!token) {
 		debug && echo.error('No auction token found!');
