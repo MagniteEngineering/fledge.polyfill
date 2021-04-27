@@ -11,13 +11,21 @@ describe('Fledge', () => {
 		});
 
 		it('should return token when provided minimum required params', async () => {
+			const igObject = {
+				owner: 'magnite.com',
+				name: 'test-interest',
+				bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
+			};
+			const expiry = 100000;
+			await page.evaluate((igObject, expiry) => window.fledge.joinAdInterestGroup(igObject, expiry), igObject, expiry);
+
 			const result = await page.evaluate(() =>
 				window.fledge.runAdAuction({
 					seller: 'publisher.example',
-					decision_logic_url: 'https://fledge.magnite.com/dl.js',
-					trusted_scoring_signals_url: 'https://fledge.magnite.com/tss/',
+					decision_logic_url: 'http://localhost:3000/test/e2e/mock/dl.js',
+					trusted_scoring_signals_url: 'http://localhost:3000/test/e2e/tss/',
 					interest_group_buyers: '*',
-					addition_bids: [
+					additional_bids: [
 						{
 							price: 1,
 							class: 'deal',
