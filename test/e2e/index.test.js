@@ -11,6 +11,6 @@ describe('Fledge', () => {
 
 	it('should provide the API methods', async () => {
 		const fledge = await page.evaluate(() => window.fledge);
-		expect(Object.keys(fledge)).toEqual([ 'runAdAuction', 'joinAdInterestGroup', 'leaveAdInterestGroup' ]);
+		expect(Object.keys(fledge)).toEqual([ 'joinAdInterestGroup', 'leaveAdInterestGroup', 'renderAd', 'runAdAuction' ]);
 	});
 });
