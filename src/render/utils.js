@@ -27,6 +27,7 @@ export const renderFrame = (target, source) => {
 	const iframe = document.createElement('iframe');
 	iframe.id = `fledge-auction-${source.id}`;
 	iframe.src = source.bid?.render;
+	iframe.scrolling = 'no';
 	iframe.style.borderWidth = 0;
 	target.appendChild(iframe);
 };
