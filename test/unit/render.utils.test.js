@@ -4,7 +4,10 @@ import fledge from '../../src/';
 jest.mock('../../src/utils/db', () => ({
 	store: {
 		get: () => new Promise(resolve => {
-			resolve({ id: 'c6b3fd61-4d16-44d1-9364-acc9ceb286f3' });
+			resolve({
+				id: 'c6b3fd61-4d16-44d1-9364-acc9ceb286f3',
+				hostname: 'localhost',
+			});
 		}),
 	},
 }));
