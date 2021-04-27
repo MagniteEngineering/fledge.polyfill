@@ -5,6 +5,7 @@
 		<title>Fledge Auction Testing</title>
 	</head>
 	<body>
+		<div id="ad-slot-1"></div>
 		<script type="module">
 			import fledge from '../../dist/esm/index.js';
 
@@ -14,8 +15,8 @@
 				decision_logic_url: 'https://entertaining-glitter-bowler.glitch.me/score.js',
 			};
 
-			const auctionResults = await fledge.runAdAuction(options);
-			console.log({auctionResults});
+			const auctionResults = await fledge.runAdAuction(options, true);
+			await fledge.renderAd('#ad-slot-1', auctionResults, true);
 		</script>
 	</body>
 </html>

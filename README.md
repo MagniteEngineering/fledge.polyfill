@@ -37,10 +37,10 @@ As of this moment, the polyfill is intended to work within the Chrome browser at
     };
 
     // join an interest group
-    fledge.joinAdInterestGroup(options, 864000000).then(response => console.log(response));
+    fledge.joinAdInterestGroup(options, 864000000);
 
     // leave an interest group
-    fledge.leaveAdInterestGroup(options).then(response => console.log(response));
+    fledge.leaveAdInterestGroup(options);
 </script>
 ```
 
@@ -63,13 +63,26 @@ As of this moment, the polyfill is intended to work within the Chrome browser at
 </script>
 ```
 
+### Render the Ad
+
+```html
+<script type="module">
+    import { fledge } from "./node_modules/@magnite/fledge.polyfill/esm/index.js";
+
+    // ...run the auction; see above for full example
+    const auctionResults = await fledge.runAdAuction(options);
+
+    fledge.renderAd(id, auctionResults);
+</script>
+```
 
 ## Where to Find Documentation
 
 The best way to find out what's available is to dig through source code, as each directory has a README file to describe each feature.
 
-* [Auctions](./src/auctions/README.md)
-* [Interest Groups](./src/interest-groups/README.md)
+1. [Tagging Interest Groups](./src/interest-groups/README.md)
+2. [Running an Auction](./src/auctions/README.md)
+3. [Rendering the Winner](./src/render/README.md)
 
 ## How We Track Changes [![Keep a Changelog](https://img.shields.io/badge/Keep%20a%20Changelog-1.0.0-orange)](https://keepachangelog.com/en/1.0.0/)
 

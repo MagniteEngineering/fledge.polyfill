@@ -10,6 +10,16 @@
     "dist",
     "src"
   ],
+  "keywords": [
+    "fledge",
+    "turtledove",
+    "sparrow",
+    "dovekey",
+    "parrrot",
+    "tern",
+    "advertising",
+    "w3c web advertising business group"
+  ],
   "repository": "https://github.com/MagniteEngineering/fledge.polyfill.git",
   "bugs": "https://github.com/MagniteEngineering/fledge.polyfill/issues",
   "releases": "https://github.com/MagniteEngineering/fledge.polyfill/releases",

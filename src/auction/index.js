@@ -1,3 +1,4 @@
+import echo from '../utils/console.js';
 import db, { AUCTION_STORE, IG_STORE } from '../utils/db.js';
 import validate from '../utils/validation.js';
 import types from './types.js';
@@ -20,37 +21,57 @@ import {
  * @example
  *   runAdAuction({ seller: 'foo', decision_logic_url: 'http://example.com/auction', interst_group_buyers: [ 'www.buyer.com' ] });
  */
-export default async function runAdAuction (conf) {
+export default async function runAdAuction (conf, debug = false) {
+	debug && echo.group('Fledge: Auction');
+	debug && echo.log('auction config:', conf);
 	validate.param(conf, 'object');
 	validate.hasRequiredKeys(conf, [ 'seller', 'decision_logic_url', 'interest_group_buyers' ]);
 	validate.hasInvalidOptionTypes(conf, types);
 
-	// console.info('get all interest groups');
+	debug && echo.info('getting all interest groups');
 	const interestGroups = await db.store.getAll(IG_STORE);
+	debug && echo.table(interestGroups);
 
-	// console.info('checking eligibility of buyers based on "interest_group_buyers"');
+	debug && echo.info('checking eligibility of buyers based on "interest_group_buyers"');
 	const eligible = getEligible(interestGroups, conf.interest_group_buyers);
+	debug && echo.table(eligible);
 	if (!eligible) {
+		debug && echo.error('No eligible interest group buyers found!');
 		return null;
 	}
 
-	// console.info('get all bids from each buyer');
+	debug && echo.info('getting all bids from each buyer');
 	const bids = await getBids(eligible, conf);
-	if (!bids.length) {
+	debug && echo.table(bids);
+	debug && echo.info('filtering out invalid bids');
+	const filteredBids = bids.filter(item => item);
+	debug && echo.table(filteredBids);
+	if (!filteredBids.length) {
+		debug && echo.error('No bids found!');
 		return null;
 	}
 
-	// console.info('get the winning bid');
-	const [ winner ] = await getScores(bids, conf);
+	debug && echo.info('getting all scores, filtering and sorting');
+	const [ winner ] = await getScores(filteredBids, conf);
+	debug && echo.log('winner:', winner);
 	if (!winner) {
+		debug && echo.error('No winner found!');
 		return null;
 	}
 
-	// console.info('creating an entry in the auction store');
-	const token = await db.store.add(AUCTION_STORE, { id: uuid(), ...winner });
+	debug && echo.info('creating an entry in the auction store');
+	const token = await db.store.add(AUCTION_STORE, {
+		id: uuid(),
+		origin: `${window.top.location.origin}${window.top.location.pathname}`,
+		timestamp: Date.now(),
+		...winner,
+	});
+	debug && echo.log('auction token:', token);
 	if (!token) {
+		debug && echo.error('No auction token found!');
 		return null;
 	}
+	debug && echo.groupEnd();
 
 	return token;
 }
