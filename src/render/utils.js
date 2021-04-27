@@ -7,7 +7,7 @@
  * @throws {Error} if no target is found based on the selector provided
  * @return {DOM Node} a DOM node found on the page
  */
-export const getTarget = (selector) => document.querySelector(selector);
+export const getTarget = selector => document.querySelector(selector);
 
 /*
  * @function
@@ -20,7 +20,6 @@ export const getTarget = (selector) => document.querySelector(selector);
  * @return {void}
  */
 export const renderFrame = (target, source) => {
-	console.log({source});
 	if (!source.bid?.render) {
 		throw new Error(`Something went wrong! No rendering URL was found.`);
 	}
@@ -28,5 +27,6 @@ export const renderFrame = (target, source) => {
 	const iframe = document.createElement('iframe');
 	iframe.id = `fledge-auction-${source.id}`;
 	iframe.src = source.bid?.render;
+	iframe.style.borderWidth = 0;
 	target.appendChild(iframe);
 };

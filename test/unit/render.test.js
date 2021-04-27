@@ -1,3 +1,4 @@
+/* eslint-disable compat/compat */
 import fledge from '../../src/';
 
 describe('Render', () => {
@@ -24,19 +25,13 @@ describe('Render', () => {
 
 			describe('DOM manipulation', () => {
 				it('should throw an Error when the target is not found', async () => {
+					await expect(() => fledge.renderAd('#ad-slot-1', 'c6b3fd61-4d16-44d1-9364-acc9ceb286f3')).rejects.toThrow();
 				});
 
-				it('should throw an Error when the rendered iframe is not found', async () => {
+				it('should throw an Error when the token is not found', async () => {
+					document.body.innerHTML = '<div id="ad-slot-1"><iframe id="fledge-auction-c6b3fd61-4d16-44d1-9364-acc9ceb286f3" src="https://example.com"></iframe></div>';
+					await expect(() => fledge.renderAd('#ad-slot-1', 'c6b3fd61-4d16-44d1-9364-acc9ceb286f3')).rejects.toThrow();
 				});
-			});
-		});
-
-		describe('Return', () => {
-			it('should return true when all valid options are provided', async () => {
-				// Set up our document body
-				document.body.innerHTML = '<div id="ad-slot-1"><iframe id="fledge-auction-c6b3fd61-4d16-44d1-9364-acc9ceb286f3" src="https://example.com"></iframe></div>';
-				const frame = await fledge.renderAd('#ad-slot-1', 'c6b3fd61-4d16-44d1-9364-acc9ceb286f3');
-				await expect(frame).toBe(true);
 			});
 		});
 	});
