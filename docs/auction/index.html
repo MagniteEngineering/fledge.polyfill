@@ -15,10 +15,8 @@
 				decision_logic_url: 'https://entertaining-glitter-bowler.glitch.me/score.js',
 			};
 
-			const auctionResults = await fledge.runAdAuction(options);
-			console.log({auctionResults});
-
-			await fledge.renderAd('#ad-slot-1', auctionResults);
+			const auctionResults = await fledge.runAdAuction(options, true);
+			await fledge.renderAd('#ad-slot-1', auctionResults, true);
 		</script>
 	</body>
 </html>

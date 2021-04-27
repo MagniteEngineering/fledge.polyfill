@@ -40,6 +40,11 @@ export default async function renderAd (selector, token, debug = false) {
 		throw new Error(`A token was not found! Token provided: ${token}`);
 	}
 
+	debug && echo.info('checking that winner to be rendered is on the same hostname as the auction');
+	if (winner?.hostname !== window.top.location.hostname) {
+		debug && echo.error(`Attempting to render the winner on a location that doesn't match the auctions hostname`, { winner: winner.hostname, auction: window.top.location.hostname });
+		throw new Error('Something went wrong! No ad was rendered.');
+	}
 	debug && echo.info('rendering an iframe with the winning ad');
 	renderFrame(target, winner);
 

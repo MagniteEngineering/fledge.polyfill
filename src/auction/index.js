@@ -57,7 +57,7 @@ export default async function runAdAuction (conf, debug = false) {
 	}
 
 	debug && echo.info('creating an entry in the auction store');
-	const token = await db.store.add(AUCTION_STORE, { id: uuid(), ...winner });
+	const token = await db.store.add(AUCTION_STORE, { id: uuid(), ...winner, hostname: window.top.location.hostname });
 	debug && echo.log('auction token:', token);
 	if (!token) {
 		debug && echo.error('No auction token found!');
