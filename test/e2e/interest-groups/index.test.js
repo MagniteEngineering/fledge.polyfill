@@ -38,6 +38,7 @@ describe('Fledge', () => {
 						db.transaction('interest-groups', 'readonly').objectStore('interest-groups').get('magnite.com-test-interest').onsuccess = function (event) {
 							resolve(event.target.result);
 						};
+						db.close();
 					};
 				});
 				return myPromise;

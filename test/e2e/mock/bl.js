@@ -6,6 +6,6 @@ export const generate_bid = (interestGroup, auctionSignals, perBuyerSignals, tru
 			good: 'stuff',
 		},
 		bid: 1,
-		render: '',
+		render: 'http://url.com',
 	};
 };
