@@ -10,16 +10,19 @@
 export const hasRendered = el => {
 	if (!(el instanceof Element)) { throw Error(`${el} is not a DOM element.`); }
 
+	// check that the element is not hidden by CSS styles
 	const { display, opacity, visibility } = getComputedStyle(el);
 	if (display === 'none') { return false; }
 	if (visibility !== 'visible') { return false; }
 	if (opacity < 0.1) { return false; }
 
+	// check that the element is not positioned off the page
 	const { left, height, top, width } = el.getBoundingClientRect();
 	const { offsetHeight } = el;
 	const { offsetWidth } = el;
 	if (offsetWidth + offsetHeight + height + width === 0) { return false; }
 
+	// check that the element is not absolutely positioned off the page
 	const x = left + offsetWidth / 2;
 	if (x < 0) { return false; }
 	if (x > (document.documentElement.clientWidth || window.innerWidth)) { return false; }
