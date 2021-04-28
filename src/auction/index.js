@@ -64,6 +64,7 @@ export default async function runAdAuction (conf, debug = false) {
 		id: uuid(),
 		origin: `${window.top.location.origin}${window.top.location.pathname}`,
 		timestamp: Date.now(),
+		conf,
 		...winner,
 	});
 	debug && echo.log('auction token:', token);

@@ -1,3 +1,8 @@
+import {
+	getBuyerReport,
+	getSellerReport,
+	hasRendered,
+} from '../reporting/utils.js';
 import echo from '../utils/console.js';
 import db, { AUCTION_STORE } from '../utils/db.js';
 import validate from '../utils/validation.js';
@@ -51,9 +56,16 @@ export default async function renderAd (selector, token, debug = false) {
 	debug && echo.info('checking that ad iframe actually rendered');
 	const ad = getTarget(`#fledge-auction-${token}`);
 	debug && echo.log('ads target:', ad);
-	if (!ad) {
+	if (!ad && hasRendered(ad)) {
 		throw new Error('Something went wrong! No ad was rendered.');
 	}
+	debug && echo.groupEnd();
+
+	debug && echo.group('Fledge: Reporting');
+	debug && echo.info('sending reports to the seller');
+	const sellersReport = getSellerReport(winner.conf, winner);
+	debug && echo.info('sending reports to the buyer');
+	getBuyerReport(winner.conf, winner, sellersReport);
 	debug && echo.groupEnd();
 
 	return true;
