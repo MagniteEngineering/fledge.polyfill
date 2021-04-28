@@ -54,7 +54,7 @@ jest.mock('../../src/render/utils', () => ({
 	renderFrame: () => '<div id="ad-slot-1"><iframe id="fledge-auction-c6b3fd61-4d16-44d1-9364-acc9ceb286f3" src="https://example.com"></iframe></div>',
 }));
 
-jest.mock('../../src/reporting/utils', () => ({
+jest.mock('../../src/render/reporting', () => ({
 	getSellerReport: () => new Promise(resolve => {
 		resolve({
 			foo: 'bar',
