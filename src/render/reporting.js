@@ -73,10 +73,6 @@ export const getSellerReport = async (conf, results) => {
  * @return {void} has a side effect of generating a report for the buyer
  */
 export const getBuyerReport = async (conf, results, report) => {
-	if (!report) {
-		return null;
-	}
-
 	const { report_win } = await import(results.bid.bidding_logic_url);
 
 	// check if there is even a function
