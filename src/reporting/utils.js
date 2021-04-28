@@ -49,7 +49,6 @@ export const getSellerReport = async (conf, results) => {
 
 	// check if there is even a function
 	if (!report_result && typeof report_result !== 'function') {
-		// @TODO: throw an error?
 		return null;
 	}
 
@@ -70,14 +69,18 @@ export const getSellerReport = async (conf, results) => {
  * @author Newton <cnewton@magnite.com>
  * @param {object} conf - an auction configuration object
  * @param {object} results - the results of the auction
+ * @param {object} report - the report object from the sellers report
  * @return {void} has a side effect of generating a report for the buyer
  */
 export const getBuyerReport = async (conf, results, report) => {
-	const { report_win } = await import(conf.bidding_logic_url);
+	if (!report) {
+		return null;
+	}
+
+	const { report_win } = await import(results.bid.bidding_logic_url);
 
 	// check if there is even a function
 	if (!report_win && typeof report_win !== 'function') {
-		// @TODO: throw an error?
 		return null;
 	}
 

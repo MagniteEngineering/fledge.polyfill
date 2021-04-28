@@ -63,9 +63,13 @@ export default async function renderAd (selector, token, debug = false) {
 
 	debug && echo.group('Fledge: Reporting');
 	debug && echo.info('sending reports to the seller');
-	const sellersReport = getSellerReport(winner.conf, winner);
-	debug && echo.info('sending reports to the buyer');
-	getBuyerReport(winner.conf, winner, sellersReport);
+	const sellersReport = await getSellerReport(winner.conf, winner);
+	if (sellersReport) {
+		debug && echo.info('sending reports to the buyer', sellersReport);
+		await getBuyerReport(winner.conf, winner, sellersReport);
+	} else {
+		debug && echo.error('no report was sent to the buyer');
+	}
 	debug && echo.groupEnd();
 
 	return true;
