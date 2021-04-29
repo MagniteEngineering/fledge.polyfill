@@ -41,7 +41,7 @@ export default async function runAdAuction (conf, debug = false) {
 	}
 
 	debug && echo.info('getting all bids from each buyer');
-	const bids = await getBids(eligible, conf);
+	const bids = await getBids(eligible, conf, debug);
 	debug && echo.table(bids);
 	debug && echo.info('filtering out invalid bids');
 	const filteredBids = bids.filter(item => item);
@@ -52,7 +52,7 @@ export default async function runAdAuction (conf, debug = false) {
 	}
 
 	debug && echo.info('getting all scores, filtering and sorting');
-	const [ winner ] = await getScores(filteredBids, conf);
+	const [ winner ] = await getScores(filteredBids, conf, debug);
 	debug && echo.log('winner:', winner);
 	if (!winner) {
 		debug && echo.error('No winner found!');

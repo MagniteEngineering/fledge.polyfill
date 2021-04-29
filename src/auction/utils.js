@@ -32,7 +32,7 @@ export const getEligible = (groups, eligibility) => {
  * @param {array<Object>} conf - an auction configuration object
  * @return {object | null} an array of objects containing bids; null if none found
  */
-export const getBids = async (bidders, conf) => Promise.all(
+export const getBids = async (bidders, conf, debug) => Promise.all(
 	bidders.map(async bidder => {
 		const { generate_bid } = await import(bidder.bidding_logic_url);
 
@@ -52,7 +52,7 @@ export const getBids = async (bidders, conf) => Promise.all(
 				seller: conf.seller,
 			});
 		} catch (err) {
-			echo.error(err);
+			debug && echo.error(err);
 			return null;
 		}
 
@@ -82,7 +82,7 @@ export const getBids = async (bidders, conf) => Promise.all(
  * @param {array<Object>} conf - an auction configuration object
  * @return {object | null} a sorted, filtered array of objects containing scores
  */
-export const getScores = async (bids, conf) => {
+export const getScores = async (bids, conf, debug) => {
 	const { score_ad } = await import(conf.decision_logic_url);
 	// check if there is even a score_ad function
 	// if not, return null
@@ -100,7 +100,7 @@ export const getScores = async (bids, conf) => {
 				interest_group_name: bid.name,
 			});
 		} catch (err) {
-			echo.error(err);
+			debug && echo.error(err);
 			score = -1;
 		}
 
