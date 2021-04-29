@@ -43,7 +43,7 @@ export const getBids = async (bidders, conf, debug) => Promise.all(
 			return null;
 		}
 
-		const trustedSignals = await getTrustedSignals(bidder?.trusted_bidding_signals_url, bidder?.trusted_bidding_signals_keys);
+		const trustedSignals = await getTrustedSignals(bidder?.trusted_bidding_signals_url, bidder?.trusted_bidding_signals_keys, debug);
 
 		// generate a bid by providing all of the necessary information
 		let bid;
@@ -137,7 +137,7 @@ export const uuid = () => ([ 1e7 ] + -1e3 + -4e3 + -8e3 + -1e11)
  * @param {array<String>} an array of strings
  * @return {object} a JSON response
  */
-const getTrustedSignals = async (url, keys) => {
+const getTrustedSignals = async (url, keys, debug) => {
 	const hostname = `hostname=${window.top.location.hostname}`;
 
 	if (!(url && keys)) {
@@ -159,8 +159,8 @@ const getTrustedSignals = async (url, keys) => {
 			return response.json();
 		})
 		.catch(error => {
-			// @TODO, probably want to return `null` here too
-			throw new Error('There was a problem with your fetch operation:', error);
+			debug && echo.error('There was a problem with your fetch operation:', error);
+			return null;
 		});
 
 	const signals = {};
