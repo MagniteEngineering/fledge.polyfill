@@ -1,4 +1,5 @@
 /* eslint-disable camelcase, compat/compat */
+import echo from '../utils/console.js';
 
 /*
  * @function
@@ -31,8 +32,9 @@ export const getEligible = (groups, eligibility) => {
  * @param {array<Object>} conf - an auction configuration object
  * @return {object | null} an array of objects containing bids; null if none found
  */
-export const getBids = async (bidders, conf) => Promise.all(
+export const getBids = async (bidders, conf, debug) => Promise.all(
 	bidders.map(async bidder => {
+		const time0 = performance.now();
 		const { generate_bid } = await import(bidder.bidding_logic_url);
 
 		// check if there is even a generate_bid function
@@ -41,13 +43,19 @@ export const getBids = async (bidders, conf) => Promise.all(
 			return null;
 		}
 
-		const trustedSignals = await getTrustedSignals(bidder?.trusted_bidding_signals_url, bidder?.trusted_bidding_signals_keys);
+		const trustedSignals = await getTrustedSignals(bidder?.trusted_bidding_signals_url, bidder?.trusted_bidding_signals_keys, debug);
 
 		// generate a bid by providing all of the necessary information
-		const bid = generate_bid(bidder, conf?.auction_signals, conf?.per_buyer_signals?.[bidder.owner], trustedSignals, {
-			top_window_hostname: window.top.location.hostname,
-			seller: conf.seller,
-		});
+		let bid;
+		try {
+			bid = generate_bid(bidder, conf?.auction_signals, conf?.per_buyer_signals?.[bidder.owner], trustedSignals, {
+				top_window_hostname: window.top.location.hostname,
+				seller: conf.seller,
+			});
+		} catch (err) {
+			debug && echo.error(err);
+			return null;
+		}
 
 		// check if generate_bid function returned the necessary parts to score
 		// if not, removed bidder from elibility
@@ -59,9 +67,11 @@ export const getBids = async (bidders, conf) => Promise.all(
 			return null;
 		}
 
+		const time1 = performance.now();
 		return {
 			...bidder,
 			...bid,
+			duration: time1 - time0,
 		};
 	}),
 );
@@ -75,7 +85,7 @@ export const getBids = async (bidders, conf) => Promise.all(
  * @param {array<Object>} conf - an auction configuration object
  * @return {object | null} a sorted, filtered array of objects containing scores
  */
-export const getScores = async (bids, conf) => {
+export const getScores = async (bids, conf, debug) => {
 	const { score_ad } = await import(conf.decision_logic_url);
 	// check if there is even a score_ad function
 	// if not, return null
@@ -84,11 +94,19 @@ export const getScores = async (bids, conf) => {
 	}
 
 	return bids.map(bid => {
-		const score = score_ad(bid?.ad, bid?.bid, conf, conf?.trusted_scoring_signals, {
-			top_window_hostname: window.top.location.hostname,
-			interest_group_owner: bid.owner,
-			interest_group_name: bid.name,
-		});
+		let score;
+
+		try {
+			score = score_ad(bid?.ad, bid?.bid, conf, conf?.trusted_scoring_signals, {
+				top_window_hostname: window.top.location.hostname,
+				interest_group_owner: bid.owner,
+				interest_group_name: bid.name,
+				bidding_duration_msec: bid.duration,
+			});
+		} catch (err) {
+			debug && echo.error(err);
+			score = -1;
+		}
 
 		return {
 			bid,
@@ -119,7 +137,7 @@ export const uuid = () => ([ 1e7 ] + -1e3 + -4e3 + -8e3 + -1e11)
  * @param {array<String>} an array of strings
  * @return {object} a JSON response
  */
-const getTrustedSignals = async (url, keys) => {
+const getTrustedSignals = async (url, keys, debug) => {
 	const hostname = `hostname=${window.top.location.hostname}`;
 
 	if (!(url && keys)) {
@@ -141,7 +159,8 @@ const getTrustedSignals = async (url, keys) => {
 			return response.json();
 		})
 		.catch(error => {
-			throw new Error('There was a problem with your fetch operation:', error);
+			debug && echo.error('There was a problem with your fetch operation:', error);
+			return null;
 		});
 
 	const signals = {};

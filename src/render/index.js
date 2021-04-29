@@ -2,6 +2,11 @@ import echo from '../utils/console.js';
 import db, { AUCTION_STORE } from '../utils/db.js';
 import validate from '../utils/validation.js';
 import {
+	getBuyerReport,
+	getSellerReport,
+	hasRendered,
+} from './reporting.js';
+import {
 	getTarget,
 	renderFrame,
 } from './utils.js';
@@ -36,7 +41,7 @@ export default async function renderAd (selector, token, debug = false) {
 	debug && echo.info('checking that winning token exists');
 	const winner = await db.store.get(AUCTION_STORE, token);
 	debug && echo.log('winners token:', winner);
-	if (!(winner && winner.id === token)) {
+	if (!winner || winner.id !== token) {
 		throw new Error(`A token was not found! Token provided: ${token}`);
 	}
 
@@ -51,9 +56,16 @@ export default async function renderAd (selector, token, debug = false) {
 	debug && echo.info('checking that ad iframe actually rendered');
 	const ad = getTarget(`#fledge-auction-${token}`);
 	debug && echo.log('ads target:', ad);
-	if (!ad) {
+	if (!ad || !hasRendered(ad)) {
 		throw new Error('Something went wrong! No ad was rendered.');
 	}
+	debug && echo.groupEnd();
+
+	debug && echo.group('Fledge: Reporting');
+	debug && echo.info('sending reports to the seller');
+	const sellersReport = await getSellerReport(winner.conf, winner);
+	debug && echo.info('sending reports to the buyer', sellersReport);
+	await getBuyerReport(winner.conf, winner, sellersReport);
 	debug && echo.groupEnd();
 
 	return true;
