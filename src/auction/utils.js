@@ -91,11 +91,18 @@ export const getScores = async (bids, conf) => {
 	}
 
 	return bids.map(bid => {
-		const score = score_ad(bid?.ad, bid?.bid, conf, conf?.trusted_scoring_signals, {
-			top_window_hostname: window.top.location.hostname,
-			interest_group_owner: bid.owner,
-			interest_group_name: bid.name,
-		});
+		let score;
+
+		try {
+			score = score_ad(bid?.ad, bid?.bid, conf, conf?.trusted_scoring_signals, {
+				top_window_hostname: window.top.location.hostname,
+				interest_group_owner: bid.owner,
+				interest_group_name: bid.name,
+			});
+		} catch (err) {
+			echo.error(err);
+			score = -1;
+		}
 
 		return {
 			bid,
