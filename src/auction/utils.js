@@ -1,4 +1,5 @@
 /* eslint-disable camelcase, compat/compat */
+import echo from '../utils/console.js';
 
 /*
  * @function
@@ -44,10 +45,16 @@ export const getBids = async (bidders, conf) => Promise.all(
 		const trustedSignals = await getTrustedSignals(bidder?.trusted_bidding_signals_url, bidder?.trusted_bidding_signals_keys);
 
 		// generate a bid by providing all of the necessary information
-		const bid = generate_bid(bidder, conf?.auction_signals, conf?.per_buyer_signals?.[bidder.owner], trustedSignals, {
-			top_window_hostname: window.top.location.hostname,
-			seller: conf.seller,
-		});
+		let bid;
+		try {
+			bid = generate_bid(bidder, conf?.auction_signals, conf?.per_buyer_signals?.[bidder.owner], trustedSignals, {
+				top_window_hostname: window.top.location.hostname,
+				seller: conf.seller,
+			});
+		} catch (err) {
+			echo.error(err);
+			return null;
+		}
 
 		// check if generate_bid function returned the necessary parts to score
 		// if not, removed bidder from elibility
@@ -141,6 +148,7 @@ const getTrustedSignals = async (url, keys) => {
 			return response.json();
 		})
 		.catch(error => {
+			// @TODO, probably want to return `null` here too
 			throw new Error('There was a problem with your fetch operation:', error);
 		});
 

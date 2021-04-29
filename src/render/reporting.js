@@ -1,4 +1,5 @@
 /* eslint-disable camelcase, no-cond-assign, compat/compat */
+import echo from '../utils/console.js';
 
 /*
  * @function
@@ -56,13 +57,18 @@ export const getSellerReport = async (conf, results) => {
 	}
 
 	// generate a report by providing all of the necessary information
-	return report_result(conf, {
-		top_window_hostname: window.top.location.hostname,
-		interest_group_owner: results.bid.owner,
-		interest_group_name: results.bid.name,
-		render_url: results.bid.render,
-		bid: results.bid.bid,
-	});
+	try {
+		return report_result(conf, {
+			top_window_hostname: window.top.location.hostname,
+			interest_group_owner: results.bid.owner,
+			interest_group_name: results.bid.name,
+			render_url: results.bid.render,
+			bid: results.bid.bid,
+		});
+	} catch (err) {
+		echo.error(err);
+		return null;
+	}
 };
 
 /*
@@ -84,11 +90,16 @@ export const getBuyerReport = async (conf, results, report) => {
 	}
 
 	// generate a report by providing all of the necessary information
-	return report_win(conf?.auction_signals, conf?.per_buyer_signals?.[results.bid.owner], report, {
-		top_window_hostname: window.top.location.hostname,
-		interest_group_owner: results.bid.owner,
-		interest_group_name: results.bid.name,
-		render_url: results.bid.render,
-		bid: results.bid.bid,
-	});
+	try {
+		return report_win(conf?.auction_signals, conf?.per_buyer_signals?.[results.bid.owner], report, {
+			top_window_hostname: window.top.location.hostname,
+			interest_group_owner: results.bid.owner,
+			interest_group_name: results.bid.name,
+			render_url: results.bid.render,
+			bid: results.bid.bid,
+		});
+	} catch (err) {
+		echo.error(err);
+		return null;
+	}
 };
