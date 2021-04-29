@@ -34,6 +34,7 @@ export const getEligible = (groups, eligibility) => {
  */
 export const getBids = async (bidders, conf, debug) => Promise.all(
 	bidders.map(async bidder => {
+		const time0 = performance.now();
 		const { generate_bid } = await import(bidder.bidding_logic_url);
 
 		// check if there is even a generate_bid function
@@ -66,9 +67,11 @@ export const getBids = async (bidders, conf, debug) => Promise.all(
 			return null;
 		}
 
+		const time1 = performance.now();
 		return {
 			...bidder,
 			...bid,
+			duration: time1 - time0,
 		};
 	}),
 );
@@ -98,6 +101,7 @@ export const getScores = async (bids, conf, debug) => {
 				top_window_hostname: window.top.location.hostname,
 				interest_group_owner: bid.owner,
 				interest_group_name: bid.name,
+				bidding_duration_msec: bid.duration,
 			});
 		} catch (err) {
 			debug && echo.error(err);
