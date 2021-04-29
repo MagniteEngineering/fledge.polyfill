@@ -7,7 +7,7 @@ describe('Fledge', () => {
 
 		it('should error when no parameters sent', async () => {
 			const fledge = await page.evaluate(() => window.fledge);
-			expect(() => fledge.joinAdInterestGroup()).toThrow();
+			expect(() => fledge.runAdAuction()).toThrow();
 		});
 
 		it('should return token when provided minimum required params and valid interest groups', async () => {
