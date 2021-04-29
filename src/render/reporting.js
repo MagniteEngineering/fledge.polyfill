@@ -52,7 +52,7 @@ export const getSellerReport = async (conf, results) => {
 	const { report_result } = await import(conf.decision_logic_url);
 
 	// check if there is even a function
-	if (!report_result && typeof report_result !== 'function') {
+	if (!report_result || typeof report_result !== 'function') {
 		return null;
 	}
 
@@ -85,7 +85,7 @@ export const getBuyerReport = async (conf, results, report) => {
 	const { report_win } = await import(results.bid.bidding_logic_url);
 
 	// check if there is even a function
-	if (!report_win && typeof report_win !== 'function') {
+	if (!report_win || typeof report_win !== 'function') {
 		return null;
 	}
 

@@ -41,7 +41,7 @@ export default async function renderAd (selector, token, debug = false) {
 	debug && echo.info('checking that winning token exists');
 	const winner = await db.store.get(AUCTION_STORE, token);
 	debug && echo.log('winners token:', winner);
-	if (!(winner && winner.id === token)) {
+	if (!winner || winner.id !== token) {
 		throw new Error(`A token was not found! Token provided: ${token}`);
 	}
 
@@ -56,7 +56,7 @@ export default async function renderAd (selector, token, debug = false) {
 	debug && echo.info('checking that ad iframe actually rendered');
 	const ad = getTarget(`#fledge-auction-${token}`);
 	debug && echo.log('ads target:', ad);
-	if (!(ad && hasRendered(ad))) {
+	if (!ad || !hasRendered(ad)) {
 		throw new Error('Something went wrong! No ad was rendered.');
 	}
 	debug && echo.groupEnd();
