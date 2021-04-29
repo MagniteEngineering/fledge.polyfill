@@ -65,6 +65,7 @@ jest.mock('../../src/render/reporting', () => ({
 			foo: 'bar',
 		});
 	}),
+	hasRendered: () => true,
 }));
 
 describe('Render', () => {
