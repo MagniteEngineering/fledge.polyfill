@@ -1,6 +1,5 @@
-import echo from '../utils/console.js';
-import db, { IG_STORE } from '../utils/db.js';
-import validate from '../utils/validation.js';
+import { db, echo, validate } from '../../utils/index.js';
+import { IG_STORE } from '../../utils/db.js';
 import types from './types.js';
 import {
 	getIGKey,

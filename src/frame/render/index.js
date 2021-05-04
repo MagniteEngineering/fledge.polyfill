@@ -1,6 +1,5 @@
-import echo from '../utils/console.js';
-import db, { AUCTION_STORE } from '../utils/db.js';
-import validate from '../utils/validation.js';
+import { db, echo, frame, validate } from '../../utils/index.js';
+import { AUCTION_STORE } from '../../utils/db.js';
 import {
 	getBuyerReport,
 	getSellerReport,
@@ -8,7 +7,6 @@ import {
 } from './reporting.js';
 import {
 	getTarget,
-	renderFrame,
 } from './utils.js';
 
 /*
@@ -51,7 +49,9 @@ export default async function renderAd (selector, token, debug = false) {
 		throw new Error('Something went wrong! No ad was rendered.');
 	}
 	debug && echo.info('rendering an iframe with the winning ad');
-	renderFrame(target, winner);
+	frame.create(winner.bid.render, target, {
+		id: `fledge-auction-${winner.id}`,
+	});
 
 	debug && echo.info('checking that ad iframe actually rendered');
 	const ad = getTarget(`#fledge-auction-${token}`);

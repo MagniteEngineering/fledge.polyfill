@@ -1,5 +1,5 @@
 /* eslint-disable camelcase, no-cond-assign, compat/compat */
-import echo from '../utils/console.js';
+import { echo } from '../../utils/index.js';
 
 /*
  * @function

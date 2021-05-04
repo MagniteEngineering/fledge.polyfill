@@ -1,6 +1,5 @@
-import echo from '../utils/console.js';
-import db, { AUCTION_STORE, IG_STORE } from '../utils/db.js';
-import validate from '../utils/validation.js';
+import { db, echo, validate } from '../../utils/index.js';
+import { AUCTION_STORE, IG_STORE } from '../../utils/db.js';
 import types from './types.js';
 import {
 	getBids,
