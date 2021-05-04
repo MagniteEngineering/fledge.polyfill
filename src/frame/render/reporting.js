@@ -1,4 +1,4 @@
-/* eslint-disable camelcase, no-cond-assign, compat/compat */
+/* eslint-disable camelcase, no-cond-assign */
 import { echo } from '../../utils/index.js';
 
 /*

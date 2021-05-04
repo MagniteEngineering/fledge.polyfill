@@ -48,7 +48,10 @@
     "node": "^12.16.0 || >=13.2.0"
   },
   "eslintConfig": {
-    "extends": "@theholocron"
+    "extends": "@theholocron",
+    "rules": {
+      "compat/compat": "off"
+    }
   },
   "husky": {
     "hooks": {

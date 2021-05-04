@@ -1,5 +1,3 @@
-/* eslint-disable compat/compat */
-
 /*
  * @function
  * @name hasRequiredKeys

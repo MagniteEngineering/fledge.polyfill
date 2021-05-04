@@ -1,4 +1,4 @@
-/* eslint-disable compat/compat, no-console */
+/* eslint-disable no-console */
 
 let queue = [];
 const TOKEN = {};

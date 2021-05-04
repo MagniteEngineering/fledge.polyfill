@@ -1,4 +1,3 @@
-/* eslint-disable compat/compat */
 import fledgeAPI from './api.js';
 
 const VERSION = 1;
