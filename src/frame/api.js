@@ -1,6 +1,8 @@
 import runAdAuction from './auction/index.js';
-import joinAdInterestGroup from './interest-groups/join.js';
-import leaveAdInterestGroup from './interest-groups/leave.js';
+import {
+	joinAdInterestGroup,
+	leaveAdInterestGroup,
+} from './interest-groups/index.js';
 import renderAd from './render/index.js';
 
 export default async function fledgeAPI ({ data, ports }) {
@@ -12,42 +14,42 @@ export default async function fledgeAPI ({ data, ports }) {
 		switch (data[0]) {
 			case 'joinAdInterestGroup': {
 				const [ , request ] = data;
-				const [ options, expiry ] = request;
+				const [ options, expiry, debug ] = request;
 
-				await joinAdInterestGroup(options, expiry);
+				await joinAdInterestGroup(options, expiry, debug);
 
-				return;
+				return true;
 			}
 			case 'leaveAdInterestGroup': {
 				const [ , request ] = data;
-				const [ group ] = request;
+				const [ group, debug ] = request;
 
-				await leaveAdInterestGroup(group);
+				await leaveAdInterestGroup(group, debug);
 
-				return;
+				return true;
 			}
 			case 'runAdAuction': {
 				const [ , request ] = data;
-				const [ conf ] = request;
+				const [ conf, debug ] = request;
 
 				if (ports.length !== 1) {
 					throw new Error(`Port transfer mismatch during request: expected 1 port, but received ${ports.length}`);
 				}
 				const [ port ] = ports;
-				const token = await runAdAuction(conf);
+				const token = await runAdAuction(conf, debug);
 				const response = [ true, token ];
 				port.postMessage(response);
 				port.close();
 
-				return;
+				return true;
 			}
 			case 'renderAd': {
 				const [ , request ] = data;
-				const [ selector, token ] = request;
+				const [ selector, token, debug ] = request;
 
-				await renderAd(selector, token);
+				await renderAd(selector, token, debug);
 
-				return;
+				return true;
 			}
 			default: {
 				return false;

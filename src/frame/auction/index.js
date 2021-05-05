@@ -1,6 +1,5 @@
-import { db, echo, validate } from '../../utils/index.js';
+import { db, echo } from '../../utils/index.js';
 import { AUCTION_STORE, IG_STORE } from '../../utils/db.js';
-import types from './types.js';
 import {
 	getBids,
 	getEligible,
@@ -20,13 +19,7 @@ import {
  * @example
  *   runAdAuction({ seller: 'foo', decision_logic_url: 'http://example.com/auction', interst_group_buyers: [ 'www.buyer.com' ] });
  */
-export default async function runAdAuction (conf, debug = false) {
-	debug && echo.group('Fledge: Auction');
-	debug && echo.log('auction config:', conf);
-	validate.param(conf, 'object');
-	validate.hasRequiredKeys(conf, [ 'seller', 'decision_logic_url', 'interest_group_buyers' ]);
-	validate.hasInvalidOptionTypes(conf, types);
-
+export default async function runAdAuction (conf, debug) {
 	debug && echo.info('getting all interest groups');
 	const interestGroups = await db.store.getAll(IG_STORE);
 	debug && echo.table(interestGroups);

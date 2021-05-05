@@ -3,10 +3,8 @@ import { AUCTION_STORE } from '../../utils/db.js';
 import {
 	getBuyerReport,
 	getSellerReport,
-	hasRendered,
-} from './reporting.js';
-import {
 	getTarget,
+	hasRendered,
 } from './utils.js';
 
 /*
@@ -22,7 +20,7 @@ import {
  * @example
  *   renderAd('#ad-slot-1', '76941e71-2ed7-416d-9c55-36d07beff786');
  */
-export default async function renderAd (selector, token, debug = false) {
+export default async function renderAd (selector, token, debug) {
 	debug && echo.group('Fledge: Render an Ad');
 	debug && echo.log('ad render selector:', selector);
 	debug && echo.log('ad render token:', token);

@@ -1,4 +1,4 @@
-/* eslint-disable compat/compat, no-console */
+/* eslint-disable no-console */
 
 let queue = [];
 const TOKEN = {};
@@ -534,11 +534,9 @@ const createFrame = ({ source, target = document.body, props = {}, style = {} })
 	};
 };
 
-var frame = {
+var frame$1 = {
 	create: createFrame,
 };
-
-/* eslint-disable compat/compat */
 
 /*
  * @function
@@ -665,18 +663,7 @@ var validate = {
 	param: validateParam,
 };
 
-var types$1 = {
-	seller: 'string',
-	decision_logic_url: 'url',
-	interest_group_buyers: 'mixed',
-	trusted_scoring_signals_url: 'url',
-	additional_bids: 'array',
-	auction_signals: 'object',
-	seller_signals: 'object',
-	per_buyer_signals: 'object',
-};
-
-/* eslint-disable camelcase, compat/compat */
+/* eslint-disable camelcase */
 
 /*
  * @function
@@ -866,13 +853,7 @@ const getTrustedSignals = async (url, keys, debug) => {
  * @example
  *   runAdAuction({ seller: 'foo', decision_logic_url: 'http://example.com/auction', interst_group_buyers: [ 'www.buyer.com' ] });
  */
-async function runAdAuction (conf, debug = false) {
-	debug && echo.group('Fledge: Auction');
-	debug && echo.log('auction config:', conf);
-	validate.param(conf, 'object');
-	validate.hasRequiredKeys(conf, [ 'seller', 'decision_logic_url', 'interest_group_buyers' ]);
-	validate.hasInvalidOptionTypes(conf, types$1);
-
+async function runAdAuction (conf, debug) {
 	debug && echo.info('getting all interest groups');
 	const interestGroups = await db$1.store.getAll(IG_STORE);
 	debug && echo.table(interestGroups);
@@ -922,17 +903,6 @@ async function runAdAuction (conf, debug = false) {
 	return token;
 }
 
-var types = {
-	owner: 'string',
-	name: 'string',
-	bidding_logic_url: 'url',
-	daily_update_url: 'url', // @TODO: support this potentially on the auction, grabbing the latest interest group data, and updating the IDB store with it
-	trusted_bidding_signals_url: 'url',
-	trusted_bidding_signals_keys: 'array',
-	user_bidding_signals: 'object',
-	ads: 'array',
-};
-
 /*
  * @function
  * @name getIGKey
@@ -949,13 +919,6 @@ var types = {
 const getIGKey = (owner, name) => `${owner}-${name}`;
 
 /*
- * @const {number}
- * @summary Maximum expiration allowed for an Interest Group to exist
- * @description Milliseconds occuring per day multiplied by the maximum number of days (maximum dayus (30) * hours per day (24) * minutes per hour (60) * seconds per minute (60) * milliseconds per second (1000))
- */
-const MAX_EXPIRATION = 2592000000;
-
-/*
  * @function
  * @name joinAdInterestGroup
  * @description join an interest group inserting into IndexedDB
@@ -968,19 +931,7 @@ const MAX_EXPIRATION = 2592000000;
  * @example
  *   joinAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' }, 2592000000);
  */
-async function joinAdInterestGroup (options, expiry, debug = false) {
-	debug && echo.group('Fledge: Join an Interest Group');
-	debug && echo.log('interest group options:', options);
-	debug && echo.log('interest group expiration:', expiry);
-	validate.param(options, 'object');
-	validate.param(expiry, 'number');
-	validate.hasRequiredKeys(options, [ 'owner', 'name', 'bidding_logic_url' ]);
-	validate.hasInvalidOptionTypes(options, types);
-
-	if (expiry > MAX_EXPIRATION) {
-		throw new Error(`'expiry' is set past the allowed maximum value. You must provide an expiration that is less than or equal to ${MAX_EXPIRATION}.`);
-	}
-
+async function joinAdInterestGroup (options, expiry, debug) {
 	debug && echo.info('checking for an existing interest group');
 	const group = await db$1.store.get(IG_STORE, getIGKey(options.owner, options.name));
 	debug && echo.table(group);
@@ -1017,13 +968,7 @@ async function joinAdInterestGroup (options, expiry, debug = false) {
  * @example
  *   leaveAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' });
  */
-async function leaveAdInterestGroup (group, debug = false) {
-	debug && echo.group('Fledge: Leave an Interest Group');
-	debug && echo.log('interest group:', group);
-	validate.param(group, 'object');
-	validate.hasRequiredKeys(group, [ 'owner', 'name' ]);
-	validate.hasInvalidOptionTypes(group, types);
-
+async function leaveAdInterestGroup (group, debug) {
 	debug && echo.info('deleting an existing interest group');
 	await db$1.store.delete(IG_STORE, getIGKey(group.owner, group.name));
 	debug && echo.log('interest group deleted');
@@ -1032,7 +977,18 @@ async function leaveAdInterestGroup (group, debug = false) {
 	return true;
 }
 
-/* eslint-disable camelcase, no-cond-assign, compat/compat */
+/* eslint-disable camelcase, no-cond-assign */
+
+/*
+ * @function
+ * @name getTarget
+ * @description grab a DOM node based on a CSS style selector passed in
+ * @author Newton <cnewton@magnite.com>
+ * @param {string} selector - a CSS style selector
+ * @throws {Error} if no target is found based on the selector provided
+ * @return {DOM Node} a DOM node found on the page
+ */
+const getTarget = selector => document.querySelector(selector);
 
 /*
  * @function
@@ -1139,17 +1095,6 @@ const getBuyerReport = async (conf, results, report) => {
 
 /*
  * @function
- * @name getTarget
- * @description grab a DOM node based on a CSS style selector passed in
- * @author Newton <cnewton@magnite.com>
- * @param {string} selector - a CSS style selector
- * @throws {Error} if no target is found based on the selector provided
- * @return {DOM Node} a DOM node found on the page
- */
-const getTarget = selector => document.querySelector(selector);
-
-/*
- * @function
  * @name renderAd
  * @description render an ad
  * @author Newton <cnewton@magnite.com>
@@ -1161,7 +1106,7 @@ const getTarget = selector => document.querySelector(selector);
  * @example
  *   renderAd('#ad-slot-1', '76941e71-2ed7-416d-9c55-36d07beff786');
  */
-async function renderAd (selector, token, debug = false) {
+async function renderAd (selector, token, debug) {
 	debug && echo.group('Fledge: Render an Ad');
 	debug && echo.log('ad render selector:', selector);
 	debug && echo.log('ad render token:', token);
@@ -1188,7 +1133,7 @@ async function renderAd (selector, token, debug = false) {
 		throw new Error('Something went wrong! No ad was rendered.');
 	}
 	debug && echo.info('rendering an iframe with the winning ad');
-	frame.create(winner.bid.render, target, {
+	frame$1.create(winner.bid.render, target, {
 		id: `fledge-auction-${winner.id}`,
 	});
 
@@ -1218,52 +1163,50 @@ async function fledgeAPI ({ data, ports }) {
 
 		switch (data[0]) {
 			case 'joinAdInterestGroup': {
-				const [, request] = data;
-				const [options, expiry] = request;
+				const [ , request ] = data;
+				const [ options, expiry, debug ] = request;
 
-				await joinAdInterestGroup(options, expiry);
+				await joinAdInterestGroup(options, expiry, debug);
 
-				return;
+				return true;
 			}
 			case 'leaveAdInterestGroup': {
-				const [, request] = data;
-				const [group] = request;
+				const [ , request ] = data;
+				const [ group, debug ] = request;
 
-				await leaveAdInterestGroup(group);
+				await leaveAdInterestGroup(group, debug);
 
-				return;
+				return true;
 			}
 			case 'runAdAuction': {
-				const [, request] = data;
-				const [conf] = request;
+				const [ , request ] = data;
+				const [ conf, debug ] = request;
 
 				if (ports.length !== 1) {
 					throw new Error(`Port transfer mismatch during request: expected 1 port, but received ${ports.length}`);
 				}
-				const [port] = ports;
-				console.log({ports, port});
-				const token = await runAdAuction(conf);
-				console.log({token});
-				const response = [true, token];
+				const [ port ] = ports;
+				const token = await runAdAuction(conf, debug);
+				const response = [ true, token ];
 				port.postMessage(response);
 				port.close();
 
-				return;
+				return true;
 			}
 			case 'renderAd': {
-				const [, request] = data;
-				const [selector, token] = request;
+				const [ , request ] = data;
+				const [ selector, token, debug ] = request;
 
-				await renderAd(selector, token);
+				await renderAd(selector, token, debug);
 
-				return;
+				return true;
 			}
 			default: {
 				return false;
 			}
 		}
 	} catch (error) {
-		const response = [false];
+		const response = [ false ];
 		for (const port of ports) {
 			port.postMessage(response);
 		}
@@ -1274,19 +1217,21 @@ async function fledgeAPI ({ data, ports }) {
 const VERSION = 1;
 const VERSION_KEY = 'fledge.polyfill';
 
-async function main (debug = false) {
+async function frame (debug = false) {
 	// check whenever the document is being framed by a site which you don’t expect it to be framed by
 	const [ parentOrigin ] = window.location.ancestorOrigins;
 	if (parentOrigin === undefined) {
-		throw new Error("Frame can't run as a top-level document");
+		echo.warn(`Frame cannot run as a top-level document`);
 	}
 
 	// connect to the storage iframe and send a message
 	const { port1: receiver, port2: sender } = new MessageChannel();
+	debug && echo.log('message channel receiver:', receiver);
+	debug && echo.log('message channel sender:', sender);
 	receiver.onmessage = fledgeAPI;
 	window.parent.postMessage({
-		[VERSION_KEY]: VERSION
-	}, parentOrigin, [sender]);
+		[VERSION_KEY]: VERSION,
+	}, parentOrigin, [ sender ]);
 }
 
-export default main;
+export default frame;

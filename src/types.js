@@ -1,4 +1,15 @@
-export default {
+export const AuctionConf = {
+	seller: 'string',
+	decision_logic_url: 'url',
+	interest_group_buyers: 'mixed',
+	trusted_scoring_signals_url: 'url',
+	additional_bids: 'array',
+	auction_signals: 'object',
+	seller_signals: 'object',
+	per_buyer_signals: 'object',
+};
+
+export const InterestGroup = {
 	owner: 'string',
 	name: 'string',
 	bidding_logic_url: 'url',
