@@ -60,16 +60,16 @@ export const hasRendered = el => {
  * @return {object} an object of data to pass back to the buyers report
  */
 export const getSellerReport = async (conf, results) => {
-	const { report_result } = await import(conf.decision_logic_url);
+	const { reportResult } = await import(conf.decision_logic_url);
 
 	// check if there is even a function
-	if (!report_result || typeof report_result !== 'function') {
+	if (!reportResult || typeof reportResult !== 'function') {
 		return null;
 	}
 
 	// generate a report by providing all of the necessary information
 	try {
-		return report_result(conf, {
+		return reportResult(conf, {
 			top_window_hostname: window.top.location.hostname,
 			interest_group_owner: results.bid.owner,
 			interest_group_name: results.bid.name,
@@ -93,16 +93,16 @@ export const getSellerReport = async (conf, results) => {
  * @return {void} has a side effect of generating a report for the buyer
  */
 export const getBuyerReport = async (conf, results, report) => {
-	const { report_win } = await import(results.bid.bidding_logic_url);
+	const { reportWin } = await import(results.bid.bidding_logic_url);
 
 	// check if there is even a function
-	if (!report_win || typeof report_win !== 'function') {
+	if (!reportWin || typeof reportWin !== 'function') {
 		return null;
 	}
 
 	// generate a report by providing all of the necessary information
 	try {
-		return report_win(conf?.auction_signals, conf?.per_buyer_signals?.[results.bid.owner], report, {
+		return reportWin(conf?.auction_signals, conf?.per_buyer_signals?.[results.bid.owner], report, {
 			top_window_hostname: window.top.location.hostname,
 			interest_group_owner: results.bid.owner,
 			interest_group_name: results.bid.name,

@@ -35,11 +35,11 @@ export const getEligible = (groups, eligibility) => {
 export const getBids = async (bidders, conf, debug) => Promise.all(
 	bidders.map(async bidder => {
 		const time0 = performance.now();
-		const { generate_bid } = await import(bidder.bidding_logic_url);
+		const { generateBid } = await import(bidder.bidding_logic_url);
 
-		// check if there is even a generate_bid function
+		// check if there is even a generateBid function
 		// if not, removed bidder from elibility
-		if (!generate_bid && typeof generate_bid !== 'function') {
+		if (!generateBid && typeof generateBid !== 'function') {
 			return null;
 		}
 
@@ -48,7 +48,7 @@ export const getBids = async (bidders, conf, debug) => Promise.all(
 		// generate a bid by providing all of the necessary information
 		let bid;
 		try {
-			bid = generate_bid(bidder, conf?.auction_signals, conf?.per_buyer_signals?.[bidder.owner], trustedSignals, {
+			bid = generateBid(bidder, conf?.auction_signals, conf?.per_buyer_signals?.[bidder.owner], trustedSignals, {
 				top_window_hostname: window.top.location.hostname,
 				seller: conf.seller,
 			});
@@ -57,7 +57,7 @@ export const getBids = async (bidders, conf, debug) => Promise.all(
 			return null;
 		}
 
-		// check if generate_bid function returned the necessary parts to score
+		// check if generateBid function returned the necessary parts to score
 		// if not, removed bidder from elibility
 		if (!(
 			(bid.ad && typeof bid.ad === 'object') &&
@@ -86,10 +86,10 @@ export const getBids = async (bidders, conf, debug) => Promise.all(
  * @return {object | null} a sorted, filtered array of objects containing scores
  */
 export const getScores = async (bids, conf, debug) => {
-	const { score_ad } = await import(conf.decision_logic_url);
-	// check if there is even a score_ad function
+	const { scoreAd } = await import(conf.decision_logic_url);
+	// check if there is even a scoreAd function
 	// if not, return null
-	if (!score_ad && typeof score_ad !== 'function') {
+	if (!scoreAd && typeof scoreAd !== 'function') {
 		return null;
 	}
 
@@ -97,7 +97,7 @@ export const getScores = async (bids, conf, debug) => {
 		let score;
 
 		try {
-			score = score_ad(bid?.ad, bid?.bid, conf, conf?.trusted_scoring_signals, {
+			score = scoreAd(bid?.ad, bid?.bid, conf, conf?.trusted_scoring_signals, {
 				top_window_hostname: window.top.location.hostname,
 				interest_group_owner: bid.owner,
 				interest_group_name: bid.name,
