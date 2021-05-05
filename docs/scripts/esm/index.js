@@ -1,3 +1,6 @@
+const NAMESPACE = 'fledge.polyfill';
+const VERSION = 1;
+
 /* eslint-disable no-console */
 
 let queue = [];
@@ -498,171 +501,6 @@ var db$1 = {
 	},
 };
 
-/*
- * @function
- * @name renderFrame
- * @description renders an iFrame when given a target and source URL
- * @author Newton <cnewton@magnite.com>
- * @param {DOM Node} target - a valid DOM node with which to append an iframe
- * @param {object} source - a valid winning ad object to render within the iframe
- * @throws {Error} if no source URL is found based on the selector provided
- * @return {void}
- */
-const createFrame = ({ source, target = document.body, props = {}, style = {} }) => {
-	if (!source) {
-		throw new Error(`Something went wrong! No URL was found.`);
-	}
-	const src = new URL(source, document.baseURI);
-	const iframe = document.createElement('iframe');
-	const _props = {
-		src,
-		scrolling: 'no',
-		...props,
-	};
-	const _style = {
-		'border-width': 0,
-		...style,
-	};
-	Object.entries(_props).map(([ key, value ]) => iframe.setAttribute(key, value));
-	Object.entries(_style).map(([ key, value ]) => iframe.style.setProperty(key, value));
-
-	target.appendChild(iframe);
-
-	return {
-		iframe,
-		origin: src.origin,
-	};
-};
-
-var frame$1 = {
-	create: createFrame,
-};
-
-/*
- * @function
- * @name hasRequiredKeys
- * @description Searches an object for required keys
- * @author Newton <cnewton@magnite.com>
- * @param {object} obj - An object to validate that required keys are present
- * @param {array} keys - An array of required keys to validate exist
- * @throws {Error} If required keys are missing
- * @return {false} If no required keys are missing
- *
- * @example
- *   hasRequiredKeys({ foo: 'bar', baz: 'qux' }, [ 'foo' ]));
- */
-const hasRequiredKeys = (obj, keys) => {
-	const missing = keys.filter(key => !obj.hasOwnProperty(key));
-
-	if (missing.length) {
-		throw new Error(`Required options are missing! You must provide an 'object' of options with all of the following required options: ${missing.join(', ')}.`);
-	}
-
-	return false;
-};
-
-/*
- * @function
- * @name printInvalidOptionTypes
- * @description Provides an array of strings of errors for invalid types for options passed to a function
- * @author Newton <cnewton@magnite.com>
- * @param {object} options - An object of options passed to a function
- * @param {array} invalid - An array of options that are invalid based on their type
- * @param {object} types - An object of options with the keys the same as the `options` and values set to data types
- * @return {string[]} An array of strings with messages of invalid types
- *
- * @example
- *   printInvalidOptionTypes({ foo: 0 }, [ 'foo' ], { foo: 'string' }));
- *   // [ `'mock' requires a type of "string"! A type of number was provided instead.` ]
- */
-const printInvalidOptionTypes = (options, invalid, types) => invalid.map(item => `'${item}' requires a type of "${types[item]}"! A type of ${typeof options[item]} was provided instead.`);
-
-/*
- * @function
- * @name validateType
- * @description Validates data types
- * @author Newton <cnewton@magnite.com>
- * @param {*}
- * @return {boolean} Whether or not the data type passed in matches
- *
- * @example
- *   validateType.array([ 'foo', 'bar' ]);
- *   validateType.number(0);
- *   validateType.object({ foo: 'bar' });
- *   validateType.string('foo');
- *   validateType.url({ foo: 'bar' });
- */
-const validateType = {
-	array: arr => arr !== 'undefined' && Array.isArray(arr),
-	number: num => num !== 'undefined' && typeof num === 'number',
-	object: obj => obj !== 'undefined' && typeof obj === 'object' && obj !== null && !Array.isArray(obj),
-	string: str => str !== 'undefined' && typeof str === 'string',
-	mixed: type => type !== 'undefined' && (Array.isArray(type) || typeof type === 'string'),
-	url: url => {
-		try {
-			return Boolean(new URL(url));
-		} catch (e) {
-			return false;
-		}
-	},
-};
-
-/*
- * @function
- * @name validateParam
- * @description Validates parameter types passed into functions
- * @author Newton <cnewton@magnite.com>
- * @see {@link validateType}
- * @param {*} param - A stringed parameter provided to a function
- * @param {string} type - A string representation of a data structure
- * @throws {Error} an Error stating what type was passed and what was expected
- *
- * @example
- *    validateParam('a-string', 'number'));
- */
-const validateParam = (param, type) => {
-	const valid = validateType[type](param);
-	if (!valid) {
-		throw new Error(`Must be of type "${type}"! ${typeof param} was provided.`);
-	}
-};
-
-/*
- * @function
- * @name hasInvalidOptionTypes
- * @description Checks options passed to a function for the valid data types based on a structure
- * @author Newton <cnewton@magnite.com>
- * @see {@link validateType}
- * @see {@link printInvalidOptionTypes}
- * @param {object} obj - An object to validate the types
- * @param {object} types - A matching object with values set to the data type
- * @throws {Error} If data types are invalid
- * @return {false} If data types are valid, return false
- *
- * @example
- *    hasInvalideOptionTypes({ foo: 'bar' }, { 'foo': 'string' }));
- */
-const hasInvalidOptionTypes = (options, types) => {
-	const invalid = Object
-		.entries(options)
-		.filter(([ key, value ]) => !validateType[types[key]](value))
-		.flatMap(([ key ]) => key);
-
-	if (invalid.length) {
-		throw new Error(printInvalidOptionTypes(options, invalid, types).join('. '));
-	}
-
-	return false;
-};
-
-var validate = {
-	hasInvalidOptionTypes,
-	hasRequiredKeys,
-	printInvalidOptionTypes,
-	type: validateType,
-	param: validateParam,
-};
-
 /* eslint-disable camelcase */
 
 /*
@@ -898,7 +736,6 @@ async function runAdAuction (conf, debug) {
 		debug && echo.error('No auction token found!');
 		return null;
 	}
-	debug && echo.groupEnd();
 
 	return token;
 }
@@ -951,7 +788,6 @@ async function joinAdInterestGroup (options, expiry, debug) {
 		});
 	}
 	debug && echo.log('interest group id:', id);
-	debug && echo.groupEnd();
 
 	return true;
 }
@@ -972,185 +808,6 @@ async function leaveAdInterestGroup (group, debug) {
 	debug && echo.info('deleting an existing interest group');
 	await db$1.store.delete(IG_STORE, getIGKey(group.owner, group.name));
 	debug && echo.log('interest group deleted');
-	debug && echo.groupEnd();
-
-	return true;
-}
-
-/* eslint-disable camelcase, no-cond-assign */
-
-/*
- * @function
- * @name getTarget
- * @description grab a DOM node based on a CSS style selector passed in
- * @author Newton <cnewton@magnite.com>
- * @param {string} selector - a CSS style selector
- * @throws {Error} if no target is found based on the selector provided
- * @return {DOM Node} a DOM node found on the page
- */
-const getTarget = selector => document.querySelector(selector);
-
-/*
- * @function
- * @name hasRendered
- * @description determine if a DOM element is visibile on a page
- * @param {DOM element} el - a list of bidders (also referred to as interest groups)
- * @return {boolean} whether or not an element is visible on the screen
- */
-const hasRendered = el => {
-	if (!(el instanceof Element)) { throw Error(`${el} is not a DOM element.`); }
-
-	// check that the element is not hidden by CSS styles
-	const { display, opacity, visibility } = getComputedStyle(el);
-	if (display === 'none') { return false; }
-	if (visibility !== 'visible') { return false; }
-	if (opacity < 0.1) { return false; }
-
-	// check that the element is not positioned off the page
-	const { left, height, top, width } = el.getBoundingClientRect();
-	const { offsetHeight } = el;
-	const { offsetWidth } = el;
-	if (offsetWidth + offsetHeight + height + width === 0) { return false; }
-
-	// check that the element is not absolutely positioned off the page
-	const x = left + offsetWidth / 2;
-	if (x < 0) { return false; }
-	if (x > (document.documentElement.clientWidth || window.innerWidth)) { return false; }
-	const y = top + offsetHeight / 2;
-	if (y < 0) { return false; }
-	if (y > (document.documentElement.clientHeight || window.innerHeight)) { return false; }
-
-	let pointContainer = document.elementFromPoint(x, y);
-	do {
-		if (pointContainer === el) { return true; }
-	} while (pointContainer = pointContainer.parentNode);
-
-	return false;
-};
-
-/*
- * @function
- * @name getSellerReport
- * @description given the results of an auction, grab the report from the seller
- * @author Newton <cnewton@magnite.com>
- * @param {object} conf - an auction configuration object
- * @param {object} results - the results of the auction
- * @return {object} an object of data to pass back to the buyers report
- */
-const getSellerReport = async (conf, results) => {
-	const { report_result } = await import(conf.decision_logic_url);
-
-	// check if there is even a function
-	if (!report_result || typeof report_result !== 'function') {
-		return null;
-	}
-
-	// generate a report by providing all of the necessary information
-	try {
-		return report_result(conf, {
-			top_window_hostname: window.top.location.hostname,
-			interest_group_owner: results.bid.owner,
-			interest_group_name: results.bid.name,
-			render_url: results.bid.render,
-			bid: results.bid.bid,
-		});
-	} catch (err) {
-		echo.error(err);
-		return null;
-	}
-};
-
-/*
- * @function
- * @name getBuyerReport
- * @description given the results of an auction, grab the report from the buyer
- * @author Newton <cnewton@magnite.com>
- * @param {object} conf - an auction configuration object
- * @param {object} results - the results of the auction
- * @param {object} report - the report object from the sellers report
- * @return {void} has a side effect of generating a report for the buyer
- */
-const getBuyerReport = async (conf, results, report) => {
-	const { report_win } = await import(results.bid.bidding_logic_url);
-
-	// check if there is even a function
-	if (!report_win || typeof report_win !== 'function') {
-		return null;
-	}
-
-	// generate a report by providing all of the necessary information
-	try {
-		return report_win(conf?.auction_signals, conf?.per_buyer_signals?.[results.bid.owner], report, {
-			top_window_hostname: window.top.location.hostname,
-			interest_group_owner: results.bid.owner,
-			interest_group_name: results.bid.name,
-			render_url: results.bid.render,
-			bid: results.bid.bid,
-		});
-	} catch (err) {
-		echo.error(err);
-		return null;
-	}
-};
-
-/*
- * @function
- * @name renderAd
- * @description render an ad
- * @author Newton <cnewton@magnite.com>
- * @param {string} selector - a string reprensenting a valid selector to find an element on the page
- * @param {string} token - a string that represents the results from an auction run via the `fledge.runAdAuction` call
- * @throws {Error} Any parameters passed are incorrect or an incorrect type
- * @return {Promise<null | true>}
- *
- * @example
- *   renderAd('#ad-slot-1', '76941e71-2ed7-416d-9c55-36d07beff786');
- */
-async function renderAd (selector, token, debug) {
-	debug && echo.group('Fledge: Render an Ad');
-	debug && echo.log('ad render selector:', selector);
-	debug && echo.log('ad render token:', token);
-	validate.param(selector, 'string');
-	validate.param(token, 'string');
-
-	debug && echo.info('checking that target exists on the page');
-	const target = getTarget(selector);
-	debug && echo.log('target:', target);
-	if (!target) {
-		throw new Error(`Target not found on the page! Please check that ${target} exists on the page.`);
-	}
-
-	debug && echo.info('checking that winning token exists');
-	const winner = await db$1.store.get(AUCTION_STORE, token);
-	debug && echo.log('winners token:', winner);
-	if (!winner || winner.id !== token) {
-		throw new Error(`A token was not found! Token provided: ${token}`);
-	}
-
-	debug && echo.info('checking that winner to be rendered is on the same hostname as the auction');
-	if (winner?.origin !== `${window.top.location.origin}${window.top.location.pathname}`) {
-		debug && echo.error(`Attempting to render the winner on a location that doesn't match the auctions hostname`, { winner: winner.origin, auction: `${window.top.location.origin}${window.top.location.pathname}` });
-		throw new Error('Something went wrong! No ad was rendered.');
-	}
-	debug && echo.info('rendering an iframe with the winning ad');
-	frame$1.create(winner.bid.render, target, {
-		id: `fledge-auction-${winner.id}`,
-	});
-
-	debug && echo.info('checking that ad iframe actually rendered');
-	const ad = getTarget(`#fledge-auction-${token}`);
-	debug && echo.log('ads target:', ad);
-	if (!ad || !hasRendered(ad)) {
-		throw new Error('Something went wrong! No ad was rendered.');
-	}
-	debug && echo.groupEnd();
-
-	debug && echo.group('Fledge: Reporting');
-	debug && echo.info('sending reports to the seller');
-	const sellersReport = await getSellerReport(winner.conf, winner);
-	debug && echo.info('sending reports to the buyer', sellersReport);
-	await getBuyerReport(winner.conf, winner, sellersReport);
-	debug && echo.groupEnd();
 
 	return true;
 }
@@ -1193,14 +850,6 @@ async function fledgeAPI ({ data, ports }) {
 
 				return true;
 			}
-			case 'renderAd': {
-				const [ , request ] = data;
-				const [ selector, token, debug ] = request;
-
-				await renderAd(selector, token, debug);
-
-				return true;
-			}
 			default: {
 				return false;
 			}
@@ -1214,24 +863,31 @@ async function fledgeAPI ({ data, ports }) {
 	}
 }
 
-const VERSION = 1;
-const VERSION_KEY = 'fledge.polyfill';
+async function frame () {
+	const { searchParams } = new URL(window.location);
+	const debug = searchParams.get('debug') || false;
+	debug && echo.group('Fledge: Storage Frame');
 
-async function frame (debug = false) {
-	// check whenever the document is being framed by a site which you don’t expect it to be framed by
-	const [ parentOrigin ] = window.location.ancestorOrigins;
-	if (parentOrigin === undefined) {
-		echo.warn(`Frame cannot run as a top-level document`);
+	const admin = searchParams.get('admin') || false;
+
+	if (!admin) {
+		// check whenever the document is being framed by a site which you don’t expect it to be framed by
+		const [ parentOrigin ] = window.location.ancestorOrigins;
+		if (parentOrigin === undefined) {
+			debug && echo.warn('It appears your attempting to access this from the top-level', parentOrigin, window.location);
+			throw new Error(`Can't call 'postMessage' on the Frame window when run as a top-level document`);
+		}
+
+		// connect to the storage iframe and send a message
+		const { port1: receiver, port2: sender } = new MessageChannel();
+		debug && echo.log('message channel receiver:', receiver);
+		debug && echo.log('message channel sender:', sender);
+		receiver.onmessage = fledgeAPI;
+		window.parent.postMessage({
+			[NAMESPACE]: VERSION,
+		}, parentOrigin, [ sender ]);
 	}
-
-	// connect to the storage iframe and send a message
-	const { port1: receiver, port2: sender } = new MessageChannel();
-	debug && echo.log('message channel receiver:', receiver);
-	debug && echo.log('message channel sender:', sender);
-	receiver.onmessage = fledgeAPI;
-	window.parent.postMessage({
-		[VERSION_KEY]: VERSION,
-	}, parentOrigin, [ sender ]);
+	debug && echo.groupEnd();
 }
 
 export default frame;

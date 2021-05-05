@@ -1,5 +1,5 @@
-import { db, echo, frame, validate } from '../../utils/index.js';
-import { AUCTION_STORE } from '../../utils/db.js';
+import { db, echo, frame } from '../utils/index.js';
+import { AUCTION_STORE } from '../utils/db.js';
 import {
 	getBuyerReport,
 	getSellerReport,
@@ -21,12 +21,6 @@ import {
  *   renderAd('#ad-slot-1', '76941e71-2ed7-416d-9c55-36d07beff786');
  */
 export default async function renderAd (selector, token, debug) {
-	debug && echo.group('Fledge: Render an Ad');
-	debug && echo.log('ad render selector:', selector);
-	debug && echo.log('ad render token:', token);
-	validate.param(selector, 'string');
-	validate.param(token, 'string');
-
 	debug && echo.info('checking that target exists on the page');
 	const target = getTarget(selector);
 	debug && echo.log('target:', target);
@@ -47,8 +41,12 @@ export default async function renderAd (selector, token, debug) {
 		throw new Error('Something went wrong! No ad was rendered.');
 	}
 	debug && echo.info('rendering an iframe with the winning ad');
-	frame.create(winner.bid.render, target, {
-		id: `fledge-auction-${winner.id}`,
+	frame.create({
+		source: winner.bid.render,
+		target,
+		props: {
+			id: `fledge-auction-${winner.id}`,
+		},
 	});
 
 	debug && echo.info('checking that ad iframe actually rendered');

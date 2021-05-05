@@ -3,7 +3,6 @@ import {
 	joinAdInterestGroup,
 	leaveAdInterestGroup,
 } from './interest-groups/index.js';
-import renderAd from './render/index.js';
 
 export default async function fledgeAPI ({ data, ports }) {
 	try {
@@ -40,14 +39,6 @@ export default async function fledgeAPI ({ data, ports }) {
 				const response = [ true, token ];
 				port.postMessage(response);
 				port.close();
-
-				return true;
-			}
-			case 'renderAd': {
-				const [ , request ] = data;
-				const [ selector, token, debug ] = request;
-
-				await renderAd(selector, token, debug);
 
 				return true;
 			}

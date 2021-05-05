@@ -64,7 +64,6 @@ export default async function runAdAuction (conf, debug) {
 		debug && echo.error('No auction token found!');
 		return null;
 	}
-	debug && echo.groupEnd();
 
 	return token;
 }

@@ -37,7 +37,6 @@ export async function joinAdInterestGroup (options, expiry, debug) {
 		});
 	}
 	debug && echo.log('interest group id:', id);
-	debug && echo.groupEnd();
 
 	return true;
 }
@@ -58,7 +57,6 @@ export async function leaveAdInterestGroup (group, debug) {
 	debug && echo.info('deleting an existing interest group');
 	await db.store.delete(IG_STORE, getIGKey(group.owner, group.name));
 	debug && echo.log('interest group deleted');
-	debug && echo.groupEnd();
 
 	return true;
 }

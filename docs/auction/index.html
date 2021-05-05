@@ -8,7 +8,7 @@
 		<div id="ad-slot-1"></div>
 		<script type="module">
 			import Fledge from '../../dist/esm/index.js';
-			const fledge = new Fledge();
+			const fledge = new Fledge(true);
 
 			const options = {
 				seller: 'www.ssp.com',
@@ -16,9 +16,9 @@
 				decision_logic_url: 'https://entertaining-glitter-bowler.glitch.me/score.js',
 			};
 
-			const auctionResults = await fledge.runAdAuction(options, true);
+			const auctionResults = await fledge.runAdAuction(options);
 			console.log({auctionResults});
-			// await fledge.renderAd('#ad-slot-1', auctionResults, true);
+			await fledge.renderAd('#ad-slot-1', auctionResults);
 		</script>
 	</body>
 </html>
