@@ -44,8 +44,8 @@ export default class Fledge {
 
 	async joinAdInterestGroup (options, expiry) {
 		this._debug && echo.group('Fledge: Join an Interest Group');
-		this._debug && echo.log('interest group options:', options);
-		this._debug && echo.log('interest group expiration:', expiry);
+		this._debug && echo.log(echo.asInfo('interest group options:'), options);
+		this._debug && echo.log(echo.asInfo('interest group expiration:'), `${expiry}: (human-readable: ${new Date(Date.now() + expiry).toLocaleString()})`);
 		validate.param(options, 'object');
 		validate.param(expiry, 'number');
 		validate.hasRequiredKeys(options, [ 'owner', 'name', 'bidding_logic_url' ]);
@@ -55,8 +55,11 @@ export default class Fledge {
 			throw new Error(`'expiry' is set past the allowed maximum value. You must provide an expiration that is less than or equal to ${MAX_EXPIRATION}.`);
 		}
 
+		this._debug && echo.groupCollapsed('message channel');
 		const port = await this.props.port;
-		this._debug && echo.log('message port:', port);
+		this._debug && echo.log(echo.asInfo('message port:'), port);
+		this._debug && echo.groupEnd();
+		this._debug && echo.info(`sending 'joinAdInterestGroup' message to iframe`);
 		port.postMessage([ 'joinAdInterestGroup', [
 			options,
 			expiry,
@@ -67,13 +70,16 @@ export default class Fledge {
 
 	async leaveAdInterestGroup (group) {
 		this._debug && echo.group('Fledge: Leave an Interest Group');
-		this._debug && echo.log('interest group:', group);
+		this._debug && echo.log(echo.asInfo('interest group:'), group);
 		validate.param(group, 'object');
 		validate.hasRequiredKeys(group, [ 'owner', 'name' ]);
 		validate.hasInvalidOptionTypes(group, InterestGroup);
 
+		this._debug && echo.groupCollapsed('message channel');
 		const port = await this.props.port;
-		this._debug && echo.log('message port:', port);
+		this._debug && echo.log(echo.asInfo('message port:'), port);
+		this._debug && echo.groupEnd();
+		this._debug && echo.info(`sending 'leaveAdInterestGroup' message to iframe`);
 		port.postMessage([ 'leaveAdInterestGroup', [
 			group,
 			this._debug,
@@ -83,29 +89,32 @@ export default class Fledge {
 
 	async runAdAuction (conf) {
 		this._debug && echo.group('Fledge: Auction');
-		this._debug && echo.log('auction config:', conf);
+		this._debug && echo.log(echo.asInfo('auction config:'), conf);
 		validate.param(conf, 'object');
 		validate.hasRequiredKeys(conf, [ 'seller', 'decision_logic_url', 'interest_group_buyers' ]);
 		validate.hasInvalidOptionTypes(conf, AuctionConf);
 
+		this._debug && echo.groupCollapsed('message channel');
 		const port = await this.props.port;
-		this._debug && echo.log('message port:', port);
+		this._debug && echo.log(echo.asInfo('message port:'), port);
 		const { port1: receiver, port2: sender } = new MessageChannel();
-		this._debug && echo.log('message channel receiver', receiver);
-		this._debug && echo.log('message channel sender', sender);
+		this._debug && echo.log(echo.asInfo('message channel receiver:'), receiver);
+		this._debug && echo.log(echo.asInfo('message channel sender:'), sender);
+		this._debug && echo.groupEnd();
 
 		try {
+			this._debug && echo.info(`sending 'runAdAuction' message to iframe`);
 			port.postMessage([ 'runAdAuction', [
 				conf,
 				this._debug,
 			] ], [ sender ]);
-			const { data } = await message.sendToPort(receiver);
+			const { data } = await message.getFromFrame(receiver, this._debug);
 			if (!data[0]) {
 				throw new Error('No data found!');
 			}
-			this._debug && echo.log('message data', data);
+			this._debug && echo.log(echo.asInfo('message data:'), data);
 			const [ , token ] = data;
-			this._debug && echo.log('auction token', token);
+			this._debug && echo.log(echo.asSuccess('auction token:'), token);
 			return token;
 		} finally {
 			receiver.close();
@@ -115,12 +124,13 @@ export default class Fledge {
 
 	async renderAd (selector, token) {
 		this._debug && echo.group('Fledge: Render an Ad');
-		this._debug && echo.log('ad render selector:', selector);
-		this._debug && echo.log('ad render token:', token);
+		this._debug && echo.log(echo.asInfo('ad slot selector:'), selector);
+		this._debug && echo.log(echo.asInfo('winning ad token:'), token);
 		validate.param(selector, 'string');
 		validate.param(token, 'string');
 
 		await render(selector, token, this._debug);
+		this._debug && echo.log(echo.asSuccess('winning ad rendered'));
 		this._debug && echo.groupEnd();
 	}
 }

@@ -16,7 +16,8 @@ export default async function frame () {
 		// check whenever the document is being framed by a site which you don’t expect it to be framed by
 		const [ parentOrigin ] = window.location.ancestorOrigins;
 		if (parentOrigin === undefined) {
-			debug && echo.warn('It appears your attempting to access this from the top-level', parentOrigin, window.location);
+			debug && echo.log(echo.asWarning('It appears your attempting to access this from the top-level document'));
+			debug && echo.log({ origin: parentOrigin, location: window.location });
 			throw new Error(`Can't call 'postMessage' on the Frame window when run as a top-level document`);
 		}
 

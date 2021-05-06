@@ -10,16 +10,23 @@ import { echo } from '../../utils/index.js';
  * @param {array<String>} eligibility - a list of eligible owners to check against
  * @return {Array<Object> | null} an array of objects; null if none found;
  */
-export const getEligible = (groups, eligibility) => {
+export const getEligible = (groups, eligibility, debug) => {
+	debug && echo.groupCollapsed('auction utils: getEligible');
 	if (eligibility === '*') {
+		debug && echo.info(`using the wildcard yields all groups`);
+		debug && echo.groupEnd();
 		return groups;
 	}
 
 	const eligible = groups.filter(({ owner }) => eligibility.includes(owner));
 	if (eligible.length) {
+		debug && echo.info(`found some eligible buyers`);
+		debug && echo.groupEnd();
 		return eligible;
 	}
 
+	debug && echo.log(echo.asWarning(`No groups were eligible!`));
+	debug && echo.groupEnd();
 	return null;
 };
 
@@ -34,12 +41,15 @@ export const getEligible = (groups, eligibility) => {
  */
 export const getBids = async (bidders, conf, debug) => Promise.all(
 	bidders.map(async bidder => {
+		debug && echo.groupCollapsed(`auction utils: getBids => ${bidder._key}`);
 		const time0 = performance.now();
 		const { generateBid } = await import(bidder.bidding_logic_url);
 
 		// check if there is even a generateBid function
 		// if not, removed bidder from elibility
 		if (!generateBid && typeof generateBid !== 'function') {
+			debug && echo.log(echo.asWarning(`No 'generateBid' function found!`));
+			debug && echo.groupEnd();
 			return null;
 		}
 
@@ -52,8 +62,10 @@ export const getBids = async (bidders, conf, debug) => Promise.all(
 				top_window_hostname: window.top.location.hostname,
 				seller: conf.seller,
 			});
+			debug && echo.log(echo.asInfo('bid:'), bid);
 		} catch (err) {
-			debug && echo.error(err);
+			debug && echo.log(echo.asAlert(`There was an error in the 'generateBid' function:`));
+			debug && echo.log(err);
 			return null;
 		}
 
@@ -64,10 +76,13 @@ export const getBids = async (bidders, conf, debug) => Promise.all(
 			(bid.bid && typeof bid.bid === 'number') &&
 			(bid.render && (typeof bid.render === 'string' || Array.isArray(bid.render)))
 		)) {
+			debug && echo.log(echo.asWarning(`No bid found!`));
+			debug && echo.groupEnd();
 			return null;
 		}
 
 		const time1 = performance.now();
+		debug && echo.groupEnd();
 		return {
 			...bidder,
 			...bid,
@@ -86,10 +101,12 @@ export const getBids = async (bidders, conf, debug) => Promise.all(
  * @return {object | null} a sorted, filtered array of objects containing scores
  */
 export const getScores = async (bids, conf, debug) => {
+	debug && echo.groupCollapsed(`auction utils: getScores`);
 	const { scoreAd } = await import(conf.decision_logic_url);
 	// check if there is even a scoreAd function
 	// if not, return null
 	if (!scoreAd && typeof scoreAd !== 'function') {
+		debug && echo.log(echo.asWarning(`No 'scoreAd' function was found!`));
 		return null;
 	}
 
@@ -103,11 +120,14 @@ export const getScores = async (bids, conf, debug) => {
 				interest_group_name: bid.name,
 				bidding_duration_msec: bid.duration,
 			});
+			debug && echo.log(echo.asInfo(`score:`), score);
 		} catch (err) {
-			debug && echo.error(err);
+			debug && echo.log(echo.asAlert(`There was an error in the 'scoreAd' function:`));
+			debug && echo.log(err);
 			score = -1;
 		}
 
+		debug && echo.groupEnd();
 		return {
 			bid,
 			score,
@@ -138,9 +158,12 @@ export const uuid = () => ([ 1e7 ] + -1e3 + -4e3 + -8e3 + -1e11)
  * @return {object} a JSON response
  */
 const getTrustedSignals = async (url, keys, debug) => {
+	debug && echo.groupCollapsed('auction utils: getTrustedSignals');
 	const hostname = `hostname=${window.top.location.hostname}`;
 
 	if (!(url && keys)) {
+		debug && echo.info(`no 'url' or 'keys' found; returning undefined`);
+		debug && echo.groupEnd();
 		return undefined;
 	}
 
@@ -159,7 +182,8 @@ const getTrustedSignals = async (url, keys, debug) => {
 			return response.json();
 		})
 		.catch(error => {
-			debug && echo.error('There was a problem with your fetch operation:', error);
+			debug && echo.log(echo.asAlert('There was a problem with your fetch operation:'));
+			debug && echo.log(error);
 			return null;
 		});
 
@@ -171,8 +195,11 @@ const getTrustedSignals = async (url, keys, debug) => {
 	}
 
 	if (!(signals && Object.keys(signals).length === 0 && signals.constructor === Object)) {
+		debug && echo.info(`no signals found; returning null`);
+		debug && echo.groupEnd();
 		return null;
 	}
 
+	debug && echo.groupEnd();
 	return signals;
 };

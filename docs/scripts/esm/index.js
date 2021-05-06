@@ -12,7 +12,25 @@ const RESET_CSS = '';
 function alertFormatting (value) {
 	queue.push({
 		value,
-		css: 'display: inline-block ; background-color: #e0005a ; color: #ffffff ; font-weight: bold ; padding: 3px 7px 3px 7px ; border-radius: 3px 3px 3px 3px ;',
+		css: 'display: inline-block ; background-color: #dc3545 ; color: #ffffff ; font-weight: bold ; padding: 3px 7px 3px 7px ; border-radius: 3px 3px 3px 3px ;',
+	});
+
+	return (TOKEN);
+}
+
+function successFormatting (value) {
+	queue.push({
+		value,
+		css: 'display: inline-block ; color: #289d45 ; font-weight: bold ;',
+	});
+
+	return (TOKEN);
+}
+
+function infoFormatting (value) {
+	queue.push({
+		value,
+		css: 'color: #0366d6 ; font-weight: bold;',
 	});
 
 	return (TOKEN);
@@ -22,8 +40,9 @@ function alertFormatting (value) {
 function warningFormatting (value) {
 	queue.push({
 		value,
-		css: 'display: inline-block ; background-color: gold ; color: black ; font-weight: bold ; padding: 3px 7px 3px 7px ; border-radius: 3px 3px 3px 3px ;',
+		css: 'display: inline-block ; background-color: #ffc107 ; color: black ; font-weight: bold ; padding: 3px 7px 3px 7px ; border-radius: 3px 3px 3px 3px ;',
 	});
+	console.log({value, queue, TOKEN});
 
 	return (TOKEN);
 }
@@ -82,13 +101,19 @@ var echo = {
 	info: using(console.info),
 	log: using(console.log),
 	group: using(console.group),
+	groupCollapsed: using(console.groupCollapsed),
 	groupEnd: using(console.groupEnd),
 	table: using(console.table),
+	time: using(console.time),
+	timeEnd: using(console.timeEnd),
+	timeLog: using(console.timeLog),
 	trace: using(console.trace),
 	warn: using(console.warn),
 
 	// Formatting functions.
 	asAlert: alertFormatting,
+	asInfo: infoFormatting,
+	asSuccess: successFormatting,
 	asWarning: warningFormatting,
 };
 
@@ -512,16 +537,23 @@ var db$1 = {
  * @param {array<String>} eligibility - a list of eligible owners to check against
  * @return {Array<Object> | null} an array of objects; null if none found;
  */
-const getEligible = (groups, eligibility) => {
+const getEligible = (groups, eligibility, debug) => {
+	debug && echo.groupCollapsed('auction utils: getEligible');
 	if (eligibility === '*') {
+		debug && echo.info(`using the wildcard yields all groups`);
+		debug && echo.groupEnd();
 		return groups;
 	}
 
 	const eligible = groups.filter(({ owner }) => eligibility.includes(owner));
 	if (eligible.length) {
+		debug && echo.info(`found some eligible buyers`);
+		debug && echo.groupEnd();
 		return eligible;
 	}
 
+	debug && echo.log(echo.asWarning(`No groups were eligible!`));
+	debug && echo.groupEnd();
 	return null;
 };
 
@@ -536,12 +568,15 @@ const getEligible = (groups, eligibility) => {
  */
 const getBids = async (bidders, conf, debug) => Promise.all(
 	bidders.map(async bidder => {
+		debug && echo.groupCollapsed(`auction utils: getBids => ${bidder._key}`);
 		const time0 = performance.now();
-		const { generate_bid } = await import(bidder.bidding_logic_url);
+		const { generateBid } = await import(bidder.bidding_logic_url);
 
-		// check if there is even a generate_bid function
+		// check if there is even a generateBid function
 		// if not, removed bidder from elibility
-		if (!generate_bid && typeof generate_bid !== 'function') {
+		if (!generateBid && typeof generateBid !== 'function') {
+			debug && echo.log(echo.asWarning(`No 'generateBid' function found!`));
+			debug && echo.groupEnd();
 			return null;
 		}
 
@@ -550,26 +585,31 @@ const getBids = async (bidders, conf, debug) => Promise.all(
 		// generate a bid by providing all of the necessary information
 		let bid;
 		try {
-			bid = generate_bid(bidder, conf?.auction_signals, conf?.per_buyer_signals?.[bidder.owner], trustedSignals, {
+			bid = generateBid(bidder, conf?.auction_signals, conf?.per_buyer_signals?.[bidder.owner], trustedSignals, {
 				top_window_hostname: window.top.location.hostname,
 				seller: conf.seller,
 			});
+			debug && echo.log(echo.asInfo('bid:'), bid);
 		} catch (err) {
-			debug && echo.error(err);
+			debug && echo.log(echo.asAlert(`There was an error in the 'generateBid' function:`));
+			debug && echo.log(err);
 			return null;
 		}
 
-		// check if generate_bid function returned the necessary parts to score
+		// check if generateBid function returned the necessary parts to score
 		// if not, removed bidder from elibility
 		if (!(
 			(bid.ad && typeof bid.ad === 'object') &&
 			(bid.bid && typeof bid.bid === 'number') &&
 			(bid.render && (typeof bid.render === 'string' || Array.isArray(bid.render)))
 		)) {
+			debug && echo.log(echo.asWarning(`No bid found!`));
+			debug && echo.groupEnd();
 			return null;
 		}
 
 		const time1 = performance.now();
+		debug && echo.groupEnd();
 		return {
 			...bidder,
 			...bid,
@@ -588,10 +628,12 @@ const getBids = async (bidders, conf, debug) => Promise.all(
  * @return {object | null} a sorted, filtered array of objects containing scores
  */
 const getScores = async (bids, conf, debug) => {
-	const { score_ad } = await import(conf.decision_logic_url);
-	// check if there is even a score_ad function
+	debug && echo.groupCollapsed(`auction utils: getScores`);
+	const { scoreAd } = await import(conf.decision_logic_url);
+	// check if there is even a scoreAd function
 	// if not, return null
-	if (!score_ad && typeof score_ad !== 'function') {
+	if (!scoreAd && typeof scoreAd !== 'function') {
+		debug && echo.log(echo.asWarning(`No 'scoreAd' function was found!`));
 		return null;
 	}
 
@@ -599,17 +641,20 @@ const getScores = async (bids, conf, debug) => {
 		let score;
 
 		try {
-			score = score_ad(bid?.ad, bid?.bid, conf, conf?.trusted_scoring_signals, {
+			score = scoreAd(bid?.ad, bid?.bid, conf, conf?.trusted_scoring_signals, {
 				top_window_hostname: window.top.location.hostname,
 				interest_group_owner: bid.owner,
 				interest_group_name: bid.name,
 				bidding_duration_msec: bid.duration,
 			});
+			debug && echo.log(echo.asInfo(`score:`), score);
 		} catch (err) {
-			debug && echo.error(err);
+			debug && echo.log(echo.asAlert(`There was an error in the 'scoreAd' function:`));
+			debug && echo.log(err);
 			score = -1;
 		}
 
+		debug && echo.groupEnd();
 		return {
 			bid,
 			score,
@@ -640,9 +685,12 @@ const uuid = () => ([ 1e7 ] + -1e3 + -4e3 + -8e3 + -1e11)
  * @return {object} a JSON response
  */
 const getTrustedSignals = async (url, keys, debug) => {
+	debug && echo.groupCollapsed('auction utils: getTrustedSignals');
 	const hostname = `hostname=${window.top.location.hostname}`;
 
 	if (!(url && keys)) {
+		debug && echo.info(`no 'url' or 'keys' found; returning undefined`);
+		debug && echo.groupEnd();
 		return undefined;
 	}
 
@@ -661,7 +709,8 @@ const getTrustedSignals = async (url, keys, debug) => {
 			return response.json();
 		})
 		.catch(error => {
-			debug && echo.error('There was a problem with your fetch operation:', error);
+			debug && echo.log(echo.asAlert('There was a problem with your fetch operation:'));
+			debug && echo.log(error);
 			return null;
 		});
 
@@ -673,9 +722,12 @@ const getTrustedSignals = async (url, keys, debug) => {
 	}
 
 	if (!(signals && Object.keys(signals).length === 0 && signals.constructor === Object)) {
+		debug && echo.info(`no signals found; returning null`);
+		debug && echo.groupEnd();
 		return null;
 	}
 
+	debug && echo.groupEnd();
 	return signals;
 };
 
@@ -692,34 +744,34 @@ const getTrustedSignals = async (url, keys, debug) => {
  *   runAdAuction({ seller: 'foo', decision_logic_url: 'http://example.com/auction', interst_group_buyers: [ 'www.buyer.com' ] });
  */
 async function runAdAuction (conf, debug) {
-	debug && echo.info('getting all interest groups');
+	debug && echo.groupCollapsed('Fledge API: runAdAuction');
 	const interestGroups = await db$1.store.getAll(IG_STORE);
-	debug && echo.table(interestGroups);
+	debug && echo.log(echo.asInfo('all interest groups:'), interestGroups);
 
-	debug && echo.info('checking eligibility of buyers based on "interest_group_buyers"');
-	const eligible = getEligible(interestGroups, conf.interest_group_buyers);
-	debug && echo.table(eligible);
+	const eligible = getEligible(interestGroups, conf.interest_group_buyers, debug);
+	debug && echo.log(echo.asInfo('eligible buyers based on "interest_group_buyers":'), eligible);
 	if (!eligible) {
-		debug && echo.error('No eligible interest group buyers found!');
+		debug && echo.log(echo.asAlert('No eligible interest group buyers found!'));
 		return null;
 	}
 
-	debug && echo.info('getting all bids from each buyer');
 	const bids = await getBids(eligible, conf, debug);
-	debug && echo.table(bids);
-	debug && echo.info('filtering out invalid bids');
+	debug && echo.log(echo.asInfo('all bids from each buyer:'), bids);
+
 	const filteredBids = bids.filter(item => item);
-	debug && echo.table(filteredBids);
+	debug && echo.log(echo.asInfo('filtered bids:'), filteredBids);
 	if (!filteredBids.length) {
-		debug && echo.error('No bids found!');
+		debug && echo.log(echo.asAlert('No bids found!'));
+		debug && echo.groupEnd();
 		return null;
 	}
 
-	debug && echo.info('getting all scores, filtering and sorting');
+	debug && echo.info('getting all scores, filtering and sorting:');
 	const [ winner ] = await getScores(filteredBids, conf, debug);
-	debug && echo.log('winner:', winner);
+	debug && echo.log(echo.asInfo('winner:'), winner);
 	if (!winner) {
-		debug && echo.error('No winner found!');
+		debug && echo.log(echo.asAlert('No winner found!'));
+		debug && echo.groupEnd();
 		return null;
 	}
 
@@ -731,12 +783,14 @@ async function runAdAuction (conf, debug) {
 		conf,
 		...winner,
 	});
-	debug && echo.log('auction token:', token);
 	if (!token) {
-		debug && echo.error('No auction token found!');
+		debug && echo.log(echo.asAlert('No auction token found!'));
+		debug && echo.groupEnd();
 		return null;
 	}
+	debug && echo.log(echo.asSuccess('auction token:'), token);
 
+	debug && echo.groupEnd();
 	return token;
 }
 
@@ -769,12 +823,12 @@ const getIGKey = (owner, name) => `${owner}-${name}`;
  *   joinAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' }, 2592000000);
  */
 async function joinAdInterestGroup (options, expiry, debug) {
-	debug && echo.info('checking for an existing interest group');
+	debug && echo.groupCollapsed('Fledge API: joinAdInterest');
 	const group = await db$1.store.get(IG_STORE, getIGKey(options.owner, options.name));
-	debug && echo.table(group);
+	debug && echo.log(echo.asInfo('checking for an existing interest group:'), group);
 	let id;
 	if (group) {
-		debug && echo.info('updating a new interest group');
+		debug && echo.info('updating an interest group');
 		id = await db$1.store.put(IG_STORE, group, {
 			_expired: Date.now() + expiry,
 			...options,
@@ -787,7 +841,8 @@ async function joinAdInterestGroup (options, expiry, debug) {
 			...options,
 		});
 	}
-	debug && echo.log('interest group id:', id);
+	debug && echo.log(echo.asSuccess('interest group id:'), id);
+	debug && echo.groupEnd();
 
 	return true;
 }
@@ -805,9 +860,11 @@ async function joinAdInterestGroup (options, expiry, debug) {
  *   leaveAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' });
  */
 async function leaveAdInterestGroup (group, debug) {
+	debug && echo.groupCollapsed('Fledge API: joinAdInterest');
 	debug && echo.info('deleting an existing interest group');
 	await db$1.store.delete(IG_STORE, getIGKey(group.owner, group.name));
-	debug && echo.log('interest group deleted');
+	debug && echo.log(echo.asSuccess('interest group deleted'));
+	debug && echo.groupEnd();
 
 	return true;
 }
@@ -874,7 +931,8 @@ async function frame () {
 		// check whenever the document is being framed by a site which you don’t expect it to be framed by
 		const [ parentOrigin ] = window.location.ancestorOrigins;
 		if (parentOrigin === undefined) {
-			debug && echo.warn('It appears your attempting to access this from the top-level', parentOrigin, window.location);
+			debug && echo.log(echo.asWarning('It appears your attempting to access this from the top-level document'));
+			debug && echo.log({origin: parentOrigin, location: window.location});
 			throw new Error(`Can't call 'postMessage' on the Frame window when run as a top-level document`);
 		}
 

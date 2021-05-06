@@ -20,34 +20,34 @@ import {
  *   runAdAuction({ seller: 'foo', decision_logic_url: 'http://example.com/auction', interst_group_buyers: [ 'www.buyer.com' ] });
  */
 export default async function runAdAuction (conf, debug) {
-	debug && echo.info('getting all interest groups');
+	debug && echo.groupCollapsed('Fledge API: runAdAuction');
 	const interestGroups = await db.store.getAll(IG_STORE);
-	debug && echo.table(interestGroups);
+	debug && echo.log(echo.asInfo('all interest groups:'), interestGroups);
 
-	debug && echo.info('checking eligibility of buyers based on "interest_group_buyers"');
-	const eligible = getEligible(interestGroups, conf.interest_group_buyers);
-	debug && echo.table(eligible);
+	const eligible = getEligible(interestGroups, conf.interest_group_buyers, debug);
+	debug && echo.log(echo.asInfo('eligible buyers based on "interest_group_buyers":'), eligible);
 	if (!eligible) {
-		debug && echo.error('No eligible interest group buyers found!');
+		debug && echo.log(echo.asAlert('No eligible interest group buyers found!'));
 		return null;
 	}
 
-	debug && echo.info('getting all bids from each buyer');
 	const bids = await getBids(eligible, conf, debug);
-	debug && echo.table(bids);
-	debug && echo.info('filtering out invalid bids');
+	debug && echo.log(echo.asInfo('all bids from each buyer:'), bids);
+
 	const filteredBids = bids.filter(item => item);
-	debug && echo.table(filteredBids);
+	debug && echo.log(echo.asInfo('filtered bids:'), filteredBids);
 	if (!filteredBids.length) {
-		debug && echo.error('No bids found!');
+		debug && echo.log(echo.asAlert('No bids found!'));
+		debug && echo.groupEnd();
 		return null;
 	}
 
-	debug && echo.info('getting all scores, filtering and sorting');
+	debug && echo.info('getting all scores, filtering and sorting:');
 	const [ winner ] = await getScores(filteredBids, conf, debug);
-	debug && echo.log('winner:', winner);
+	debug && echo.log(echo.asInfo('winner:'), winner);
 	if (!winner) {
-		debug && echo.error('No winner found!');
+		debug && echo.log(echo.asAlert('No winner found!'));
+		debug && echo.groupEnd();
 		return null;
 	}
 
@@ -59,11 +59,13 @@ export default async function runAdAuction (conf, debug) {
 		conf,
 		...winner,
 	});
-	debug && echo.log('auction token:', token);
 	if (!token) {
-		debug && echo.error('No auction token found!');
+		debug && echo.log(echo.asAlert('No auction token found!'));
+		debug && echo.groupEnd();
 		return null;
 	}
+	debug && echo.log(echo.asSuccess('auction token:'), token);
 
+	debug && echo.groupEnd();
 	return token;
 }

@@ -17,7 +17,6 @@
 			};
 
 			const auctionResults = await fledge.runAdAuction(options);
-			console.log({auctionResults});
 			await fledge.renderAd('#ad-slot-1', auctionResults);
 		</script>
 	</body>

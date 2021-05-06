@@ -2,6 +2,7 @@ import {
 	NAMESPACE,
 	VERSION,
 } from '../types.js';
+import echo from './console.js';
 
 const getMessage = (target, filter) => new Promise((resolve, reject) => {
 	const messageListener = event => {
@@ -23,13 +24,19 @@ const getMessage = (target, filter) => new Promise((resolve, reject) => {
 	target.addEventListener('messageerror', messageErrorListener);
 });
 
-function sendToPort (port) {
+function getFromFrame (port, debug) {
+	debug && echo.groupCollapsed('message utils: getFromFrame');
+	debug && echo.info('getting message from iframe');
 	const message = getMessage(port, () => true);
 	port.start();
+	debug && echo.log(echo.asSuccess('grabbed message from iframe, started port'));
+	debug && echo.groupEnd();
 	return message;
 }
 
-async function getFramePort (iframe, expectedOrigin) {
+async function getFramePort (iframe, expectedOrigin, debug) {
+	debug && echo.groupCollapsed('message utils: getFromPort');
+	debug && echo.info('getting message from iframe');
 	const { data, ports, origin } = await getMessage(window, ({ source }) => source === iframe.contentWindow);
 
 	if (origin !== expectedOrigin) {
@@ -42,10 +49,11 @@ async function getFramePort (iframe, expectedOrigin) {
 		throw new Error(`Message ports are mismatched! Expected 1 port, received ${ports.length}`);
 	}
 
+	debug && echo.groupEnd();
 	return ports[0];
 }
 
 export default {
 	getFramePort,
-	sendToPort,
+	getFromFrame,
 };

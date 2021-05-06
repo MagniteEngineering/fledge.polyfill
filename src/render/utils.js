@@ -59,27 +59,37 @@ export const hasRendered = el => {
  * @param {object} results - the results of the auction
  * @return {object} an object of data to pass back to the buyers report
  */
-export const getSellerReport = async (conf, results) => {
+export const getSellerReport = async (conf, results, debug) => {
+	debug && echo.groupCollapsed('render utils: getSellerReport');
 	const { reportResult } = await import(conf.decision_logic_url);
 
 	// check if there is even a function
 	if (!reportResult || typeof reportResult !== 'function') {
+		debug && echo.log(echo.asWarning(`No 'reportResult' function found!`));
+		debug && echo.groupEnd();
 		return null;
 	}
 
+	let report;
 	// generate a report by providing all of the necessary information
 	try {
-		return reportResult(conf, {
+		debug && echo.info('fetching seller reporting');
+		report = reportResult(conf, {
 			top_window_hostname: window.top.location.hostname,
 			interest_group_owner: results.bid.owner,
 			interest_group_name: results.bid.name,
 			render_url: results.bid.render,
 			bid: results.bid.bid,
 		});
+		debug && echo.log(echo.asSuccess('report found'));
 	} catch (err) {
-		echo.error(err);
+		echo.log(echo.asAlert(err));
+		debug && echo.groupEnd();
 		return null;
 	}
+
+	debug && echo.groupEnd();
+	return report;
 };
 
 /*
@@ -92,25 +102,43 @@ export const getSellerReport = async (conf, results) => {
  * @param {object} report - the report object from the sellers report
  * @return {void} has a side effect of generating a report for the buyer
  */
-export const getBuyerReport = async (conf, results, report) => {
-	const { reportWin } = await import(results.bid.bidding_logic_url);
+export const getBuyerReport = async (conf, results, sellersReport, debug) => {
+	debug && echo.groupCollapsed('render utils: getBuyerReport');
+	const wins = import(results.bid.bidding_logic_url)
+		.then(({ reportWin }) => {
+			// check if there is even a function
+			if (!reportWin || typeof reportWin !== 'function') {
+				debug && echo.log(echo.asWarning(`No 'reportWin' function found!`));
+				return null;
+			}
 
-	// check if there is even a function
-	if (!reportWin || typeof reportWin !== 'function') {
-		return null;
-	}
+			let report;
 
-	// generate a report by providing all of the necessary information
-	try {
-		return reportWin(conf?.auction_signals, conf?.per_buyer_signals?.[results.bid.owner], report, {
-			top_window_hostname: window.top.location.hostname,
-			interest_group_owner: results.bid.owner,
-			interest_group_name: results.bid.name,
-			render_url: results.bid.render,
-			bid: results.bid.bid,
+			try {
+				debug && echo.info('fetching buyer reporting');
+				// generate a report by providing all of the necessary information
+				report = reportWin(conf?.auction_signals, conf?.per_buyer_signals?.[results.bid.owner], sellersReport, {
+					top_window_hostname: window.top.location.hostname,
+					interest_group_owner: results.bid.owner,
+					interest_group_name: results.bid.name,
+					render_url: results.bid.render,
+					bid: results.bid.bid,
+				});
+				debug && echo.log(echo.asSuccess('report found'));
+			} catch (err) {
+				echo.log(echo.asAlert(`There was an error in the 'reportWin' function:`));
+				echo.log(err);
+				report = null;
+			}
+
+			return report;
+		})
+		.catch(err => {
+			console.log({ err });
+			echo.log(echo.asAlert(err));
+			return null;
 		});
-	} catch (err) {
-		echo.error(err);
-		return null;
-	}
+
+	debug && echo.groupEnd();
+	return wins;
 };

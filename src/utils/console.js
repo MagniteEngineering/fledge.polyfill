@@ -9,7 +9,25 @@ const RESET_CSS = '';
 function alertFormatting (value) {
 	queue.push({
 		value,
-		css: 'display: inline-block ; background-color: #e0005a ; color: #ffffff ; font-weight: bold ; padding: 3px 7px 3px 7px ; border-radius: 3px 3px 3px 3px ;',
+		css: 'display: inline-block ; background-color: #dc3545 ; color: #ffffff ; font-weight: bold ; padding: 3px 7px 3px 7px ; border-radius: 3px 3px 3px 3px ;',
+	});
+
+	return (TOKEN);
+}
+
+function successFormatting (value) {
+	queue.push({
+		value,
+		css: 'display: inline-block ; color: #289d45 ; font-weight: bold ;',
+	});
+
+	return (TOKEN);
+}
+
+function infoFormatting (value) {
+	queue.push({
+		value,
+		css: 'color: #0366d6 ; font-weight: bold;',
 	});
 
 	return (TOKEN);
@@ -19,8 +37,9 @@ function alertFormatting (value) {
 function warningFormatting (value) {
 	queue.push({
 		value,
-		css: 'display: inline-block ; background-color: gold ; color: black ; font-weight: bold ; padding: 3px 7px 3px 7px ; border-radius: 3px 3px 3px 3px ;',
+		css: 'display: inline-block ; background-color: #ffc107 ; color: black ; font-weight: bold ; padding: 3px 7px 3px 7px ; border-radius: 3px 3px 3px 3px ;',
 	});
+	console.log({ value, queue, TOKEN });
 
 	return (TOKEN);
 }
@@ -79,12 +98,18 @@ export default {
 	info: using(console.info),
 	log: using(console.log),
 	group: using(console.group),
+	groupCollapsed: using(console.groupCollapsed),
 	groupEnd: using(console.groupEnd),
 	table: using(console.table),
+	time: using(console.time),
+	timeEnd: using(console.timeEnd),
+	timeLog: using(console.timeLog),
 	trace: using(console.trace),
 	warn: using(console.warn),
 
 	// Formatting functions.
 	asAlert: alertFormatting,
+	asInfo: infoFormatting,
+	asSuccess: successFormatting,
 	asWarning: warningFormatting,
 };

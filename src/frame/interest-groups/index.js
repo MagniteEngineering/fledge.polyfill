@@ -18,12 +18,12 @@ import {
  *   joinAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' }, 2592000000);
  */
 export async function joinAdInterestGroup (options, expiry, debug) {
-	debug && echo.info('checking for an existing interest group');
+	debug && echo.groupCollapsed('Fledge API: joinAdInterest');
 	const group = await db.store.get(IG_STORE, getIGKey(options.owner, options.name));
-	debug && echo.table(group);
+	debug && echo.log(echo.asInfo('checking for an existing interest group:'), group);
 	let id;
 	if (group) {
-		debug && echo.info('updating a new interest group');
+		debug && echo.info('updating an interest group');
 		id = await db.store.put(IG_STORE, group, {
 			_expired: Date.now() + expiry,
 			...options,
@@ -36,7 +36,8 @@ export async function joinAdInterestGroup (options, expiry, debug) {
 			...options,
 		});
 	}
-	debug && echo.log('interest group id:', id);
+	debug && echo.log(echo.asSuccess('interest group id:'), id);
+	debug && echo.groupEnd();
 
 	return true;
 }
@@ -54,9 +55,11 @@ export async function joinAdInterestGroup (options, expiry, debug) {
  *   leaveAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' });
  */
 export async function leaveAdInterestGroup (group, debug) {
+	debug && echo.groupCollapsed('Fledge API: leaveAdInterest');
 	debug && echo.info('deleting an existing interest group');
 	await db.store.delete(IG_STORE, getIGKey(group.owner, group.name));
-	debug && echo.log('interest group deleted');
+	debug && echo.log(echo.asSuccess('interest group deleted'));
+	debug && echo.groupEnd();
 
 	return true;
 }
