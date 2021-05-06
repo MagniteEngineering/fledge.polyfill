@@ -7,7 +7,7 @@ import {
 export default async function fledgeAPI ({ data, ports }) {
 	try {
 		if (!Array.isArray(data)) {
-			throw new Error('data is not what it should be');
+			throw new Error(`The API expects the data to be in the form of an array, with index 0 set to the action, and index 1 set to the data.  A ${typeof data} was passed instead.`);
 		}
 
 		switch (data[0]) {

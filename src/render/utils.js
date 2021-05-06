@@ -134,7 +134,6 @@ export const getBuyerReport = async (conf, results, sellersReport, debug) => {
 			return report;
 		})
 		.catch(err => {
-			console.log({ err });
 			echo.log(echo.asAlert(err));
 			return null;
 		});
