@@ -1,7 +1,43 @@
 /* eslint-disable compat/compat */
-import fledge from '../../src/';
+import renderAd from '../../src/api/render';
 
-jest.mock('../../src/utils/db', () => ({
+const origin = 'http://localhost/';
+const timestamp = 1619635510421;
+const conf = {
+	seller: 'www.ssp.com',
+	interest_group_buyers: '*',
+	decision_logic_url: 'https://entertaining-glitter-bowler.glitch.me/score.js',
+};
+const bid = {
+	_key: 'www.rp.com-womens-running-shoes',
+	_expired: 1621792745000,
+	owner: 'www.rp.com',
+	name: 'womens-running-shoes',
+	bidding_logic_url: 'https://dark-organic-appeal.glitch.me/bid.js',
+	_created: 1619200745000,
+	_updated: 1619200745000,
+	ad: {
+		auction: {},
+		browser: {
+			top_window_hostname: 'localhost',
+			seller: 'www.ssp.com',
+		},
+		buyer: {},
+		interest: {
+			_key: 'www.rp.com-womens-running-shoes',
+			_expired: 1621792745000,
+			owner: 'www.rp.com',
+			name: 'womens-running-shoes',
+			bidding_logic_url: 'https://dark-organic-appeal.glitch.me/bid.js',
+			_created: 1619200745000,
+			_updated: 1619200745000,
+		},
+	},
+	bid: 1,
+	render: 'https://example.com',
+};
+
+jest.mock('../../src/frame/utils', () => ({
 	store: {
 		get: () => new Promise(resolve => {
 			resolve({
@@ -49,12 +85,13 @@ jest.mock('../../src/utils/db', () => ({
 	},
 }));
 
-jest.mock('../../src/render/utils', () => ({
-	getTarget: () => '<div id="ad-slot-1"></div>',
-	renderFrame: () => '<div id="ad-slot-1"><iframe id="fledge-auction-c6b3fd61-4d16-44d1-9364-acc9ceb286f3" src="https://example.com"></iframe></div>',
+jest.mock('../../src/api/utils', () => ({
+	frame: {
+		create: () => '<div id="ad-slot-1"><iframe id="fledge-auction-c6b3fd61-4d16-44d1-9364-acc9ceb286f3" src="https://example.com"></iframe></div>',
+	},
 }));
 
-jest.mock('../../src/render/reporting', () => ({
+jest.mock('../../src/api/reporting', () => ({
 	getSellerReport: () => new Promise(resolve => {
 		resolve({
 			foo: 'bar',
@@ -65,7 +102,6 @@ jest.mock('../../src/render/reporting', () => ({
 			foo: 'bar',
 		});
 	}),
-	hasRendered: () => true,
 }));
 
 describe('Render', () => {
@@ -76,9 +112,16 @@ describe('Render', () => {
 
 		describe('Return', () => {
 			it('should return true when all valid options are provided', async () => {
+				sessionStorage.setItem('c6b3fd61-4d16-44d1-9364-acc9ceb286f3', JSON.stringify({
+					origin,
+					timestamp,
+					conf,
+					bid,
+				}));
+
 				// Set up our document body
 				document.body.innerHTML = '<div id="ad-slot-1"><iframe id="fledge-auction-c6b3fd61-4d16-44d1-9364-acc9ceb286f3" src="https://example.com"></iframe></div>';
-				expect(await fledge.renderAd('#ad-slot-1', 'c6b3fd61-4d16-44d1-9364-acc9ceb286f3')).toBe(true);
+				expect(await renderAd('#ad-slot-1', 'c6b3fd61-4d16-44d1-9364-acc9ceb286f3')).toBe(true);
 			});
 		});
 	});
