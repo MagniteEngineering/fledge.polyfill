@@ -1,5 +1,5 @@
-import { db, echo } from '../../utils/index.js';
-import { AUCTION_STORE, IG_STORE } from '../../utils/db.js';
+import { echo } from '@theholocron/klaxon';
+import db, { IG_STORE } from '../utils.js';
 import {
 	getBids,
 	getEligible,
@@ -42,7 +42,7 @@ export default async function runAdAuction (conf, debug) {
 		return null;
 	}
 
-	debug && echo.info('getting all scores, filtering and sorting:');
+	debug && echo.log(echo.asProcess('getting all scores, filtering and sorting'));
 	const [ winner ] = await getScores(filteredBids, conf, debug);
 	debug && echo.log(echo.asInfo('winner:'), winner);
 	if (!winner) {
@@ -51,19 +51,14 @@ export default async function runAdAuction (conf, debug) {
 		return null;
 	}
 
-	debug && echo.info('creating an entry in the auction store');
-	const token = await db.store.add(AUCTION_STORE, {
-		id: uuid(),
+	debug && echo.log(echo.asProcess('creating an entry in the auction store'));
+	const token = uuid();
+	sessionStorage.setItem(token, JSON.stringify({
 		origin: `${window.top.location.origin}${window.top.location.pathname}`,
 		timestamp: Date.now(),
 		conf,
 		...winner,
-	});
-	if (!token) {
-		debug && echo.log(echo.asAlert('No auction token found!'));
-		debug && echo.groupEnd();
-		return null;
-	}
+	}));
 	debug && echo.log(echo.asSuccess('auction token:'), token);
 
 	debug && echo.groupEnd();

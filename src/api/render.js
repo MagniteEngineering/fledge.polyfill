@@ -1,11 +1,9 @@
-import { db, echo, frame } from '../utils/index.js';
-import { AUCTION_STORE } from '../utils/db.js';
+import { echo } from '@theholocron/klaxon';
 import {
 	getBuyerReport,
 	getSellerReport,
-	getTarget,
-	hasRendered,
-} from './utils.js';
+} from './reporting';
+import { frame } from './utils';
 
 /*
  * @function
@@ -22,35 +20,35 @@ import {
  */
 export default async function renderAd (selector, token, debug) {
 	debug && echo.groupCollapsed('Fledge API: renderAd');
-	const target = getTarget(selector);
+	const target = document.querySelector(selector);
 	if (!target) {
 		throw new Error(`Target not found on the page! Please check that ${target} exists on the page.`);
 	}
 	debug && echo.log(echo.asInfo('target:'), target);
 
-	const winner = await db.store.get(AUCTION_STORE, token);
-	if (!winner || winner.id !== token) {
+	const winner = JSON.parse(sessionStorage.getItem(token));
+	if (!winner) {
 		throw new Error(`A token was not found! Token provided: ${token}`);
 	}
-	debug && echo.log(echo.asInfo('winners token:'), winner);
+	debug && echo.log(echo.asInfo('winner data:'), winner);
 
-	debug && echo.info('checking that winner to be rendered is on the same hostname as the auction');
+	debug && echo.log(echo.asProcess('checking that winner to be rendered is on the same hostname as the auction'));
 	if (winner?.origin !== `${window.top.location.origin}${window.top.location.pathname}`) {
 		debug && echo.error(`Attempting to render the winner on a location that doesn't match the auctions hostname`, { winner: winner.origin, auction: `${window.top.location.origin}${window.top.location.pathname}` });
 		throw new Error('Something went wrong! No ad was rendered.');
 	}
 	debug && echo.log(echo.asSuccess('winner is on the same hostname as the auction'));
 
-	debug && echo.info('rendering an iframe with the winning ad');
+	debug && echo.log(echo.asProcess('rendering an iframe with the winning ad'));
 	frame.create({
 		source: winner.bid.render,
 		target,
 		props: {
-			id: `fledge-auction-${winner.id}`,
+			id: `fledge-auction-${token}`,
 		},
 	});
-	const ad = getTarget(`#fledge-auction-${token}`);
-	if (!ad || !hasRendered(ad)) {
+	const ad = document.querySelector(`#fledge-auction-${token}`);
+	if (!ad) {
 		throw new Error('Something went wrong! No ad was rendered.');
 	}
 	debug && echo.log(echo.asSuccess('iframe with winning ad has rendered'));

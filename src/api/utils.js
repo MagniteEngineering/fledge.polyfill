@@ -1,3 +1,42 @@
+import { echo } from '@theholocron/klaxon';
+import VERSION from '../version';
+
+/*
+ * @function
+ * @name renderFrame
+ * @description renders an iFrame when given a target and source URL
+ * @author Newton <cnewton@magnite.com>
+ * @param {DOM Node} target - a valid DOM node with which to append an iframe
+ * @param {object} source - a valid winning ad object to render within the iframe
+ * @throws {Error} if no source URL is found based on the selector provided
+ * @return {void}
+ */
+export const createFrame = ({ source, target = document.body, props = {}, style = {} }) => {
+	if (!source) {
+		throw new Error(`Something went wrong! No URL was found.`);
+	}
+	const src = new URL(source, document.baseURI);
+	const iframe = document.createElement('iframe');
+	const _props = {
+		src,
+		scrolling: 'no',
+		...props,
+	};
+	const _style = {
+		'border-width': 0,
+		...style,
+	};
+	Object.entries(_props).map(([ key, value ]) => iframe.setAttribute(key, value));
+	Object.entries(_style).map(([ key, value ]) => iframe.style.setProperty(key, value));
+
+	target.appendChild(iframe);
+
+	return {
+		iframe,
+		origin: src.origin,
+	};
+};
+
 /*
  * @function
  * @name hasRequiredKeys
@@ -115,7 +154,65 @@ const hasInvalidOptionTypes = (options, types) => {
 	return false;
 };
 
-export default {
+const getMessage = (target, filter) => new Promise((resolve, reject) => {
+	const messageListener = event => {
+		if (filter(event)) {
+			target.removeEventListener('message', messageListener);
+			target.removeEventListener('messageerror', messageErrorListener);
+			resolve(event);
+		}
+	};
+	const messageErrorListener = event => {
+		if (filter(event)) {
+			target.removeEventListener('message', messageListener);
+			target.removeEventListener('messageerror', messageErrorListener);
+			reject(new Error('Message deserialization error'));
+		}
+	};
+
+	target.addEventListener('message', messageListener);
+	target.addEventListener('messageerror', messageErrorListener);
+});
+
+function getFromFrame (port, debug) {
+	debug && echo.groupCollapsed('message utils: getFromFrame');
+	debug && echo.log(echo.asProcess('getting message from iframe'));
+	const message = getMessage(port, () => true);
+	port.start();
+	debug && echo.log(echo.asSuccess('grabbed message from iframe, started port'));
+	debug && echo.groupEnd();
+	return message;
+}
+
+async function getFramePort (iframe, expectedOrigin, debug) {
+	debug && echo.groupCollapsed('message utils: getFromPort');
+	debug && echo.log(echo.asProcess('getting message from iframe'));
+	const { data, ports, origin } = await getMessage(window, ({ source }) => source === iframe.contentWindow);
+
+	if (origin !== expectedOrigin) {
+		throw new Error(`Message origins are mismatched! Expected ${expectedOrigin}, received ${origin}`);
+	}
+	if (data['fledge.polyfill'] !== VERSION) {
+		throw new Error(`Message versions are mismatched! Expected ${VERSION}, but received ${data['fledge.polyfill']}`);
+	}
+	if (ports.length !== 1) {
+		throw new Error(`Message ports are mismatched! Expected 1 port, received ${ports.length}`);
+	}
+
+	debug && echo.groupEnd();
+	return ports[0];
+}
+
+export const frame = {
+	create: createFrame,
+};
+
+export const message = {
+	getFramePort,
+	getFromFrame,
+};
+
+export const validate = {
 	hasInvalidOptionTypes,
 	hasRequiredKeys,
 	printInvalidOptionTypes,

@@ -1,9 +1,6 @@
-import {
-	NAMESPACE,
-	VERSION,
-} from '../types.js';
-import { echo } from '../utils/index.js';
-import fledgeAPI from './api.js';
+import { echo } from '@theholocron/klaxon';
+import VERSION from '../version';
+import fledgeAPI from './api';
 
 export default async function frame () {
 	const { searchParams } = new URL(window.location);
@@ -27,7 +24,7 @@ export default async function frame () {
 		debug && echo.log('message channel sender:', sender);
 		receiver.onmessage = fledgeAPI;
 		window.parent.postMessage({
-			[NAMESPACE]: VERSION,
+			'fledge.polyfill': VERSION,
 		}, parentOrigin, [ sender ]);
 	}
 	debug && echo.groupEnd();

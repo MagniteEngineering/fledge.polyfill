@@ -1,6 +1,3 @@
-export const NAMESPACE = 'fledge.polyfill';
-export const VERSION = 1;
-
 export const AuctionConf = {
 	seller: 'string',
 	decision_logic_url: 'url',

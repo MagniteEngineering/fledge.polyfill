@@ -1,8 +1,20 @@
-import { db, echo } from '../../utils/index.js';
-import { IG_STORE } from '../../utils/db.js';
-import {
-	getIGKey,
-} from './utils.js';
+import { echo } from '@theholocron/klaxon';
+import db, { IG_STORE } from '../utils.js';
+
+/*
+ * @function
+ * @name getIGKey
+ * @description retrieve the key for an interest group form the store
+ * @author Newton <cnewton@magnite.com>
+ * @param {string} owner - owner of the interest group
+ * @param {string} name - name of the interest group
+ * @return {object} an object representing an interest group
+ *
+ * @example
+ *   getKey('foo', 'bar');
+ *   // 'foo-bar'
+ */
+export const getIGKey = (owner, name) => `${owner}-${name}`;
 
 /*
  * @function
@@ -23,13 +35,13 @@ export async function joinAdInterestGroup (options, expiry, debug) {
 	debug && echo.log(echo.asInfo('checking for an existing interest group:'), group);
 	let id;
 	if (group) {
-		debug && echo.info('updating an interest group');
+		debug && echo.log(echo.asProcess('updating an interest group'));
 		id = await db.store.put(IG_STORE, group, {
 			_expired: Date.now() + expiry,
 			...options,
 		});
 	} else {
-		debug && echo.info('creating a new interest group');
+		debug && echo.log(echo.asProcess('creating a new interest group'));
 		id = await db.store.add(IG_STORE, {
 			_key: getIGKey(options.owner, options.name),
 			_expired: Date.now() + expiry,
@@ -56,7 +68,7 @@ export async function joinAdInterestGroup (options, expiry, debug) {
  */
 export async function leaveAdInterestGroup (group, debug) {
 	debug && echo.groupCollapsed('Fledge API: leaveAdInterest');
-	debug && echo.info('deleting an existing interest group');
+	debug && echo.log(echo.asProcess('deleting an existing interest group'));
 	await db.store.delete(IG_STORE, getIGKey(group.owner, group.name));
 	debug && echo.log(echo.asSuccess('interest group deleted'));
 	debug && echo.groupEnd();

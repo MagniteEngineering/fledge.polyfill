@@ -1,54 +1,5 @@
 /* eslint-disable camelcase, no-cond-assign */
-import { echo } from '../utils/index.js';
-
-/*
- * @function
- * @name getTarget
- * @description grab a DOM node based on a CSS style selector passed in
- * @author Newton <cnewton@magnite.com>
- * @param {string} selector - a CSS style selector
- * @throws {Error} if no target is found based on the selector provided
- * @return {DOM Node} a DOM node found on the page
- */
-export const getTarget = selector => document.querySelector(selector);
-
-/*
- * @function
- * @name hasRendered
- * @description determine if a DOM element is visibile on a page
- * @param {DOM element} el - a list of bidders (also referred to as interest groups)
- * @return {boolean} whether or not an element is visible on the screen
- */
-export const hasRendered = el => {
-	if (!(el instanceof Element)) { throw Error(`${el} is not a DOM element.`); }
-
-	// check that the element is not hidden by CSS styles
-	const { display, opacity, visibility } = getComputedStyle(el);
-	if (display === 'none') { return false; }
-	if (visibility !== 'visible') { return false; }
-	if (opacity < 0.1) { return false; }
-
-	// check that the element is not positioned off the page
-	const { left, height, top, width } = el.getBoundingClientRect();
-	const { offsetHeight } = el;
-	const { offsetWidth } = el;
-	if (offsetWidth + offsetHeight + height + width === 0) { return false; }
-
-	// check that the element is not absolutely positioned off the page
-	const x = left + offsetWidth / 2;
-	if (x < 0) { return false; }
-	if (x > (document.documentElement.clientWidth || window.innerWidth)) { return false; }
-	const y = top + offsetHeight / 2;
-	if (y < 0) { return false; }
-	if (y > (document.documentElement.clientHeight || window.innerHeight)) { return false; }
-
-	let pointContainer = document.elementFromPoint(x, y);
-	do {
-		if (pointContainer === el) { return true; }
-	} while (pointContainer = pointContainer.parentNode);
-
-	return false;
-};
+import { echo } from '@theholocron/klaxon';
 
 /*
  * @function
@@ -73,7 +24,7 @@ export const getSellerReport = async (conf, results, debug) => {
 	let report;
 	// generate a report by providing all of the necessary information
 	try {
-		debug && echo.info('fetching seller reporting');
+		debug && echo.log(echo.asProcess('fetching seller reporting'));
 		report = reportResult(conf, {
 			top_window_hostname: window.top.location.hostname,
 			interest_group_owner: results.bid.owner,
@@ -115,7 +66,7 @@ export const getBuyerReport = async (conf, results, sellersReport, debug) => {
 			let report;
 
 			try {
-				debug && echo.info('fetching buyer reporting');
+				debug && echo.log(echo.asProcess('fetching buyer reporting'));
 				// generate a report by providing all of the necessary information
 				report = reportWin(conf?.auction_signals, conf?.per_buyer_signals?.[results.bid.owner], sellersReport, {
 					top_window_hostname: window.top.location.hostname,

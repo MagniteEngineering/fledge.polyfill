@@ -20,10 +20,7 @@ function _interopNamespace(e) {
 	return Object.freeze(n);
 }
 
-const NAMESPACE = 'fledge.polyfill';
-const VERSION = 1;
-
-/* eslint-disable no-console */
+/* eslint-disable no-console, compat/compat */
 
 let queue = [];
 const TOKEN = {};
@@ -34,16 +31,7 @@ const RESET_CSS = '';
 function alertFormatting (value) {
 	queue.push({
 		value,
-		css: 'display: inline-block ; background-color: #dc3545 ; color: #ffffff ; font-weight: bold ; padding: 3px 7px 3px 7px ; border-radius: 3px 3px 3px 3px ;',
-	});
-
-	return (TOKEN);
-}
-
-function successFormatting (value) {
-	queue.push({
-		value,
-		css: 'display: inline-block ; color: #289d45 ; font-weight: bold ;',
+		css: 'display: inline-block; background-color: #dc3545; color: #ffffff; font-weight: bold; padding: 3px 7px 3px 7px; border-radius: 3px 3px 3px 3px;',
 	});
 
 	return (TOKEN);
@@ -52,7 +40,25 @@ function successFormatting (value) {
 function infoFormatting (value) {
 	queue.push({
 		value,
-		css: 'color: #0366d6 ; font-weight: bold;',
+		css: 'color: #0366d6; font-weight: bold;',
+	});
+
+	return (TOKEN);
+}
+
+function processFormatting (value) {
+	queue.push({
+		value: `${value}…`,
+		css: 'color: #8c8c8c; font-style: italic;',
+	});
+
+	return (TOKEN);
+}
+
+function successFormatting (value) {
+	queue.push({
+		value,
+		css: 'color: #289d45; font-weight: bold;',
 	});
 
 	return (TOKEN);
@@ -62,9 +68,8 @@ function infoFormatting (value) {
 function warningFormatting (value) {
 	queue.push({
 		value,
-		css: 'display: inline-block ; background-color: #ffc107 ; color: black ; font-weight: bold ; padding: 3px 7px 3px 7px ; border-radius: 3px 3px 3px 3px ;',
+		css: 'display: inline-block; background-color: #ffc107; color: black; font-weight: bold; padding: 3px 7px 3px 7px; border-radius: 3px 3px 3px 3px;',
 	});
-	console.log({value, queue, TOKEN});
 
 	return (TOKEN);
 }
@@ -117,14 +122,20 @@ function using (consoleFunction) {
 	return (consoleFunctionProxy);
 }
 
-var echo = {
+const echo = {
 	// Console(ish) functions.
+	assert: using(console.assert),
+	clear: using(console.clear),
+	count: using(console.count),
+	countReset: using(console.countReset),
+	debug: using(console.debug),
+	dir: using(console.dir),
 	error: using(console.error),
-	info: using(console.info),
-	log: using(console.log),
 	group: using(console.group),
 	groupCollapsed: using(console.groupCollapsed),
 	groupEnd: using(console.groupEnd),
+	info: using(console.info),
+	log: using(console.log),
 	table: using(console.table),
 	time: using(console.time),
 	timeEnd: using(console.timeEnd),
@@ -135,9 +146,12 @@ var echo = {
 	// Formatting functions.
 	asAlert: alertFormatting,
 	asInfo: infoFormatting,
+	asProcess: processFormatting,
 	asSuccess: successFormatting,
 	asWarning: warningFormatting,
 };
+
+const VERSION = 1;
 
 const instanceOfAny = (object, constructors) => constructors.some((c) => object instanceof c);
 
@@ -398,12 +412,6 @@ replaceTraps((oldTraps) => ({
 
 /*
  * @const {string}
- * @summary the name of the Auction store within IndexedDB
- */
-const AUCTION_STORE = 'auction';
-
-/*
- * @const {string}
  * @summary the name of the Interest Group store within IndexedDB
  */
 const IG_STORE = 'interest-groups';
@@ -426,11 +434,6 @@ const db = openDB('Fledge', 1, {
 		// Create an index on the a few properties of the objects.
 		[ 'owner', 'name', '_expired' ].forEach(index => {
 			igStore.createIndex(index, index, { unique: false });
-		});
-
-		db.createObjectStore(AUCTION_STORE, {
-			// The 'id' property of the object will be the key.
-			keyPath: 'id',
 		});
 	},
 });
@@ -711,7 +714,7 @@ const getTrustedSignals = async (url, keys, debug) => {
 	const hostname = `hostname=${window.top.location.hostname}`;
 
 	if (!(url && keys)) {
-		debug && echo.info(`no 'url' or 'keys' found; returning undefined`);
+		debug && echo.log(echo.asWarning(`No 'url' or 'keys' found!`));
 		debug && echo.groupEnd();
 		return undefined;
 	}
@@ -744,7 +747,7 @@ const getTrustedSignals = async (url, keys, debug) => {
 	}
 
 	if (!(signals && Object.keys(signals).length === 0 && signals.constructor === Object)) {
-		debug && echo.info(`no signals found; returning null`);
+		debug && echo.log(echo.asWarning(`No signals found!`));
 		debug && echo.groupEnd();
 		return null;
 	}
@@ -788,7 +791,7 @@ async function runAdAuction (conf, debug) {
 		return null;
 	}
 
-	debug && echo.info('getting all scores, filtering and sorting:');
+	debug && echo.log(echo.asProcess('getting all scores, filtering and sorting'));
 	const [ winner ] = await getScores(filteredBids, conf, debug);
 	debug && echo.log(echo.asInfo('winner:'), winner);
 	if (!winner) {
@@ -797,19 +800,14 @@ async function runAdAuction (conf, debug) {
 		return null;
 	}
 
-	debug && echo.info('creating an entry in the auction store');
-	const token = await db$1.store.add(AUCTION_STORE, {
-		id: uuid(),
+	debug && echo.log(echo.asProcess('creating an entry in the auction store'));
+	const token = uuid();
+	sessionStorage.setItem(token, JSON.stringify({
 		origin: `${window.top.location.origin}${window.top.location.pathname}`,
 		timestamp: Date.now(),
 		conf,
 		...winner,
-	});
-	if (!token) {
-		debug && echo.log(echo.asAlert('No auction token found!'));
-		debug && echo.groupEnd();
-		return null;
-	}
+	}));
 	debug && echo.log(echo.asSuccess('auction token:'), token);
 
 	debug && echo.groupEnd();
@@ -850,13 +848,13 @@ async function joinAdInterestGroup (options, expiry, debug) {
 	debug && echo.log(echo.asInfo('checking for an existing interest group:'), group);
 	let id;
 	if (group) {
-		debug && echo.info('updating an interest group');
+		debug && echo.log(echo.asProcess('updating an interest group'));
 		id = await db$1.store.put(IG_STORE, group, {
 			_expired: Date.now() + expiry,
 			...options,
 		});
 	} else {
-		debug && echo.info('creating a new interest group');
+		debug && echo.log(echo.asProcess('creating a new interest group'));
 		id = await db$1.store.add(IG_STORE, {
 			_key: getIGKey(options.owner, options.name),
 			_expired: Date.now() + expiry,
@@ -882,8 +880,8 @@ async function joinAdInterestGroup (options, expiry, debug) {
  *   leaveAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' });
  */
 async function leaveAdInterestGroup (group, debug) {
-	debug && echo.groupCollapsed('Fledge API: joinAdInterest');
-	debug && echo.info('deleting an existing interest group');
+	debug && echo.groupCollapsed('Fledge API: leaveAdInterest');
+	debug && echo.log(echo.asProcess('deleting an existing interest group'));
 	await db$1.store.delete(IG_STORE, getIGKey(group.owner, group.name));
 	debug && echo.log(echo.asSuccess('interest group deleted'));
 	debug && echo.groupEnd();
@@ -894,7 +892,7 @@ async function leaveAdInterestGroup (group, debug) {
 async function fledgeAPI ({ data, ports }) {
 	try {
 		if (!Array.isArray(data)) {
-			throw new Error('data is not what it should be');
+			throw new Error(`The API expects the data to be in the form of an array, with index 0 set to the action, and index 1 set to the data.  A ${typeof data} was passed instead.`);
 		}
 
 		switch (data[0]) {
@@ -954,7 +952,7 @@ async function frame () {
 		const [ parentOrigin ] = window.location.ancestorOrigins;
 		if (parentOrigin === undefined) {
 			debug && echo.log(echo.asWarning('It appears your attempting to access this from the top-level document'));
-			debug && echo.log({origin: parentOrigin, location: window.location});
+			debug && echo.log({ origin: parentOrigin, location: window.location });
 			throw new Error(`Can't call 'postMessage' on the Frame window when run as a top-level document`);
 		}
 
@@ -964,7 +962,7 @@ async function frame () {
 		debug && echo.log('message channel sender:', sender);
 		receiver.onmessage = fledgeAPI;
 		window.parent.postMessage({
-			[NAMESPACE]: VERSION,
+			'fledge.polyfill': VERSION,
 		}, parentOrigin, [ sender ]);
 	}
 	debug && echo.groupEnd();

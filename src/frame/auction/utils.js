@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { echo } from '../../utils/index.js';
+import { echo } from '@theholocron/klaxon';
 
 /*
  * @function
@@ -162,7 +162,7 @@ const getTrustedSignals = async (url, keys, debug) => {
 	const hostname = `hostname=${window.top.location.hostname}`;
 
 	if (!(url && keys)) {
-		debug && echo.info(`no 'url' or 'keys' found; returning undefined`);
+		debug && echo.log(echo.asWarning(`No 'url' or 'keys' found!`));
 		debug && echo.groupEnd();
 		return undefined;
 	}
@@ -195,7 +195,7 @@ const getTrustedSignals = async (url, keys, debug) => {
 	}
 
 	if (!(signals && Object.keys(signals).length === 0 && signals.constructor === Object)) {
-		debug && echo.info(`no signals found; returning null`);
+		debug && echo.log(echo.asWarning(`No signals found!`));
 		debug && echo.groupEnd();
 		return null;
 	}

@@ -92,7 +92,7 @@
     "audit": "bundlesize --config ./node_modules/@theholocron/bundlewatch-config/index.js",
     "commit": "commit",
     "predist": "rollup -c node:@theholocron/rollup-config --input=src/frame --output=docs/scripts --name=fledgeframe --exports=default",
-    "dist": "rollup -c node:@theholocron/rollup-config --name=fledge --exports=default",
+    "dist": "rollup -c node:@theholocron/rollup-config --input=src/api --name=fledge --exports=default",
     "lint": "eslint .",
     "serve": "serve . -l 3000",
     "release": "semantic-release",
@@ -119,6 +119,7 @@
     "serve": "^11.3.2"
   },
   "dependencies": {
+    "@theholocron/klaxon": "^1.1.0",
     "idb": "^6.0.0"
   }
 }

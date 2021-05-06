@@ -1,14 +1,14 @@
-import render from './render/index.js';
+import { echo } from '@theholocron/klaxon';
+import render from './render';
 import {
 	AuctionConf,
 	InterestGroup,
-} from './types.js';
+} from './types';
 import {
-	echo,
 	frame,
 	message,
 	validate,
-} from './utils/index.js';
+} from './utils';
 
 /*
 * @const {number}
@@ -17,11 +17,17 @@ import {
 */
 const MAX_EXPIRATION = 2592000000;
 
+/*
+* @const {URL}
+* @description The source URL for the hosted iframe
+*/
+const IFRAME_HOST = 'http://localhost:3000/docs/iframe.html';
+
 export default class Fledge {
 	constructor (debug) {
 		const query = debug ? '?debug=true' : '';
 		const { iframe, origin } = frame.create({
-			source: `http://localhost:3000/docs/iframe${query}`,
+			source: `${IFRAME_HOST}${query}`,
 			style: { display: 'none' },
 		});
 		// iframe.sandbox.add('allow-same-origin', 'allow-scripts');
@@ -59,7 +65,7 @@ export default class Fledge {
 		const port = await this.props.port;
 		this._debug && echo.log(echo.asInfo('message port:'), port);
 		this._debug && echo.groupEnd();
-		this._debug && echo.info(`sending 'joinAdInterestGroup' message to iframe`);
+		this._debug && echo.log(echo.asProcess(`sending 'joinAdInterestGroup' message to iframe`));
 		port.postMessage([ 'joinAdInterestGroup', [
 			options,
 			expiry,
@@ -79,7 +85,7 @@ export default class Fledge {
 		const port = await this.props.port;
 		this._debug && echo.log(echo.asInfo('message port:'), port);
 		this._debug && echo.groupEnd();
-		this._debug && echo.info(`sending 'leaveAdInterestGroup' message to iframe`);
+		this._debug && echo.log(echo.asProcess(`sending 'leaveAdInterestGroup' message to iframe`));
 		port.postMessage([ 'leaveAdInterestGroup', [
 			group,
 			this._debug,
@@ -103,7 +109,7 @@ export default class Fledge {
 		this._debug && echo.groupEnd();
 
 		try {
-			this._debug && echo.info(`sending 'runAdAuction' message to iframe`);
+			this._debug && echo.log(echo.asProcess(`sending 'runAdAuction' message to iframe`));
 			port.postMessage([ 'runAdAuction', [
 				conf,
 				this._debug,

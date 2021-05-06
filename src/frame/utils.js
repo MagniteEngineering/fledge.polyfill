@@ -2,12 +2,6 @@ import { openDB } from 'idb';
 
 /*
  * @const {string}
- * @summary the name of the Auction store within IndexedDB
- */
-export const AUCTION_STORE = 'auction';
-
-/*
- * @const {string}
  * @summary the name of the Interest Group store within IndexedDB
  */
 export const IG_STORE = 'interest-groups';
@@ -30,11 +24,6 @@ const db = openDB('Fledge', 1, {
 		// Create an index on the a few properties of the objects.
 		[ 'owner', 'name', '_expired' ].forEach(index => {
 			igStore.createIndex(index, index, { unique: false });
-		});
-
-		db.createObjectStore(AUCTION_STORE, {
-			// The 'id' property of the object will be the key.
-			keyPath: 'id',
 		});
 	},
 });
