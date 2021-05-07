@@ -60,8 +60,7 @@ describe('Fledge', () => {
 					},
 				});
 			});
-			// handle race condition on windows
-			await result;
+			console.log(result);
 			expect(typeof result).toBe('string');
 		});
 
