@@ -60,7 +60,9 @@ describe('Fledge', () => {
 					},
 				});
 			});
-			await expect(typeof result).toBe('string');
+			// handle race condition on windows
+			await result;
+			expect(typeof result).toBe('string');
 		});
 
 		it('should return null when no there are no interest groups', async () => {
