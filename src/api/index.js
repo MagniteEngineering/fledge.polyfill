@@ -85,6 +85,7 @@ export default class Fledge {
 			this._debug,
 		] ]);
 		this._debug && echo.groupEnd();
+		return true;
 	}
 
 	/*
@@ -116,6 +117,7 @@ export default class Fledge {
 			this._debug,
 		] ]);
 		this._debug && echo.groupEnd();
+		return true;
 	}
 
 	/*
@@ -188,5 +190,6 @@ export default class Fledge {
 		await render(selector, token, this._debug);
 		this._debug && echo.log(echo.asSuccess('winning ad rendered'));
 		this._debug && echo.groupEnd();
+		return true;
 	}
 }
