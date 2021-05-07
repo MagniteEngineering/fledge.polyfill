@@ -102,7 +102,8 @@
     "test:docs": "alex .",
     "pretest:e2e": "npm run dist",
     "test:e2e": "jest --config test/e2e/jest.config.js",
-    "test:unit": "jest test/unit --passWithNoTests"
+    "test:unit": "jest test/unit --passWithNoTests",
+    "test:perf": "serve . -l 3000 & export APP_PID=$! && node test/perf/index.js; kill -9 $APP_PID"
   },
   "devDependencies": {
     "@theholocron/babel-preset": "^0.4.1",
@@ -119,6 +120,7 @@
     "jest-localstorage-mock": "^2.4.10",
     "jest-puppeteer": "^5.0.3",
     "puppeteer": "^9.1.0",
+    "randomstring": "^1.1.5",
     "serve": "^11.3.2"
   },
   "dependencies": {
