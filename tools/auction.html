@@ -1,0 +1,51 @@
+<html>
+	<head>
+		<title>Fledge Tools - Show</title>
+	</head>
+	<body>
+		<script src="../../dist/iife/index.min.js"></script>
+		<h1>Run Auction and Show Ad</h1>
+		<ul id="ad"></div>
+		<script>
+			window.onload = async () => {
+				const fledge = new window.fledge(true);
+				const result = await fledge.runAdAuction({
+					seller: 'publisher.example',
+					decision_logic_url: 'http://localhost:3000/test/e2e/mock/dl.js',
+					trusted_scoring_signals_url: 'http://localhost:3000/test/e2e/tss/',
+					interest_group_buyers: '*',
+					additional_bids: [],
+					auction_signals: {
+						size: {
+							w: 300,
+							h: 200,
+						},
+						content: [
+							'news',
+							'politics',
+							'us',
+							'election',
+						],
+						location: 'atf',
+					},
+					seller_signals: {
+						account_id: 1234,
+						site_id: 1234,
+						zone_id: 1234,
+						size_id: 123,
+					},
+					per_buyer_signals: {
+						'dsp.com': {
+							content_quality: 230,
+						},
+					},
+				});
+				if (result) {
+					fledge.renderAd('#ad', result, true);
+				} else {
+					document.getElementById('ad').innerHTML = 'No eligible ads'
+				}
+			};
+		</script>
+	</body>
+</html>
