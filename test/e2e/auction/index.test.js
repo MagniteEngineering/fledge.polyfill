@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+/* eslint-disable new-cap */
 describe('Fledge', () => {
 	describe('runAdAuction', () => {
 		beforeEach(async () => {
@@ -6,19 +7,23 @@ describe('Fledge', () => {
 		});
 
 		it('should error when no parameters sent', async () => {
-			const fledge = await page.evaluate(() => window.fledge);
+			const fledge = await page.evaluate(() => new window.fledge());
 			expect(() => fledge.runAdAuction()).toThrow();
 		});
 
 		it('should return token when provided minimum required params and valid interest groups', async () => {
-			await page.evaluate(() => window.fledge.joinAdInterestGroup({
-				owner: 'magnite.com',
-				name: 'test-interest',
-				bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
-			}, 100000));
+			await page.evaluate(() => {
+				const fledge = new window.fledge();
+				return fledge.joinAdInterestGroup({
+					owner: 'magnite.com',
+					name: 'test-interest',
+					bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
+				}, 100000);
+			});
 
-			const result = await page.evaluate(() =>
-				window.fledge.runAdAuction({
+			const result = await page.evaluate(() => {
+				const fledge = new window.fledge();
+				return fledge.runAdAuction({
 					seller: 'publisher.example',
 					decision_logic_url: 'http://localhost:3000/test/e2e/mock/dl.js',
 					trusted_scoring_signals_url: 'http://localhost:3000/test/e2e/tss/',
@@ -53,9 +58,9 @@ describe('Fledge', () => {
 							content_quality: 230,
 						},
 					},
-				}),
-			);
-			expect(result).toBe(expect.any(String));
+				});
+			});
+			await expect(typeof result).toBe('string');
 		});
 
 		it('should return null when no there are no interest groups', async () => {
@@ -64,8 +69,9 @@ describe('Fledge', () => {
 			await page.goto('http://localhost:3000/test/e2e/');
 
 			// call runAdAuction with no interest groups
-			const result = await page.evaluate(() =>
-				window.fledge.runAdAuction({
+			const result = await page.evaluate(() => {
+				const fledge = new window.fledge();
+				return fledge.runAdAuction({
 					seller: 'publisher.example',
 					decision_logic_url: 'http://localhost:3000/test/e2e/mock/dl.js',
 					trusted_scoring_signals_url: 'http://localhost:3000/test/e2e/tss/',
@@ -100,8 +106,8 @@ describe('Fledge', () => {
 							content_quality: 230,
 						},
 					},
-				}),
-			);
+				});
+			});
 			expect(result).toBeNull();
 			await context.close();
 		});
