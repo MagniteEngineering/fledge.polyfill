@@ -48,6 +48,19 @@ export default class Fledge {
 		return this._props;
 	}
 
+	/*
+	* @function
+	* @name joinAdInterestGroup
+	* @description join an interest group inserting into IndexedDB
+	* @author Newton <cnewton@magnite.com>
+	* @param {object} options - An object of options to create an interest group {@link types}
+	* @param {number} expiry - A number of the days (in milliseconds) an interest group should exist, not to exceed 30 days
+	* @throws {Error} Any parameters passed are incorrect or an incorrect type
+	* @return {true}
+	*
+	* @example
+	*   joinAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' }, 2592000000);
+	*/
 	async joinAdInterestGroup (options, expiry) {
 		this._debug && echo.group('Fledge: Join an Interest Group');
 		this._debug && echo.log(echo.asInfo('interest group options:'), options);
@@ -74,6 +87,18 @@ export default class Fledge {
 		this._debug && echo.groupEnd();
 	}
 
+	/*
+	* @function
+	* @name leaveAdInterestGroup
+	* @description leave an interest group removing from IndexedDB
+	* @author Newton <cnewton@magnite.com>
+	* @param {object} options - An object of options to create an interest group {@link types}
+	* @throws {Error} Any parameters passed are incorrect or an incorrect type
+	* @return {true}
+	*
+	* @example
+	*   leaveAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' });
+	*/
 	async leaveAdInterestGroup (group) {
 		this._debug && echo.group('Fledge: Leave an Interest Group');
 		this._debug && echo.log(echo.asInfo('interest group:'), group);
@@ -93,6 +118,18 @@ export default class Fledge {
 		this._debug && echo.groupEnd();
 	}
 
+	/*
+	* @function
+	* @name runAdAuction
+	* @description run an auction
+	* @author Newton <cnewton@magnite.com>
+	* @param {object} options - An object of options to configure an auction
+	* @throws {Error} Any parameters passed are incorrect or an incorrect type
+	* @return {null | Promise<Token>}
+	*
+	* @example
+	*   runAdAuction({ seller: 'foo', decision_logic_url: 'http://example.com/auction', interst_group_buyers: [ 'www.buyer.com' ] });
+	*/
 	async runAdAuction (conf) {
 		this._debug && echo.group('Fledge: Auction');
 		this._debug && echo.log(echo.asInfo('auction config:'), conf);
@@ -128,6 +165,19 @@ export default class Fledge {
 		}
 	}
 
+	/*
+	* @function
+	* @name renderAd
+	* @description render an ad
+	* @author Newton <cnewton@magnite.com>
+	* @param {string} selector - a string reprensenting a valid selector to find an element on the page
+	* @param {string} token - a string that represents the results from an auction run via the `fledge.runAdAuction` call
+	* @throws {Error} Any parameters passed are incorrect or an incorrect type
+	* @return {Promise<null | true>}
+	*
+	* @example
+	*   renderAd('#ad-slot-1', '76941e71-2ed7-416d-9c55-36d07beff786');
+	*/
 	async renderAd (selector, token) {
 		this._debug && echo.group('Fledge: Render an Ad');
 		this._debug && echo.log(echo.asInfo('ad slot selector:'), selector);
