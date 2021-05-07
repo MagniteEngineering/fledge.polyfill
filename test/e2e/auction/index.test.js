@@ -55,7 +55,7 @@ describe('Fledge', () => {
 					},
 				}),
 			);
-			expect(typeof result).toBe('string');
+			expect(result).toBe(expect.any(String));
 		});
 
 		it('should return null when no there are no interest groups', async () => {
