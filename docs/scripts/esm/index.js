@@ -573,11 +573,16 @@ const getBids = async (bidders, conf, debug) => Promise.all(
 	bidders.map(async bidder => {
 		debug && echo.groupCollapsed(`auction utils: getBids => ${bidder._key}`);
 		const time0 = performance.now();
-		const { generateBid } = await import(bidder.bidding_logic_url);
+		const { generateBid, generate_bid } = await import(bidder.bidding_logic_url);
+		let callBid = generateBid;
+
+		if (generate_bid) {
+			callBid = generate_bid;
+		}
 
 		// check if there is even a generateBid function
 		// if not, removed bidder from elibility
-		if (!generateBid && typeof generateBid !== 'function') {
+		if (!callBid && typeof callBid !== 'function') {
 			debug && echo.log(echo.asWarning(`No 'generateBid' function found!`));
 			debug && echo.groupEnd();
 			return null;
@@ -588,7 +593,7 @@ const getBids = async (bidders, conf, debug) => Promise.all(
 		// generate a bid by providing all of the necessary information
 		let bid;
 		try {
-			bid = generateBid(bidder, conf?.auction_signals, conf?.per_buyer_signals?.[bidder.owner], trustedSignals, {
+			bid = callBid(bidder, conf?.auction_signals, conf?.per_buyer_signals?.[bidder.owner], trustedSignals, {
 				top_window_hostname: window.top.location.hostname,
 				seller: conf.seller,
 			});
@@ -632,10 +637,16 @@ const getBids = async (bidders, conf, debug) => Promise.all(
  */
 const getScores = async (bids, conf, debug) => {
 	debug && echo.groupCollapsed(`auction utils: getScores`);
-	const { scoreAd } = await import(conf.decision_logic_url);
+	const { scoreAd, score_ad } = await import(conf.decision_logic_url);
+	let callScore = scoreAd;
+
+	if (score_ad) {
+		callScore = score_ad;
+	}
+
 	// check if there is even a scoreAd function
 	// if not, return null
-	if (!scoreAd && typeof scoreAd !== 'function') {
+	if (!callScore && typeof callScore !== 'function') {
 		debug && echo.log(echo.asWarning(`No 'scoreAd' function was found!`));
 		return null;
 	}
@@ -644,7 +655,7 @@ const getScores = async (bids, conf, debug) => {
 		let score;
 
 		try {
-			score = scoreAd(bid?.ad, bid?.bid, conf, conf?.trusted_scoring_signals, {
+			score = callScore(bid?.ad, bid?.bid, conf, conf?.trusted_scoring_signals, {
 				top_window_hostname: window.top.location.hostname,
 				interest_group_owner: bid.owner,
 				interest_group_name: bid.name,
