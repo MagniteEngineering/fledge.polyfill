@@ -1,5 +1,4 @@
-/* eslint-disable no-undef */
-/* eslint-disable new-cap */
+/* eslint-disable no-undef, new-cap */
 describe('Fledge', () => {
 	describe('joinAdInterestGroup', () => {
 		beforeEach(async () => {
