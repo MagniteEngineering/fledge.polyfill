@@ -576,7 +576,7 @@ const getBids = async (bidders, conf, debug) => Promise.all(
 		const { generateBid, generate_bid } = await import(bidder.bidding_logic_url);
 		let callBid = generateBid;
 
-		if (generate_bid) {
+		if (generate_bid && !generateBid) {
 			callBid = generate_bid;
 		}
 
@@ -640,7 +640,7 @@ const getScores = async (bids, conf, debug) => {
 	const { scoreAd, score_ad } = await import(conf.decision_logic_url);
 	let callScore = scoreAd;
 
-	if (score_ad) {
+	if (score_ad && !scoreAd) {
 		callScore = score_ad;
 	}
 
