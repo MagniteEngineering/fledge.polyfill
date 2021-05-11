@@ -1,5 +1,4 @@
-/* eslint-disable compat/compat */
-import renderAd from '../../src/api/render';
+import renderAd from '../../../src/api/render';
 
 describe('Render', () => {
 	describe('renderAd', () => {
