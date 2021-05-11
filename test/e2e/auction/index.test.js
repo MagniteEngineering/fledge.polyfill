@@ -17,7 +17,16 @@ describe('Fledge', () => {
 					owner: 'magnite.com',
 					name: 'test-interest',
 					bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
-				}, 100000);
+				}, 1000000);
+			});
+
+			await page.evaluate(() => {
+				const fledge = new window.fledge();
+				return fledge.joinAdInterestGroup({
+					owner: 'magnite.com',
+					name: 'test-interest-2',
+					bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
+				}, 1000000);
 			});
 
 			const result = await page.evaluate(() => {
