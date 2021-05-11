@@ -1,7 +1,6 @@
-/* eslint-disable compat/compat */
 import crypto from 'crypto';
 import { InterestGroup } from '../../../src/api/types';
-import { frame, message, validate } from '../../../src/api/utils';
+import { frame, validate } from '../../../src/api/utils';
 import { mockAllOptions } from '../../mocks/interest-groups.mock';
 
 Object.defineProperty(global.self, 'crypto', {
@@ -27,17 +26,6 @@ describe('Utils', () => {
 				});
 				expect(target.innerHTML).toEqual('<iframe src="http://example.com/" scrolling="no" id="mock" style="border-width: 0px;"></iframe>');
 				expect(target.id).toEqual('ad-slot-1');
-			});
-		});
-	});
-
-	describe('Message', () => {
-		describe('getMessage', () => {
-			const mockTarget = { addEventListener: jest.fn(), removeEventListener: jest.fn() };
-			const mockFilter = () => true;
-			it('should call addEventListener twice', async () => {
-				await message.get(mockTarget, mockFilter);
-				await expect(mockTarget.addEventListener).toHaveBeenCalledTimes(2);
 			});
 		});
 	});

@@ -1,4 +1,3 @@
-/* eslint-disable compat/compat */
 import renderAd from '../../../src/api/render';
 import { mockAuctionResults } from '../../mocks/auction.mock';
 

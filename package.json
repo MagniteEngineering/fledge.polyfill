@@ -67,9 +67,6 @@
         "setupFiles": [
           "fake-indexeddb/auto",
           "jest-localstorage-mock"
-        ],
-        "setupFilesAfterEnv": [
-          "./test/mocks/message-channel.mock.js"
         ]
       },
       {

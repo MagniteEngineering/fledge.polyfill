@@ -1,13 +1,9 @@
 /* eslint-disable compat/compat */
 import crypto from 'crypto';
 import {
-	getBids,
 	getEligible,
 	uuid,
 } from '../../../src/frame/auction/utils.js';
-import {
-	mockAllOptions,
-} from '../../mocks/auction.mock';
 import {
 	mockIGDb,
 } from '../../mocks/interest-groups.mock';
@@ -38,14 +34,6 @@ describe('Auction', () => {
 				const eligible = getEligible(mockIGDb, [ 'notfound-owner.com' ]);
 				expect(eligible).not.toEqual(expect.any(Array));
 				expect(eligible).toBeNull();
-			});
-		});
-
-		describe('getBids', () => {
-			it('should return a bid', () => {
-				jest.mock('https://mock.dsp.example/bidding_logic_url', () => jest.fn);
-				const bids = getBids(mockIGDb, mockAllOptions);
-				expect(bids).toEqual(expect.any(Object));
 			});
 		});
 
