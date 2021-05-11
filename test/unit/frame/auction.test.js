@@ -1,7 +1,7 @@
-import runAdAuction from '../../src/frame/auction/';
+import runAdAuction from '../../../src/frame/auction/';
 import {
 	mockAllOptions,
-} from './auction.mock';
+} from '../../mocks/auction.mock';
 
 describe('Interest Groups', () => {
 	describe('runAdAuction', () => {

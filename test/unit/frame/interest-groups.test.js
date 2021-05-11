@@ -1,8 +1,8 @@
-import { joinAdInterestGroup, leaveAdInterestGroup } from '../../src/frame/interest-groups/';
+import { joinAdInterestGroup, leaveAdInterestGroup } from '../../../src/frame/interest-groups/';
 import {
 	mockAllOptions,
 	mockExpiry,
-} from './interest-groups.mock';
+} from '../../mocks/interest-groups.mock';
 
 describe('Interest Groups', () => {
 	describe('joinAdInterestGroup', () => {
