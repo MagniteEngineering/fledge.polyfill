@@ -34,9 +34,9 @@ describe('Fledge', () => {
 				const fledge = new window.fledge();
 				return fledge.joinAdInterestGroup(igObject, expiry);
 			}, igObject, expiry);
-			const result = await page.evaluate(() => {
+			const result = await page.evaluate(() =>
 				// eslint-disable-next-line
-				const myPromise = new Promise((resolve) => {
+				 new Promise((resolve) => {
 					const request = window.indexedDB.open('Fledge');
 					request.onsuccess = () => {
 						const db = request.result;
@@ -45,9 +45,8 @@ describe('Fledge', () => {
 						};
 						db.close();
 					};
-				});
-				return myPromise;
-			});
+				}),
+			);
 			expect(result.owner).toBe(igObject.owner);
 			expect(result.name).toBe(igObject.name);
 			expect(result.bidding_logic_url).toBe(igObject.bidding_logic_url);
