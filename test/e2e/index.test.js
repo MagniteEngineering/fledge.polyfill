@@ -1,5 +1,4 @@
-/* eslint-disable no-undef */
-
+/* eslint-disable no-undef, new-cap */
 describe('Fledge', () => {
 	beforeAll(async () => {
 		await page.goto('http://localhost:3000/test/e2e/');
@@ -10,7 +9,28 @@ describe('Fledge', () => {
 	});
 
 	it('should provide the API methods', async () => {
-		const fledge = await page.evaluate(() => window.fledge);
-		expect(Object.keys(fledge)).toEqual([ 'joinAdInterestGroup', 'leaveAdInterestGroup', 'renderAd', 'runAdAuction' ]);
+		const hasJoinAdInterestGroup = await page.evaluate(() => {
+			const fledge = new window.fledge();
+			return fledge.joinAdInterestGroup && typeof fledge.joinAdInterestGroup === 'function';
+		});
+		expect(hasJoinAdInterestGroup).toBe(true);
+
+		const hasLeaveAdInterestGroup = await page.evaluate(() => {
+			const fledge = new window.fledge();
+			return fledge.leaveAdInterestGroup && typeof fledge.leaveAdInterestGroup === 'function';
+		});
+		expect(hasLeaveAdInterestGroup).toBe(true);
+
+		const hasRenderAd = await page.evaluate(() => {
+			const fledge = new window.fledge();
+			return fledge.renderAd && typeof fledge.renderAd === 'function';
+		});
+		expect(hasRenderAd).toBe(true);
+
+		const hasRunAdAuction = await page.evaluate(() => {
+			const fledge = new window.fledge();
+			return fledge.runAdAuction && typeof fledge.runAdAuction === 'function';
+		});
+		expect(hasRunAdAuction).toBe(true);
 	});
 });

@@ -48,7 +48,10 @@
     "node": "^12.16.0 || >=13.2.0"
   },
   "eslintConfig": {
-    "extends": "@theholocron"
+    "extends": "@theholocron",
+    "rules": {
+      "compat/compat": "off"
+    }
   },
   "husky": {
     "hooks": {
@@ -59,9 +62,11 @@
   "jest": {
     "projects": [
       {
+        "resetMocks": false,
         "preset": "@theholocron/jest-preset",
         "setupFiles": [
-          "fake-indexeddb/auto"
+          "fake-indexeddb/auto",
+          "jest-localstorage-mock"
         ]
       },
       {
@@ -88,14 +93,15 @@
   "scripts": {
     "audit": "bundlesize --config ./node_modules/@theholocron/bundlewatch-config/index.js",
     "commit": "commit",
-    "dist": "rollup -c node:@theholocron/rollup-config --name=fledge --exports=default",
+    "predist": "rollup -c node:@theholocron/rollup-config --input=src/frame --output=docs/scripts --name=fledgeframe --exports=default",
+    "dist": "rollup -c node:@theholocron/rollup-config --input=src/api --name=fledge --exports=default",
     "lint": "eslint .",
     "serve": "serve . -l 3000",
     "release": "semantic-release",
     "test": "npm run test:docs && npm run test:unit && npm run test:e2e",
     "test:docs": "alex .",
     "pretest:e2e": "npm run dist",
-    "test:e2e": "jest --config test/e2e/jest.config.js",
+    "test:e2e": "jest --config test/e2e/jest.config.js --runInBand",
     "test:unit": "jest test/unit --passWithNoTests"
   },
   "devDependencies": {
@@ -106,15 +112,17 @@
     "@theholocron/jest-preset": "^0.4.0",
     "@theholocron/lint-staged-config": "^0.1.7",
     "@theholocron/prettier-config": "^0.2.0",
-    "@theholocron/rollup-config": "^0.3.0",
+    "@theholocron/rollup-config": "^0.4.0",
     "@theholocron/semantic-release-config": "^0.3.0",
     "alex": "^9.1.0",
     "fake-indexeddb": "^3.1.2",
-    "jest-puppeteer": "^5.0.1",
-    "puppeteer": "^9.0.0",
+    "jest-localstorage-mock": "^2.4.10",
+    "jest-puppeteer": "^5.0.3",
+    "puppeteer": "^9.1.0",
     "serve": "^11.3.2"
   },
   "dependencies": {
+    "@theholocron/klaxon": "^1.1.0",
     "idb": "^6.0.0"
   }
 }
