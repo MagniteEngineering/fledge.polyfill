@@ -1,6 +1,10 @@
 /* eslint-disable no-undef, new-cap */
 describe('Fledge', () => {
 	describe('joinAdInterestGroup', () => {
+		beforeEach(async () => {
+			await jestPuppeteer.resetBrowser();
+		});
+
 		it('should error when no parameters sent', async () => {
 			const context = await browser.createIncognitoBrowserContext();
 			const page = await context.newPage();
