@@ -19,7 +19,7 @@ const joinAdInterestGroups = async (numGroups, page) => {
 
 module.exports = async () => {
 	const numInterestGroups = 1;
-	const numAuctions = 1;
+	const numAuctions = 100;
 
 	console.log(`starting performance test for runAdAuction with ${numInterestGroups} interest groups.`);
 
