@@ -37,3 +37,37 @@ export const mockAllOptions = {
 	...mockRequiredOptions,
 	...mockOptionals,
 };
+
+export const mockBid = {
+	_key: 'www.rp.com-womens-running-shoes',
+	_expired: 1621792745000,
+	...mockRequiredOptions,
+	_created: 1619200745000,
+	_updated: 1619200745000,
+	ad: {
+		auction: {},
+		browser: {
+			top_window_hostname: 'localhost',
+			seller: 'www.ssp.com',
+		},
+		buyer: {},
+		interest: {
+			_key: 'www.rp.com-womens-running-shoes',
+			_expired: 1621792745000,
+			owner: 'www.rp.com',
+			name: 'womens-running-shoes',
+			bidding_logic_url: 'https://dark-organic-appeal.glitch.me/bid.js',
+			_created: 1619200745000,
+			_updated: 1619200745000,
+		},
+	},
+	bid: 1,
+	render: 'https://example.com',
+};
+
+export const mockAuctionResults = {
+	origin: 'http://localhost/',
+	timestamp: 1619635510421,
+	conf: mockRequiredOptions,
+	bid: mockBid,
+};

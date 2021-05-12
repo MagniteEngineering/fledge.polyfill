@@ -210,6 +210,7 @@ export const frame = {
 export const message = {
 	getFramePort,
 	getFromFrame,
+	get: getMessage,
 };
 
 export const validate = {
