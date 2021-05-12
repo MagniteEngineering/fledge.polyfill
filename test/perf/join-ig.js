@@ -1,6 +1,4 @@
-/* eslint-disable no-console */
-/* eslint-disable no-undef */
-/* eslint-disable new-cap */
+/* eslint-disable no-console, no-undef, new-cap */
 const puppeteer = require('puppeteer');
 const randomstring = require('randomstring');
 const microtime = require('microtime');
@@ -23,7 +21,7 @@ module.exports = async () => {
 			return fledge.joinAdInterestGroup({
 				owner: 'magnite.com',
 				name,
-				bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
+				bidding_logic_url: 'http://localhost:3000/test/mocks/bl.js',
 			}, 60000);
 		}, name);
 		const end = microtime.now();
