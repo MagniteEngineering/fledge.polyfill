@@ -101,7 +101,7 @@
     "test": "npm run test:docs && npm run test:unit && npm run test:e2e",
     "test:docs": "alex .",
     "pretest:e2e": "npm run dist",
-    "test:e2e": "jest --config test/e2e/jest.config.js",
+    "test:e2e": "jest --config test/e2e/jest.config.js --runInBand",
     "test:unit": "jest test/unit --passWithNoTests"
   },
   "devDependencies": {
@@ -112,7 +112,7 @@
     "@theholocron/jest-preset": "^0.4.0",
     "@theholocron/lint-staged-config": "^0.1.7",
     "@theholocron/prettier-config": "^0.2.0",
-    "@theholocron/rollup-config": "^0.3.0",
+    "@theholocron/rollup-config": "^0.4.0",
     "@theholocron/semantic-release-config": "^0.3.0",
     "alex": "^9.1.0",
     "fake-indexeddb": "^3.1.2",

@@ -1,31 +1,48 @@
-/* eslint-disable no-undef */
-/* eslint-disable new-cap */
+/* eslint-disable no-undef, new-cap, jest/valid-expect-in-promise */
 describe('Fledge', () => {
 	describe('runAdAuction', () => {
-		beforeEach(async () => {
-			await page.goto('http://localhost:3000/test/e2e/');
-		});
-
 		it('should error when no parameters sent', async () => {
+			const context = await browser.createIncognitoBrowserContext();
+			const page = await context.newPage();
+			await page.goto('http://localhost:3000/test/e2e/');
+
 			const fledge = await page.evaluate(() => new window.fledge());
 			expect(() => fledge.runAdAuction()).toThrow();
 		});
 
 		it('should return token when provided minimum required params and valid interest groups', async () => {
+			const context = await browser.createIncognitoBrowserContext();
+			const page = await context.newPage();
+			await page.goto('http://localhost:3000/test/e2e/');
+
 			await page.evaluate(() => {
 				const fledge = new window.fledge();
-				return fledge.joinAdInterestGroup({
-					owner: 'magnite.com',
-					name: 'test-interest',
-					bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
-				}, 100000);
+				return new Promise(resolve => {
+					fledge.joinAdInterestGroup({
+						owner: 'magnite.com',
+						name: 'test-interest',
+						bidding_logic_url: 'http://localhost:3000/test/mocks/bl.js',
+					}, 1000000).then(() => resolve());
+				});
+			});
+
+			await page.goto('http://localhost:3000/test/e2e/');
+			await page.evaluate(() => {
+				const fledge = new window.fledge();
+				return new Promise(resolve => {
+					fledge.joinAdInterestGroup({
+						owner: 'magnite.com',
+						name: 'test-interest-2',
+						bidding_logic_url: 'http://localhost:3000/test/mocks/bl.js',
+					}, 1000000).then(() => resolve());
+				});
 			});
 
 			const result = await page.evaluate(() => {
 				const fledge = new window.fledge();
 				return fledge.runAdAuction({
 					seller: 'publisher.example',
-					decision_logic_url: 'http://localhost:3000/test/e2e/mock/dl.js',
+					decision_logic_url: 'http://localhost:3000/test/mocks/dl.js',
 					trusted_scoring_signals_url: 'http://localhost:3000/test/e2e/tss/',
 					interest_group_buyers: '*',
 					additional_bids: [
@@ -60,8 +77,7 @@ describe('Fledge', () => {
 					},
 				});
 			});
-			console.log(result);
-			expect(typeof result).toBe('string');
+			expect(result).not.toBeNull();
 		});
 
 		it('should return null when no there are no interest groups', async () => {
@@ -74,7 +90,7 @@ describe('Fledge', () => {
 				const fledge = new window.fledge();
 				return fledge.runAdAuction({
 					seller: 'publisher.example',
-					decision_logic_url: 'http://localhost:3000/test/e2e/mock/dl.js',
+					decision_logic_url: 'http://localhost:3000/test/mocks/dl.js',
 					trusted_scoring_signals_url: 'http://localhost:3000/test/e2e/tss/',
 					interest_group_buyers: '*',
 					additional_bids: [

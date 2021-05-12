@@ -3,10 +3,10 @@ import crypto from 'crypto';
 import {
 	getEligible,
 	uuid,
-} from '../../src/frame/auction/utils.js';
+} from '../../../src/frame/auction/utils.js';
 import {
 	mockIGDb,
-} from './interest-groups.mock';
+} from '../../mocks/interest-groups.mock';
 
 Object.defineProperty(global.self, 'crypto', {
 	value: {

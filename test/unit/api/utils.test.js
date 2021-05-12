@@ -1,11 +1,20 @@
-/* eslint-disable compat/compat */
-import { InterestGroup } from '../../src/api/types';
-import { frame, validate } from '../../src/api/utils';
-import { mockAllOptions } from './interest-groups.mock';
+import crypto from 'crypto';
+import { InterestGroup } from '../../../src/api/types';
+import { frame, validate } from '../../../src/api/utils';
+import { mockAllOptions } from '../../mocks/interest-groups.mock';
+
+Object.defineProperty(global.self, 'crypto', {
+	value: {
+		getRandomValues: arr => crypto.randomBytes(arr.length),
+	},
+});
 
 describe('Utils', () => {
 	describe('frame', () => {
 		describe('create', () => {
+			it('should throw an error when no source is provided', () => {
+				expect(() => frame.create({})).toThrow();
+			});
 			it('should render an iframe', () => {
 				// Set up our document body
 				document.body.innerHTML = '<div id="ad-slot-1"></div>';
@@ -120,6 +129,22 @@ describe('Utils', () => {
 					expect(validate.type.string(null)).toBe(false);
 					expect(validate.type.string([])).toBe(false);
 					expect(validate.type.string({})).toBe(false);
+				});
+			});
+
+			describe('mixed', () => {
+				it('should return true when a valid type is provided', () => {
+					expect(validate.type.mixed('mock')).toBe(true);
+					expect(validate.type.mixed([ 'mock' ])).toBe(true);
+				});
+
+				it('should return false when an invalid type is provided', () => {
+					expect(validate.type.mixed(undefined)).toBe(false);
+					expect(validate.type.mixed(true)).toBe(false);
+					expect(validate.type.mixed(0)).toBe(false);
+					expect(validate.type.mixed(() => { /* noOp */ })).toBe(false);
+					expect(validate.type.mixed(null)).toBe(false);
+					expect(validate.type.mixed({})).toBe(false);
 				});
 			});
 
