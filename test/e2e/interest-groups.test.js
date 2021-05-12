@@ -20,7 +20,7 @@ describe('Fledge', () => {
 				return fledge.joinAdInterestGroup({
 					owner: 'magnite.com',
 					name: 'test-interest',
-					bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
+					bidding_logic_url: 'http://localhost:3000/test/mocks/bl.js',
 				}, 60000);
 			});
 			expect(result).toBe(true);
@@ -34,7 +34,7 @@ describe('Fledge', () => {
 			const igObject = {
 				owner: 'magnite.com',
 				name: 'test-interest',
-				bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
+				bidding_logic_url: 'http://localhost:3000/test/mocks/bl.js',
 			};
 			const expiry = 60000;
 			await page.evaluate((igObject, expiry) => {

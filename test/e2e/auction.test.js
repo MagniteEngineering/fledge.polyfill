@@ -21,7 +21,7 @@ describe('Fledge', () => {
 					fledge.joinAdInterestGroup({
 						owner: 'magnite.com',
 						name: 'test-interest',
-						bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
+						bidding_logic_url: 'http://localhost:3000/test/mocks/bl.js',
 					}, 1000000).then(() => resolve());
 				});
 			});
@@ -33,7 +33,7 @@ describe('Fledge', () => {
 					fledge.joinAdInterestGroup({
 						owner: 'magnite.com',
 						name: 'test-interest-2',
-						bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
+						bidding_logic_url: 'http://localhost:3000/test/mocks/bl.js',
 					}, 1000000).then(() => resolve());
 				});
 			});
@@ -42,7 +42,7 @@ describe('Fledge', () => {
 				const fledge = new window.fledge();
 				return fledge.runAdAuction({
 					seller: 'publisher.example',
-					decision_logic_url: 'http://localhost:3000/test/e2e/mock/dl.js',
+					decision_logic_url: 'http://localhost:3000/test/mocks/dl.js',
 					trusted_scoring_signals_url: 'http://localhost:3000/test/e2e/tss/',
 					interest_group_buyers: '*',
 					additional_bids: [
@@ -90,7 +90,7 @@ describe('Fledge', () => {
 				const fledge = new window.fledge();
 				return fledge.runAdAuction({
 					seller: 'publisher.example',
-					decision_logic_url: 'http://localhost:3000/test/e2e/mock/dl.js',
+					decision_logic_url: 'http://localhost:3000/test/mocks/dl.js',
 					trusted_scoring_signals_url: 'http://localhost:3000/test/e2e/tss/',
 					interest_group_buyers: '*',
 					additional_bids: [

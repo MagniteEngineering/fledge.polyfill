@@ -1,5 +1,4 @@
-/* eslint-disable no-undef */
-/* eslint-disable new-cap */
+/* eslint-disable no-undef, new-cap */
 describe('Fledge', () => {
 	beforeAll(async () => {
 		await page.goto('http://localhost:3000/test/e2e/');
