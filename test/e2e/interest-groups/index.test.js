@@ -34,8 +34,7 @@ describe('Fledge', () => {
 				return fledge.joinAdInterestGroup(igObject, expiry);
 			}, igObject, expiry);
 			const result = await page.evaluate(() =>
-				// eslint-disable-next-line
-				 new Promise((resolve) => {
+				new Promise(resolve => {
 					const request = window.indexedDB.open('Fledge');
 					request.onsuccess = () => {
 						const db = request.result;
