@@ -13,11 +13,13 @@ describe('Fledge', () => {
 		it('should return token when provided minimum required params and valid interest groups', async () => {
 			await page.evaluate(() => {
 				const fledge = new window.fledge();
-				return fledge.joinAdInterestGroup({
-					owner: 'magnite.com',
-					name: 'test-interest',
-					bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
-				}, 1000000);
+				return new Promise(resolve => {
+					fledge.joinAdInterestGroup({
+						owner: 'magnite.com',
+						name: 'test-interest',
+						bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
+					}, 1000000).then(() => resolve());
+				});
 			});
 
 			await page.evaluate(() => {
