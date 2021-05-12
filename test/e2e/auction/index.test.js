@@ -1,4 +1,4 @@
-/* eslint-disable no-undef, new-cap */
+/* eslint-disable no-undef, new-cap, jest/valid-expect-in-promise */
 describe('Fledge', () => {
 	describe('runAdAuction', () => {
 		beforeEach(async () => {
@@ -36,42 +36,48 @@ describe('Fledge', () => {
 			const result = await page.evaluate(() => {
 				const fledge = new window.fledge();
 				return new Promise(resolve => {
-					fledge.runAdAuction({
-						seller: 'publisher.example',
-						decision_logic_url: 'http://localhost:3000/test/e2e/mock/dl.js',
-						trusted_scoring_signals_url: 'http://localhost:3000/test/e2e/tss/',
-						interest_group_buyers: '*',
-						additional_bids: [
-							{
-								price: 1,
-								class: 'deal',
-							},
-						],
-						auction_signals: {
-							size: {
-								w: 300,
-								h: 200,
-							},
-							content: [
-								'news',
-								'politics',
-								'us',
-								'election',
+					fledge.joinAdInterestGroup({
+						owner: 'magnite.com',
+						name: 'test-interest-2',
+						bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
+					}, 1000000).then(() => {
+						fledge.runAdAuction({
+							seller: 'publisher.example',
+							decision_logic_url: 'http://localhost:3000/test/e2e/mock/dl.js',
+							trusted_scoring_signals_url: 'http://localhost:3000/test/e2e/tss/',
+							interest_group_buyers: '*',
+							additional_bids: [
+								{
+									price: 1,
+									class: 'deal',
+								},
 							],
-							location: 'atf',
-						},
-						seller_signals: {
-							account_id: 1234,
-							site_id: 1234,
-							zone_id: 1234,
-							size_id: 123,
-						},
-						per_buyer_signals: {
-							'dsp.com': {
-								content_quality: 230,
+							auction_signals: {
+								size: {
+									w: 300,
+									h: 200,
+								},
+								content: [
+									'news',
+									'politics',
+									'us',
+									'election',
+								],
+								location: 'atf',
 							},
-						},
-					}).then(result => resolve(result));
+							seller_signals: {
+								account_id: 1234,
+								site_id: 1234,
+								zone_id: 1234,
+								size_id: 123,
+							},
+							per_buyer_signals: {
+								'dsp.com': {
+									content_quality: 230,
+								},
+							},
+						}).then(token => resolve(token));
+					});
 				});
 			});
 			expect(result).not.toBeNull();
