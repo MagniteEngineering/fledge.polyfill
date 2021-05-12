@@ -1,16 +1,20 @@
 /* eslint-disable no-undef, new-cap */
 describe('Fledge', () => {
 	describe('joinAdInterestGroup', () => {
-		beforeEach(async () => {
-			await page.goto('http://localhost:3000/test/e2e/');
-		});
-
 		it('should error when no parameters sent', async () => {
+			const context = await browser.createIncognitoBrowserContext();
+			const page = await context.newPage();
+			await page.goto('http://localhost:3000/test/e2e/');
+
 			const fledge = await page.evaluate(() => new window.fledge());
 			expect(() => fledge.joinAdInterestGroup()).toThrow();
 		});
 
 		it('should return true when provided minimum required params', async () => {
+			const context = await browser.createIncognitoBrowserContext();
+			const page = await context.newPage();
+			await page.goto('http://localhost:3000/test/e2e/');
+
 			const result = await page.evaluate(() => {
 				const fledge = new window.fledge();
 				return fledge.joinAdInterestGroup({
@@ -23,6 +27,10 @@ describe('Fledge', () => {
 		});
 
 		it('should store expected data in local storage', async () => {
+			const context = await browser.createIncognitoBrowserContext();
+			const page = await context.newPage();
+			await page.goto('http://localhost:3000/test/e2e/');
+
 			const igObject = {
 				owner: 'magnite.com',
 				name: 'test-interest',
@@ -33,6 +41,7 @@ describe('Fledge', () => {
 				const fledge = new window.fledge();
 				return fledge.joinAdInterestGroup(igObject, expiry);
 			}, igObject, expiry);
+			await page.goto('http://localhost:3000/test/e2e/');
 			const result = await page.evaluate(() =>
 				new Promise(resolve => {
 					const request = window.indexedDB.open('Fledge');

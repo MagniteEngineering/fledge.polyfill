@@ -1,16 +1,20 @@
 /* eslint-disable no-undef, new-cap, jest/valid-expect-in-promise */
 describe('Fledge', () => {
 	describe('runAdAuction', () => {
-		beforeEach(async () => {
-			await page.goto('http://localhost:3000/test/e2e/');
-		});
-
 		it('should error when no parameters sent', async () => {
+			const context = await browser.createIncognitoBrowserContext();
+			const page = await context.newPage();
+			await page.goto('http://localhost:3000/test/e2e/');
+
 			const fledge = await page.evaluate(() => new window.fledge());
 			expect(() => fledge.runAdAuction()).toThrow();
 		});
 
 		it('should return token when provided minimum required params and valid interest groups', async () => {
+			const context = await browser.createIncognitoBrowserContext();
+			const page = await context.newPage();
+			await page.goto('http://localhost:3000/test/e2e/');
+
 			await page.evaluate(() => {
 				const fledge = new window.fledge();
 				return new Promise(resolve => {
@@ -22,6 +26,7 @@ describe('Fledge', () => {
 				});
 			});
 
+			await page.goto('http://localhost:3000/test/e2e/');
 			await page.evaluate(() => {
 				const fledge = new window.fledge();
 				return new Promise(resolve => {
@@ -35,49 +40,41 @@ describe('Fledge', () => {
 
 			const result = await page.evaluate(() => {
 				const fledge = new window.fledge();
-				return new Promise(resolve => {
-					fledge.joinAdInterestGroup({
-						owner: 'magnite.com',
-						name: 'test-interest-2',
-						bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
-					}, 1000000).then(() => {
-						fledge.runAdAuction({
-							seller: 'publisher.example',
-							decision_logic_url: 'http://localhost:3000/test/e2e/mock/dl.js',
-							trusted_scoring_signals_url: 'http://localhost:3000/test/e2e/tss/',
-							interest_group_buyers: '*',
-							additional_bids: [
-								{
-									price: 1,
-									class: 'deal',
-								},
-							],
-							auction_signals: {
-								size: {
-									w: 300,
-									h: 200,
-								},
-								content: [
-									'news',
-									'politics',
-									'us',
-									'election',
-								],
-								location: 'atf',
-							},
-							seller_signals: {
-								account_id: 1234,
-								site_id: 1234,
-								zone_id: 1234,
-								size_id: 123,
-							},
-							per_buyer_signals: {
-								'dsp.com': {
-									content_quality: 230,
-								},
-							},
-						}).then(token => resolve(token));
-					});
+				return fledge.runAdAuction({
+					seller: 'publisher.example',
+					decision_logic_url: 'http://localhost:3000/test/e2e/mock/dl.js',
+					trusted_scoring_signals_url: 'http://localhost:3000/test/e2e/tss/',
+					interest_group_buyers: '*',
+					additional_bids: [
+						{
+							price: 1,
+							class: 'deal',
+						},
+					],
+					auction_signals: {
+						size: {
+							w: 300,
+							h: 200,
+						},
+						content: [
+							'news',
+							'politics',
+							'us',
+							'election',
+						],
+						location: 'atf',
+					},
+					seller_signals: {
+						account_id: 1234,
+						site_id: 1234,
+						zone_id: 1234,
+						size_id: 123,
+					},
+					per_buyer_signals: {
+						'dsp.com': {
+							content_quality: 230,
+						},
+					},
 				});
 			});
 			expect(result).not.toBeNull();
