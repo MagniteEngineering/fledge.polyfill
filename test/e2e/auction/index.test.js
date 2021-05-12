@@ -22,11 +22,13 @@ describe('Fledge', () => {
 
 			await page.evaluate(() => {
 				const fledge = new window.fledge();
-				return fledge.joinAdInterestGroup({
-					owner: 'magnite.com',
-					name: 'test-interest-2',
-					bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
-				}, 1000000);
+				return new Promise(resolve => {
+					fledge.joinAdInterestGroup({
+						owner: 'magnite.com',
+						name: 'test-interest-2',
+						bidding_logic_url: 'http://localhost:3000/test/e2e/mock/bl.js',
+					}, 1000000).then(() => resolve());
+				});
 			});
 
 			const result = await page.evaluate(() => {
