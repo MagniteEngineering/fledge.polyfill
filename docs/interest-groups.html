@@ -41,6 +41,7 @@
 			</div>
 		</div>
 		<script type="module">
+			import * as idb from 'https://cdn.jsdelivr.net/npm/idb-keyval@5/dist/esm/index.js';
 			import Fledge from './scripts/api/esm/index.js';
 			const fledge = new Fledge(true);
 
@@ -60,32 +61,22 @@
 				}, parseInt(document.getElementById('expiration').value), true);
 			};
 
-			const request = window.indexedDB.open('Fledge');
-			request.onsuccess = () => {
-				const { result: db } = request;
-				db
-					.transaction('interest-groups', 'readonly')
-					.objectStore('interest-groups')
-					.getAll()
-					.onsuccess = function ({ target: { result } }) {
-						if (result && Array.isArray(result)) {
-							const list = document.createElement("ul");
-							result.map(({ owner, name }) => {
-								const newLi = document.createElement("li");
-								const newContent = document.createTextNode(`owner: ${owner}, name: ${name}`);
-								newLi.appendChild(newContent);
-								list.appendChild(newLi);
-							});
-							document.getElementById('igs').appendChild(list);
-						} else {
-							const para = document.createElement("p");
-							const newContent = document.createTextNode('No Interest Groups found.  Go join one.');
-							para.appendChild(newContent);
-							document.getElementById('igs').appendChild(para);
-						}
-					};
-				db.close();
-			};
+			const interestGroups = await idb.entries();
+			if (interestGroups.length > 0) {
+				const list = document.createElement("ul");
+				interestGroups.map(([ key, value ]) => {
+					const newLi = document.createElement("li");
+					const newContent = document.createTextNode(`owner: ${value.owner}, name: ${value.name}`);
+					newLi.appendChild(newContent);
+					list.appendChild(newLi);
+				});
+				document.getElementById('igs').appendChild(list);
+			} else {
+				const para = document.createElement("p");
+				const newContent = document.createTextNode('No Interest Groups found.  Go join one.');
+				para.appendChild(newContent);
+				document.getElementById('igs').appendChild(para);
+			}
 		</script>
 	</body>
 </html>

@@ -126,6 +126,6 @@
   },
   "dependencies": {
     "@theholocron/klaxon": "^1.1.0",
-    "idb": "^6.0.0"
+    "idb-keyval": "^5.0.5"
   }
 }

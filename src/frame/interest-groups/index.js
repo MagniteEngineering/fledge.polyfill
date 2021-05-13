@@ -1,5 +1,5 @@
 import { echo } from '@theholocron/klaxon';
-import db, { IG_STORE } from '../utils.js';
+import * as idb from 'idb-keyval';
 
 /*
  * @function
@@ -31,20 +31,21 @@ export const getIGKey = (owner, name) => `${owner}-${name}`;
  */
 export async function joinAdInterestGroup (options, expiry, debug) {
 	debug && echo.groupCollapsed('Fledge API: joinAdInterest');
-	const group = await db.store.get(IG_STORE, getIGKey(options.owner, options.name));
+	const id = getIGKey(options.owner, options.name);
+	const group = await idb.get(id);
 	debug && echo.log(echo.asInfo('checking for an existing interest group:'), group);
-	let id;
 	if (group) {
 		debug && echo.log(echo.asProcess('updating an interest group'));
-		id = await db.store.put(IG_STORE, group, {
+		await idb.update(id, {
 			_expired: Date.now() + expiry,
 			...options,
 		});
 	} else {
 		debug && echo.log(echo.asProcess('creating a new interest group'));
-		id = await db.store.add(IG_STORE, {
-			_key: getIGKey(options.owner, options.name),
+		await idb.set(id, {
+			_created: Date.now(),
 			_expired: Date.now() + expiry,
+			_updated: Date.now(),
 			...options,
 		});
 	}
@@ -69,7 +70,7 @@ export async function joinAdInterestGroup (options, expiry, debug) {
 export async function leaveAdInterestGroup (group, debug) {
 	debug && echo.groupCollapsed('Fledge API: leaveAdInterest');
 	debug && echo.log(echo.asProcess('deleting an existing interest group'));
-	await db.store.delete(IG_STORE, getIGKey(group.owner, group.name));
+	await idb.del(getIGKey(group.owner, group.name));
 	debug && echo.log(echo.asSuccess('interest group deleted'));
 	debug && echo.groupEnd();
 
