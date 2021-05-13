@@ -1,4 +1,4 @@
-import { joinAdInterestGroup, leaveAdInterestGroup } from '../../../src/frame/interest-groups/';
+import { joinAdInterestGroup, leaveAdInterestGroup } from '../../../src/frame/interest-group';
 import {
 	mockAllOptions,
 	mockExpiry,

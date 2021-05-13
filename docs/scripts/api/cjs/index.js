@@ -571,19 +571,21 @@ const MAX_EXPIRATION = 2592000000;
 * @const {URL}
 * @description The source URL for the hosted iframe
 */
-const IFRAME_HOST = 'http://localhost:3000/docs/iframe.html';
+const IFRAME_HOST = 'http://localhost:8000';
 
 class Fledge {
-	constructor (debug) {
-		const query = debug ? '?debug=true' : '';
+	constructor (url, debug) {
+		this.url = url || `${IFRAME_HOST}/iframe.html`;
+		this._debug = debug;
+
+		const query = this._debug ? '?debug=true' : '';
 		const { iframe, origin } = frame.create({
-			source: `${IFRAME_HOST}${query}`,
+			source: `${this.url}${query}`,
 			style: { display: 'none' },
 		});
 		// iframe.sandbox.add('allow-same-origin', 'allow-scripts');
 		const port = message.getFramePort(iframe, origin);
 
-		this._debug = debug;
 		this._props = {
 			iframe,
 			port,
