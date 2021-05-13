@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import {
 	getEligible,
 	uuid,
-} from '../../../src/frame/auction/utils.js';
+} from '../../../src/frame/utils';
 import {
 	mockIGDb,
 } from '../../mocks/interest-groups.mock';

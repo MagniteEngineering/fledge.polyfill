@@ -1,6 +1,6 @@
 import { echo } from '@theholocron/klaxon';
 import * as idb from 'idb-keyval';
-import { customStore } from '../interest-groups/';
+import { customStore } from './interest-group';
 import {
 	getBids,
 	getEligible,
