@@ -24,11 +24,14 @@ npm install --save @magnite/fledge.polyfill
 
 As of this moment, the polyfill is intended to work within the Chrome browser at a version greater than 91.  There are several ways to invoke the polyfill, but given the modern capabilities of support required, the following is the recommended way to invoke the API.
 
+Even though the examples below point to a `node_modules` directory, you should probably have a build process in place that compiles it to your preferred sites location.
+
 ### Interest Groups
 
 ```html
 <script type="module">
-    import { fledge } from "./node_modules/@magnite/fledge.polyfill/esm/index.js";
+    import Fledge from "./node_modules/@magnite/fledge.polyfill/dist/api/esm/index.js";
+    const fledge = new Fledge();
 
     const options = {
         owner: "www.buyer.com",
@@ -37,10 +40,10 @@ As of this moment, the polyfill is intended to work within the Chrome browser at
     };
 
     // join an interest group
-    fledge.joinAdInterestGroup(options, 864000000);
+    await fledge.joinAdInterestGroup(options, 864000000);
 
     // leave an interest group
-    fledge.leaveAdInterestGroup(options);
+    await fledge.leaveAdInterestGroup(options);
 </script>
 ```
 
@@ -48,7 +51,8 @@ As of this moment, the polyfill is intended to work within the Chrome browser at
 
 ```html
 <script type="module">
-    import { fledge } from "./node_modules/@magnite/fledge.polyfill/esm/index.js";
+    import Fledge from "./node_modules/@magnite/fledge.polyfill/dist/api/esm/index.js";
+    const fledge = new Fledge();
 
     const options = {
         seller: "www.seller.com",
@@ -65,24 +69,23 @@ As of this moment, the polyfill is intended to work within the Chrome browser at
 
 ### Render the Ad
 
+In the future, rendering an ad will be handled by the Fledge API and would be passed to a Fenced Frame (which hasn't be established yet).  In the polyfill world, we don't have access to a Fenced Frame and so its required for the consumer of this library to create their own `iframe` and pass the results from the auction to it.  Thankfully, we've created a temporary feature for you to handle this in a way that respects the intention of the proposal by keeping the results opaque in the form of a token that represents the winning ad `rendering_url`.
+
 ```html
 <script type="module">
-    import { fledge } from "./node_modules/@magnite/fledge.polyfill/esm/index.js";
+    import Fledge from "./node_modules/@magnite/fledge.polyfill/dist/api/esm/index.js";
+    const fledge = new Fledge();
 
     // ...run the auction; see above for full example
     const auctionResults = await fledge.runAdAuction(options);
 
-    fledge.renderAd(id, auctionResults);
+    await fledge.renderAd(id, auctionResults);
 </script>
 ```
 
 ## Where to Find Documentation
 
-The best way to find out what's available is to dig through source code, as each directory has a README file to describe each feature.
-
-1. [Tagging Interest Groups](./src/interest-groups/README.md)
-2. [Running an Auction](./src/auctions/README.md)
-3. [Rendering the Winner](./src/render/README.md)
+The best way to find out what's available is to dig through source code.
 
 ## How We Track Changes [![Keep a Changelog](https://img.shields.io/badge/Keep%20a%20Changelog-1.0.0-orange)](https://keepachangelog.com/en/1.0.0/)
 

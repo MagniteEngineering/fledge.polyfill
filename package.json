@@ -4,8 +4,8 @@
   "description": "A Fledge JavaScript polyfill",
   "author": "Newton Koumantzelis",
   "version": "0.1.0",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
+  "main": "dist/api/cjs/index.js",
+  "module": "dist/api/esm/index.js",
   "files": [
     "dist",
     "src"
@@ -93,11 +93,14 @@
   "scripts": {
     "audit": "bundlesize --config ./node_modules/@theholocron/bundlewatch-config/index.js",
     "commit": "commit",
-    "predist": "rollup -c node:@theholocron/rollup-config --input=src/frame --output=docs/scripts --name=fledgeframe --exports=default",
-    "dist": "rollup -c node:@theholocron/rollup-config --input=src/api --name=fledge --exports=default",
+    "predist": "rollup -c node:@theholocron/rollup-config --input=src/frame --output=dist/frame --name=fledgeframe --exports=default",
+    "dist": "rollup -c node:@theholocron/rollup-config --input=src/api --output=dist/api --name=fledge --exports=default",
+    "predocs": "rollup -c node:@theholocron/rollup-config --input=src/frame --output=docs/scripts/frame --name=fledgeframe --exports=default --watch",
+    "docs": "rollup -c node:@theholocron/rollup-config --input=src/api --output=docs/scripts/api --name=fledge --exports=default --watch",
     "lint": "eslint .",
-    "serve": "serve . -l 3000",
     "release": "semantic-release",
+    "serve": "serve . -l 3000",
+    "start": "npm run serve",
     "test": "npm run test:docs && npm run test:unit && npm run test:e2e",
     "test:docs": "alex .",
     "pretest:e2e": "npm run dist",
@@ -126,6 +129,6 @@
   },
   "dependencies": {
     "@theholocron/klaxon": "^1.1.0",
-    "idb": "^6.0.0"
+    "idb-keyval": "^5.0.5"
   }
 }

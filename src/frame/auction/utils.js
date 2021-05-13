@@ -18,7 +18,7 @@ export const getEligible = (groups, eligibility, debug) => {
 		return groups;
 	}
 
-	const eligible = groups.filter(({ owner }) => eligibility.includes(owner));
+	const eligible = groups.filter(([ key, value ]) => eligibility.includes(value.owner));
 	if (eligible.length) {
 		debug && echo.info(`found some eligible buyers`);
 		debug && echo.groupEnd();
@@ -40,8 +40,8 @@ export const getEligible = (groups, eligibility, debug) => {
  * @return {object | null} an array of objects containing bids; null if none found
  */
 export const getBids = async (bidders, conf, debug) => Promise.all(
-	bidders.map(async bidder => {
-		debug && echo.groupCollapsed(`auction utils: getBids => ${bidder._key}`);
+	bidders.map(async ([ key, bidder ]) => {
+		debug && echo.groupCollapsed(`auction utils: getBids => ${key}`);
 		const time0 = performance.now();
 		const { generateBid, generate_bid } = await import(bidder.bidding_logic_url);
 		let callBid = generateBid;

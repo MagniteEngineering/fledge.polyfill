@@ -1,8 +1,8 @@
-import runAdAuction from './auction/index.js';
+import runAdAuction from './auction/';
 import {
 	joinAdInterestGroup,
 	leaveAdInterestGroup,
-} from './interest-groups/index.js';
+} from './interest-groups/';
 
 export default async function fledgeAPI ({ data, ports }) {
 	try {
