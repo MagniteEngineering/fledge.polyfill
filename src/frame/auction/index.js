@@ -1,5 +1,6 @@
 import { echo } from '@theholocron/klaxon';
 import * as idb from 'idb-keyval';
+import { customStore } from '../interest-groups/';
 import {
 	getBids,
 	getEligible,
@@ -21,7 +22,7 @@ import {
  */
 export default async function runAdAuction (conf, debug) {
 	debug && echo.groupCollapsed('Fledge API: runAdAuction');
-	const interestGroups = await idb.entries();
+	const interestGroups = await idb.entries(customStore);
 	debug && echo.log(echo.asInfo('all interest groups:'), interestGroups);
 
 	const eligible = getEligible(interestGroups, conf.interest_group_buyers, debug);
