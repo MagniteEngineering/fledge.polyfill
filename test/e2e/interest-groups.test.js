@@ -10,7 +10,7 @@ describe('Fledge', () => {
 			const page = await context.newPage();
 			await page.goto('http://localhost:3000/test/e2e/');
 
-			const fledge = await page.evaluate(() => new window.fledge());
+			const fledge = await page.evaluate(() => new window.fledge('http://localhost:3000/docs/iframe.html'));
 			expect(() => fledge.joinAdInterestGroup()).toThrow();
 		});
 
@@ -20,7 +20,7 @@ describe('Fledge', () => {
 			await page.goto('http://localhost:3000/test/e2e/');
 
 			const result = await page.evaluate(() => {
-				const fledge = new window.fledge();
+				const fledge = new window.fledge('http://localhost:3000/docs/iframe.html');
 				return fledge.joinAdInterestGroup({
 					owner: 'magnite.com',
 					name: 'test-interest',
@@ -42,7 +42,7 @@ describe('Fledge', () => {
 			};
 			const expiry = 60000;
 			await page.evaluate((igObject, expiry) => {
-				const fledge = new window.fledge();
+				const fledge = new window.fledge('http://localhost:3000/docs/iframe.html');
 				return fledge.joinAdInterestGroup(igObject, expiry);
 			}, igObject, expiry);
 			await page.goto('http://localhost:3000/test/e2e/');
