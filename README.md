@@ -24,11 +24,13 @@ npm install --save @magnite/fledge.polyfill
 
 As of this moment, the polyfill is intended to work within the Chrome browser at a version greater than 91.  There are several ways to invoke the polyfill, but given the modern capabilities of support required, the following is the recommended way to invoke the API.
 
+Even though the examples below point to a `node_modules` directory, you should probably have a build process in place that compiles it to your preferred sites location.
+
 ### Interest Groups
 
 ```html
 <script type="module">
-    import Fledge from "./node_modules/@magnite/fledge.polyfill/esm/index.js";
+    import Fledge from "./node_modules/@magnite/fledge.polyfill/dist/api/esm/index.js";
     const fledge = new Fledge();
 
     const options = {
@@ -49,7 +51,7 @@ As of this moment, the polyfill is intended to work within the Chrome browser at
 
 ```html
 <script type="module">
-    import Fledge from "./node_modules/@magnite/fledge.polyfill/esm/index.js";
+    import Fledge from "./node_modules/@magnite/fledge.polyfill/dist/api/esm/index.js";
     const fledge = new Fledge();
 
     const options = {
@@ -71,7 +73,7 @@ In the future, rendering an ad will be handled by the Fledge API and would be pa
 
 ```html
 <script type="module">
-    import Fledge from "./node_modules/@magnite/fledge.polyfill/esm/index.js";
+    import Fledge from "./node_modules/@magnite/fledge.polyfill/dist/api/esm/index.js";
     const fledge = new Fledge();
 
     // ...run the auction; see above for full example

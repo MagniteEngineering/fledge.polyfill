@@ -131,403 +131,185 @@ const echo = {
 
 const VERSION = 1;
 
-const instanceOfAny = (object, constructors) => constructors.some((c) => object instanceof c);
-
-let idbProxyableTypes;
-let cursorAdvanceMethods;
-// This is a function to prevent it throwing up in node environments.
-function getIdbProxyableTypes() {
-    return (idbProxyableTypes ||
-        (idbProxyableTypes = [
-            IDBDatabase,
-            IDBObjectStore,
-            IDBIndex,
-            IDBCursor,
-            IDBTransaction,
-        ]));
-}
-// This is a function to prevent it throwing up in node environments.
-function getCursorAdvanceMethods() {
-    return (cursorAdvanceMethods ||
-        (cursorAdvanceMethods = [
-            IDBCursor.prototype.advance,
-            IDBCursor.prototype.continue,
-            IDBCursor.prototype.continuePrimaryKey,
-        ]));
-}
-const cursorRequestMap = new WeakMap();
-const transactionDoneMap = new WeakMap();
-const transactionStoreNamesMap = new WeakMap();
-const transformCache = new WeakMap();
-const reverseTransformCache = new WeakMap();
 function promisifyRequest(request) {
-    const promise = new Promise((resolve, reject) => {
-        const unlisten = () => {
-            request.removeEventListener('success', success);
-            request.removeEventListener('error', error);
-        };
-        const success = () => {
-            resolve(wrap(request.result));
-            unlisten();
-        };
-        const error = () => {
-            reject(request.error);
-            unlisten();
-        };
-        request.addEventListener('success', success);
-        request.addEventListener('error', error);
+    return new Promise((resolve, reject) => {
+        // @ts-ignore - file size hacks
+        request.oncomplete = request.onsuccess = () => resolve(request.result);
+        // @ts-ignore - file size hacks
+        request.onabort = request.onerror = () => reject(request.error);
     });
-    promise
-        .then((value) => {
-        // Since cursoring reuses the IDBRequest (*sigh*), we cache it for later retrieval
-        // (see wrapFunction).
-        if (value instanceof IDBCursor) {
-            cursorRequestMap.set(value, request);
-        }
-        // Catching to avoid "Uncaught Promise exceptions"
-    })
-        .catch(() => { });
-    // This mapping exists in reverseTransformCache but doesn't doesn't exist in transformCache. This
-    // is because we create many promises from a single IDBRequest.
-    reverseTransformCache.set(promise, request);
-    return promise;
 }
-function cacheDonePromiseForTransaction(tx) {
-    // Early bail if we've already created a done promise for this transaction.
-    if (transactionDoneMap.has(tx))
-        return;
-    const done = new Promise((resolve, reject) => {
-        const unlisten = () => {
-            tx.removeEventListener('complete', complete);
-            tx.removeEventListener('error', error);
-            tx.removeEventListener('abort', error);
-        };
-        const complete = () => {
-            resolve();
-            unlisten();
-        };
-        const error = () => {
-            reject(tx.error || new DOMException('AbortError', 'AbortError'));
-            unlisten();
-        };
-        tx.addEventListener('complete', complete);
-        tx.addEventListener('error', error);
-        tx.addEventListener('abort', error);
-    });
-    // Cache it for later retrieval.
-    transactionDoneMap.set(tx, done);
+function createStore(dbName, storeName) {
+    const request = indexedDB.open(dbName);
+    request.onupgradeneeded = () => request.result.createObjectStore(storeName);
+    const dbp = promisifyRequest(request);
+    return (txMode, callback) => dbp.then((db) => callback(db.transaction(storeName, txMode).objectStore(storeName)));
 }
-let idbProxyTraps = {
-    get(target, prop, receiver) {
-        if (target instanceof IDBTransaction) {
-            // Special handling for transaction.done.
-            if (prop === 'done')
-                return transactionDoneMap.get(target);
-            // Polyfill for objectStoreNames because of Edge.
-            if (prop === 'objectStoreNames') {
-                return target.objectStoreNames || transactionStoreNamesMap.get(target);
-            }
-            // Make tx.store return the only store in the transaction, or undefined if there are many.
-            if (prop === 'store') {
-                return receiver.objectStoreNames[1]
-                    ? undefined
-                    : receiver.objectStore(receiver.objectStoreNames[0]);
-            }
-        }
-        // Else transform whatever we get back.
-        return wrap(target[prop]);
-    },
-    set(target, prop, value) {
-        target[prop] = value;
-        return true;
-    },
-    has(target, prop) {
-        if (target instanceof IDBTransaction &&
-            (prop === 'done' || prop === 'store')) {
-            return true;
-        }
-        return prop in target;
-    },
-};
-function replaceTraps(callback) {
-    idbProxyTraps = callback(idbProxyTraps);
-}
-function wrapFunction(func) {
-    // Due to expected object equality (which is enforced by the caching in `wrap`), we
-    // only create one new func per func.
-    // Edge doesn't support objectStoreNames (booo), so we polyfill it here.
-    if (func === IDBDatabase.prototype.transaction &&
-        !('objectStoreNames' in IDBTransaction.prototype)) {
-        return function (storeNames, ...args) {
-            const tx = func.call(unwrap(this), storeNames, ...args);
-            transactionStoreNamesMap.set(tx, storeNames.sort ? storeNames.sort() : [storeNames]);
-            return wrap(tx);
-        };
+let defaultGetStoreFunc;
+function defaultGetStore() {
+    if (!defaultGetStoreFunc) {
+        defaultGetStoreFunc = createStore('keyval-store', 'keyval');
     }
-    // Cursor methods are special, as the behaviour is a little more different to standard IDB. In
-    // IDB, you advance the cursor and wait for a new 'success' on the IDBRequest that gave you the
-    // cursor. It's kinda like a promise that can resolve with many values. That doesn't make sense
-    // with real promises, so each advance methods returns a new promise for the cursor object, or
-    // undefined if the end of the cursor has been reached.
-    if (getCursorAdvanceMethods().includes(func)) {
-        return function (...args) {
-            // Calling the original function with the proxy as 'this' causes ILLEGAL INVOCATION, so we use
-            // the original object.
-            func.apply(unwrap(this), args);
-            return wrap(cursorRequestMap.get(this));
-        };
-    }
-    return function (...args) {
-        // Calling the original function with the proxy as 'this' causes ILLEGAL INVOCATION, so we use
-        // the original object.
-        return wrap(func.apply(unwrap(this), args));
-    };
+    return defaultGetStoreFunc;
 }
-function transformCachableValue(value) {
-    if (typeof value === 'function')
-        return wrapFunction(value);
-    // This doesn't return, it just creates a 'done' promise for the transaction,
-    // which is later returned for transaction.done (see idbObjectHandler).
-    if (value instanceof IDBTransaction)
-        cacheDonePromiseForTransaction(value);
-    if (instanceOfAny(value, getIdbProxyableTypes()))
-        return new Proxy(value, idbProxyTraps);
-    // Return the same value back if we're not going to transform it.
-    return value;
-}
-function wrap(value) {
-    // We sometimes generate multiple promises from a single IDBRequest (eg when cursoring), because
-    // IDB is weird and a single IDBRequest can yield many responses, so these can't be cached.
-    if (value instanceof IDBRequest)
-        return promisifyRequest(value);
-    // If we've already transformed this value before, reuse the transformed value.
-    // This is faster, but it also provides object equality.
-    if (transformCache.has(value))
-        return transformCache.get(value);
-    const newValue = transformCachableValue(value);
-    // Not all types are transformed.
-    // These may be primitive types, so they can't be WeakMap keys.
-    if (newValue !== value) {
-        transformCache.set(value, newValue);
-        reverseTransformCache.set(newValue, value);
-    }
-    return newValue;
-}
-const unwrap = (value) => reverseTransformCache.get(value);
-
 /**
- * Open a database.
+ * Get a value by its key.
  *
- * @param name Name of the database.
- * @param version Schema version.
- * @param callbacks Additional callbacks.
+ * @param key
+ * @param customStore Method to get a custom store. Use with caution (see the docs).
  */
-function openDB(name, version, { blocked, upgrade, blocking, terminated } = {}) {
-    const request = indexedDB.open(name, version);
-    const openPromise = wrap(request);
-    if (upgrade) {
-        request.addEventListener('upgradeneeded', (event) => {
-            upgrade(wrap(request.result), event.oldVersion, event.newVersion, wrap(request.transaction));
-        });
-    }
-    if (blocked)
-        request.addEventListener('blocked', () => blocked());
-    openPromise
-        .then((db) => {
-        if (terminated)
-            db.addEventListener('close', () => terminated());
-        if (blocking)
-            db.addEventListener('versionchange', () => blocking());
-    })
-        .catch(() => { });
-    return openPromise;
+function get(key, customStore = defaultGetStore()) {
+    return customStore('readonly', (store) => promisifyRequest(store.get(key)));
+}
+/**
+ * Set a value with a key.
+ *
+ * @param key
+ * @param value
+ * @param customStore Method to get a custom store. Use with caution (see the docs).
+ */
+function set(key, value, customStore = defaultGetStore()) {
+    return customStore('readwrite', (store) => {
+        store.put(value, key);
+        return promisifyRequest(store.transaction);
+    });
+}
+/**
+ * Update a value. This lets you see the old value and update it as an atomic operation.
+ *
+ * @param key
+ * @param updater A callback that takes the old value and returns a new value.
+ * @param customStore Method to get a custom store. Use with caution (see the docs).
+ */
+function update(key, updater, customStore = defaultGetStore()) {
+    return customStore('readwrite', (store) => 
+    // Need to create the promise manually.
+    // If I try to chain promises, the transaction closes in browsers
+    // that use a promise polyfill (IE10/11).
+    new Promise((resolve, reject) => {
+        store.get(key).onsuccess = function () {
+            try {
+                store.put(updater(this.result), key);
+                resolve(promisifyRequest(store.transaction));
+            }
+            catch (err) {
+                reject(err);
+            }
+        };
+    }));
+}
+/**
+ * Delete a particular key from the store.
+ *
+ * @param key
+ * @param customStore Method to get a custom store. Use with caution (see the docs).
+ */
+function del(key, customStore = defaultGetStore()) {
+    return customStore('readwrite', (store) => {
+        store.delete(key);
+        return promisifyRequest(store.transaction);
+    });
+}
+function eachCursor(customStore, callback) {
+    return customStore('readonly', (store) => {
+        // This would be store.getAllKeys(), but it isn't supported by Edge or Safari.
+        // And openKeyCursor isn't supported by Safari.
+        store.openCursor().onsuccess = function () {
+            if (!this.result)
+                return;
+            callback(this.result);
+            this.result.continue();
+        };
+        return promisifyRequest(store.transaction);
+    });
+}
+/**
+ * Get all entries in the store. Each entry is an array of `[key, value]`.
+ *
+ * @param customStore Method to get a custom store. Use with caution (see the docs).
+ */
+function entries(customStore = defaultGetStore()) {
+    const items = [];
+    return eachCursor(customStore, (cursor) => items.push([cursor.key, cursor.value])).then(() => items);
 }
 
-const readMethods = ['get', 'getKey', 'getAll', 'getAllKeys', 'count'];
-const writeMethods = ['put', 'add', 'delete', 'clear'];
-const cachedMethods = new Map();
-function getMethod(target, prop) {
-    if (!(target instanceof IDBDatabase &&
-        !(prop in target) &&
-        typeof prop === 'string')) {
-        return;
-    }
-    if (cachedMethods.get(prop))
-        return cachedMethods.get(prop);
-    const targetFuncName = prop.replace(/FromIndex$/, '');
-    const useIndex = prop !== targetFuncName;
-    const isWrite = writeMethods.includes(targetFuncName);
-    if (
-    // Bail if the target doesn't exist on the target. Eg, getAll isn't in Edge.
-    !(targetFuncName in (useIndex ? IDBIndex : IDBObjectStore).prototype) ||
-        !(isWrite || readMethods.includes(targetFuncName))) {
-        return;
-    }
-    const method = async function (storeName, ...args) {
-        // isWrite ? 'readwrite' : undefined gzipps better, but fails in Edge :(
-        const tx = this.transaction(storeName, isWrite ? 'readwrite' : 'readonly');
-        let target = tx.store;
-        if (useIndex)
-            target = target.index(args.shift());
-        // Must reject if op rejects.
-        // If it's a write operation, must reject if tx.done rejects.
-        // Must reject with op rejection first.
-        // Must resolve with op value.
-        // Must handle both promises (no unhandled rejections)
-        return (await Promise.all([
-            target[targetFuncName](...args),
-            isWrite && tx.done,
-        ]))[0];
-    };
-    cachedMethods.set(prop, method);
-    return method;
-}
-replaceTraps((oldTraps) => ({
-    ...oldTraps,
-    get: (target, prop, receiver) => getMethod(target, prop) || oldTraps.get(target, prop, receiver),
-    has: (target, prop) => !!getMethod(target, prop) || oldTraps.has(target, prop),
-}));
-
-/*
- * @const {string}
- * @summary the name of the Interest Group store within IndexedDB
- */
-const IG_STORE = 'interest-groups';
+const customStore = createStore('fledge.v1', 'interest-groups');
 
 /*
  * @function
- * @name db
- * @description create an Indexed dB
+ * @name getIGKey
+ * @description retrieve the key for an interest group form the store
  * @author Newton <cnewton@magnite.com>
- * @return {promise} a promise
- */
-const db = openDB('Fledge', 1, {
-	upgrade (db) {
-		// Create a store of objects
-		const igStore = db.createObjectStore(IG_STORE, {
-			// The '_key' property of the object will be the key.
-			keyPath: '_key',
-		});
-
-		// Create an index on the a few properties of the objects.
-		[ 'owner', 'name', '_expired' ].forEach(index => {
-			igStore.createIndex(index, index, { unique: false });
-		});
-	},
-});
-
-/*
- * @function
- * @name getItemFromStore
- * @description retrieve an item from an IDB store
- * @author Newton <cnewton@magnite.com>
- * @param {string} store - the name of the store from which to retreive
- * @param {string} id - the id; typically matches the keyPath of a store
+ * @param {string} owner - owner of the interest group
+ * @param {string} name - name of the interest group
  * @return {object} an object representing an interest group
  *
  * @example
- *   store.get('someStore', 'foo');
+ *   getKey('foo', 'bar');
+ *   // 'foo-bar'
  */
-async function getItemFromStore (store, id) {
-	const item = (await db).get(store, id);
+const getIGKey = (owner, name) => `${owner}-${name}`;
 
-	if (item) {
-		return item;
+/*
+ * @function
+ * @name joinAdInterestGroup
+ * @description join an interest group inserting into IndexedDB
+ * @author Newton <cnewton@magnite.com>
+ * @param {object} options - An object of options to create an interest group {@link types}
+ * @param {number} expiry - A number of the days (in milliseconds) an interest group should exist, not to exceed 30 days
+ * @throws {Error} Any parameters passed are incorrect or an incorrect type
+ * @return {true}
+ *
+ * @example
+ *   joinAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' }, 2592000000);
+ */
+async function joinAdInterestGroup (options, expiry, debug) {
+	debug && echo.groupCollapsed('Fledge API: joinAdInterest');
+	const id = getIGKey(options.owner, options.name);
+	const group = await get(id, customStore);
+	debug && echo.log(echo.asInfo('checking for an existing interest group:'), group);
+	if (group) {
+		debug && echo.log(echo.asProcess('updating an interest group'));
+		await update(id, {
+			_expired: Date.now() + expiry,
+			...options,
+		}, customStore);
+	} else {
+		debug && echo.log(echo.asProcess('creating a new interest group'));
+		await set(id, {
+			_created: Date.now(),
+			_expired: Date.now() + expiry,
+			_updated: Date.now(),
+			...options,
+		}, customStore);
 	}
+	debug && echo.log(echo.asSuccess('interest group id:'), id);
+	debug && echo.groupEnd();
 
-	return null;
+	return true;
 }
 
 /*
  * @function
- * @name getAllFromStore
- * @description retrieve all items from an IDB store
+ * @name leaveAdInterestGroup
+ * @description leave an interest group removing from IndexedDB
  * @author Newton <cnewton@magnite.com>
- * @param {string} store - the name of the store from which to retreive
- * @return {array<Object>} an array of objects representing all items from a store
+ * @param {object} options - An object of options to create an interest group {@link types}
+ * @throws {Error} Any parameters passed are incorrect or an incorrect type
+ * @return {true}
  *
  * @example
- *   store.getAll('someStore');
+ *   leaveAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' });
  */
-async function getAllFromStore (store) {
-	const items = (await db).getAll(store);
+async function leaveAdInterestGroup (group, debug) {
+	debug && echo.groupCollapsed('Fledge API: leaveAdInterest');
+	debug && echo.log(echo.asProcess('deleting an existing interest group'));
+	await del(getIGKey(group.owner, group.name), customStore);
+	debug && echo.log(echo.asSuccess('interest group deleted'));
+	debug && echo.groupEnd();
 
-	if (items) {
-		return items;
-	}
-
-	return null;
+	return true;
 }
-
-/*
- * @function
- * @name updateItemInStore
- * @description update an item in an IDB store
- * @author Newton <cnewton@magnite.com>
- * @param {string} store - the name of the store from which to retreive
- * @param {object} item - An existing item
- * @param {object} newOptions - a new set of options to merge with the item
- * @return {string} the key of the item updated
- *
- * @example
- *   store.put('someStore', { bidding_logic_url: '://v2/bid' }, { owner: 'foo', name: 'bar' }, 1234);
- */
-async function updateItemInStore (store, item, newOptions) {
-	const updated = {
-		...item,
-		...newOptions,
-		_updated: Date.now(),
-	};
-
-	return (await db).put(store, updated);
-}
-
-/*
- * @function
- * @name createItemInStore
- * @description create an item in an IDB store
- * @author Newton <cnewton@magnite.com>
- * @param {string} store - the name of the store from which to retreive
- * @param {object} options - An object of options to make up item
- * @return {string} the key of the item created
- *
- * @example
- *   store.add('someStore', { owner: 'foo', name: 'bar' });
- */
-async function createItemInStore (store, options) {
-	return (await db).add(store, {
-		...options,
-		_created: Date.now(),
-		_updated: Date.now(),
-	});
-}
-
-/*
- * @function
- * @name deleteItemFromStore
- * @description delete a record from Indexed dB
- * @author Newton <cnewton@magnite.com>
- * @param {string} store - the name of the store from which to retreive
- * @param {string} id - the id; typically matches the keyPath of a store
- * @return {undefined}
- *
- * @example
- *   store.delete('owner-name');
- */
-async function deleteItemFromStore (store, id) {
-	return (await db).delete(store, id);
-}
-
-var db$1 = {
-	db,
-	store: {
-		add: createItemInStore,
-		get: getItemFromStore,
-		getAll: getAllFromStore,
-		put: updateItemInStore,
-		delete: deleteItemFromStore,
-	},
-};
 
 /* eslint-disable camelcase */
 
@@ -548,7 +330,7 @@ const getEligible = (groups, eligibility, debug) => {
 		return groups;
 	}
 
-	const eligible = groups.filter(({ owner }) => eligibility.includes(owner));
+	const eligible = groups.filter(([ key, value ]) => eligibility.includes(value.owner));
 	if (eligible.length) {
 		debug && echo.info(`found some eligible buyers`);
 		debug && echo.groupEnd();
@@ -570,8 +352,8 @@ const getEligible = (groups, eligibility, debug) => {
  * @return {object | null} an array of objects containing bids; null if none found
  */
 const getBids = async (bidders, conf, debug) => Promise.all(
-	bidders.map(async bidder => {
-		debug && echo.groupCollapsed(`auction utils: getBids => ${bidder._key}`);
+	bidders.map(async ([ key, bidder ]) => {
+		debug && echo.groupCollapsed(`auction utils: getBids => ${key}`);
 		const time0 = performance.now();
 		const { generateBid, generate_bid } = await import(bidder.bidding_logic_url);
 		let callBid = generateBid;
@@ -759,7 +541,7 @@ const getTrustedSignals = async (url, keys, debug) => {
  */
 async function runAdAuction (conf, debug) {
 	debug && echo.groupCollapsed('Fledge API: runAdAuction');
-	const interestGroups = await db$1.store.getAll(IG_STORE);
+	const interestGroups = await entries(customStore);
 	debug && echo.log(echo.asInfo('all interest groups:'), interestGroups);
 
 	const eligible = getEligible(interestGroups, conf.interest_group_buyers, debug);
@@ -801,81 +583,6 @@ async function runAdAuction (conf, debug) {
 
 	debug && echo.groupEnd();
 	return token;
-}
-
-/*
- * @function
- * @name getIGKey
- * @description retrieve the key for an interest group form the store
- * @author Newton <cnewton@magnite.com>
- * @param {string} owner - owner of the interest group
- * @param {string} name - name of the interest group
- * @return {object} an object representing an interest group
- *
- * @example
- *   getKey('foo', 'bar');
- *   // 'foo-bar'
- */
-const getIGKey = (owner, name) => `${owner}-${name}`;
-
-/*
- * @function
- * @name joinAdInterestGroup
- * @description join an interest group inserting into IndexedDB
- * @author Newton <cnewton@magnite.com>
- * @param {object} options - An object of options to create an interest group {@link types}
- * @param {number} expiry - A number of the days (in milliseconds) an interest group should exist, not to exceed 30 days
- * @throws {Error} Any parameters passed are incorrect or an incorrect type
- * @return {true}
- *
- * @example
- *   joinAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' }, 2592000000);
- */
-async function joinAdInterestGroup (options, expiry, debug) {
-	debug && echo.groupCollapsed('Fledge API: joinAdInterest');
-	const group = await db$1.store.get(IG_STORE, getIGKey(options.owner, options.name));
-	debug && echo.log(echo.asInfo('checking for an existing interest group:'), group);
-	let id;
-	if (group) {
-		debug && echo.log(echo.asProcess('updating an interest group'));
-		id = await db$1.store.put(IG_STORE, group, {
-			_expired: Date.now() + expiry,
-			...options,
-		});
-	} else {
-		debug && echo.log(echo.asProcess('creating a new interest group'));
-		id = await db$1.store.add(IG_STORE, {
-			_key: getIGKey(options.owner, options.name),
-			_expired: Date.now() + expiry,
-			...options,
-		});
-	}
-	debug && echo.log(echo.asSuccess('interest group id:'), id);
-	debug && echo.groupEnd();
-
-	return true;
-}
-
-/*
- * @function
- * @name leaveAdInterestGroup
- * @description leave an interest group removing from IndexedDB
- * @author Newton <cnewton@magnite.com>
- * @param {object} options - An object of options to create an interest group {@link types}
- * @throws {Error} Any parameters passed are incorrect or an incorrect type
- * @return {true}
- *
- * @example
- *   leaveAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' });
- */
-async function leaveAdInterestGroup (group, debug) {
-	debug && echo.groupCollapsed('Fledge API: leaveAdInterest');
-	debug && echo.log(echo.asProcess('deleting an existing interest group'));
-	await db$1.store.delete(IG_STORE, getIGKey(group.owner, group.name));
-	debug && echo.log(echo.asSuccess('interest group deleted'));
-	debug && echo.groupEnd();
-
-	return true;
 }
 
 async function fledgeAPI ({ data, ports }) {
