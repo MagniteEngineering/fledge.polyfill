@@ -39,9 +39,15 @@ export const mockAllOptions = {
 };
 
 export const mockIGDb = [
-	mockAllOptions,
-	{
-		...mockAllOptions,
-		owner: 'new-mock-owner.com',
-	},
+	[
+		`${mockOwner}-${mockName}`,
+		mockAllOptions,
+	],
+	[
+		`new-mock-owner.com-${mockName}`,
+		{
+			...mockAllOptions,
+			owner: 'new-mock-owner.com',
+		},
+	],
 ];
