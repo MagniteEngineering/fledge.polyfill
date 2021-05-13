@@ -58,7 +58,6 @@ Label | Apply When | Notes
 `fix` | Cases where the code (or documentation) is behaving in a way it wasn't intended to. | If something is happening that surprises the *user* but does not go against the way the code is designed, it should use the `feat` label.
 `good first issue` | Applied by [Contributors](./CONTRIBUTING.md#permissions) or higher to issues that they consider good introductions to the project for people who have not contributed before. These are not necessarily "easy", but rather focused around how much context is necessary in order to understand what needs to be done for this project in particular. | Existing project members are expected to stay away from these unless they increase in priority.
 `help wanted` | Applied by [Contributors](./CONTRIBUTING.md#permissions) or higher to issues and PRs that they would like to get outside help for. Generally, this means it's lower priority for the maintainer team to itself implement, but that the community is encouraged to pick up if they so desire | Never applied on first-pass labeling.
-`in progress` | Applied by [Contributors](./CONTRIBUTING.md#permissions) or higher to PRs that are pending some work before they're ready for review. | The original PR submitter should @mention the team member that applied the label once the PR is complete.
 `needs clarification` | Applied by [Contributors](./CONTRIBUTING.md#permissions) or higher to issues or PRs that require a bit more information in order to move forward. | The original submitter should @mention the team member that applied the label once clarification has been provided.
 `next release` | Applied by [Maintainers](./CONTRIBUTING.md#permissions) or higher to PRs that have been approved and are tagged for the next release. | Generally we don't hold up PRs as we release as soon as possible, but in cases where we can't, this is handy to call out.
 `support` | This issue is either asking a question about how to use the project, clarifying the reason for unexpected behavior, or possibly reporting a `bug` but does not have enough detail yet to determine whether it would count as such. | The label should be switched to `fix` if reliable reproduction steps are provided. Issues primarily with unintended configurations of a user's environment are not considered bugs, even if they cause crashes.
@@ -79,7 +78,7 @@ To clean up issues and PRs:
   * not marked as `good first issue` or `help wanted` (these might stick around for a while, in general, as they're intended to be available)
   * no explicit messages in the comments asking for it to be left open
   * does not belong to a milestone
-* Leave a message when closing saying "Cleaning up stale issue. Please reopen or ping us if and when you're ready to resume this. See https://github.com/magniteengineering/fledge.polyfill/blob/latest/MAINTAINING.md#clean-up-issues-and-prs for more details."
+* Leave a message when closing saying "Cleaning up stale issue. Please reopen or ping us if and when you're ready to resume this. See https://github.com/magniteengineering/fledge.polyfill/blob/main/.github/MAINTAINING.md#clean-up-issues-and-prs for more details."
 
 ## Create a Pull Request
 

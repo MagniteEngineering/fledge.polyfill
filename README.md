@@ -85,7 +85,90 @@ In the future, rendering an ad will be handled by the Fledge API and would be pa
 
 ## Where to Find Documentation
 
-The best way to find out what's available is to dig through source code.
+The best way to find out what's available is to dig through source code, but the following is the API documentation.
+
+### API
+
+#### runAdAuction(conf)
+
+Returns `null` if no winning bid is found.  Returns a `Promise` with a token representation of the winning bids rendering URL.
+
+If an invalid option is passed, then an `Error` will be thrown with a reason to help debug.
+
+##### conf
+
+Type: [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
+
+The following is the data structure with types for the options:
+
+```ts
+interface AuctionOptions {
+  seller: typeof string;
+  decision_logic_url: typeof url;
+  interest_group_buyers: typeof array;
+  trusted_scoring_signals_url?; typeof url;
+  additional_bids?: typeof array;
+  auction_signals?: typeof object;
+  seller_signals?: typeof object;
+  per_buyer_signals?: typeof object;
+}
+```
+
+#### joinAdInterestGroup(options, expiry)
+
+Returns `true` and creates an entry in a cross-domain Indexed dB store.
+
+If an invalid option is passed, then an `Error` will be thrown with a reason to help debug.
+
+##### options
+
+Type: [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
+
+The following is the data structure with types for the options:
+
+```ts
+interface InterestGroup {
+  owner: typeof string;
+  name: typeof string;
+  bidding_logic_url: typeof url;
+  daily_update_url?: typeof url;
+  trusted_bidding_signals_url?; typeof url;
+  trusted_bidding_signals_keys?: typeof array;
+  user_bidding_signals?: typeof object;
+  ads?: typeof array;
+}
+```
+
+##### expiry
+
+Type: [`<Number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+
+A number of days (set in milliseconds) that the Interest Group will stay active, with a maximum of 30 days (or 2592000000).
+
+#### leaveAdInterestGroup(group)
+
+Returns `true` and removes an entry in a cross-domain Indexed dB store.
+
+If an invalid option is passed, then an `Error` will be thrown with a reason to help debug.
+
+##### options
+
+Type: [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
+
+The following is the data structure with types for the options:
+
+```ts
+interface InterestGroup {
+  owner: typeof string;
+  name: typeof string;
+  bidding_logic_url?: typeof url;
+  daily_update_url?: typeof url;
+  trusted_bidding_signals_url?; typeof url;
+  trusted_bidding_signals_keys?: typeof array;
+  user_bidding_signals?: typeof object;
+  ads?: typeof array;
+}
+```
 
 ## How We Track Changes [![Keep a Changelog](https://img.shields.io/badge/Keep%20a%20Changelog-1.0.0-orange)](https://keepachangelog.com/en/1.0.0/)
 

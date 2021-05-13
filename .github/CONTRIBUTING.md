@@ -2,7 +2,7 @@
 
 :bangbang: This project has a [Code of Conduct](./CODE_OF_CONDUCT.md). By interacting with this repository, organization, and/or community you agree to abide by its terms.
 
-Third-party patches are essential for keeping open-source software great.  In the spirit of keeping it as simple as possible to contribute changes that get things working in your environment, here are a few guidelines that contributors should follow.  As [Nicholas Gallagher](http://github.com/necolas/normalize.css/blob/main/CONTRIBUTING.md) put it in his contributing guidelines:
+Third-party patches are essential for keeping open-source software great.  In the spirit of keeping it as simple as possible to contribute changes that get things working in your environment, here are a few guidelines that contributors should follow.  As [Nicholas Gallagher](https://github.com/necolas/normalize.css/blob/master/CONTRIBUTING.md) put it in his contributing guidelines:
 
 > Following these guidelines helps to communicate that you respect the time of the developers managing and developing […]. In return, they should reciprocate that respect in addressing your issue or assessing your patches and features.
 
@@ -19,8 +19,8 @@ Third-party patches are essential for keeping open-source software great.  In th
 ## Get Started
 
 1. Make sure you have a GitHub account.
-2. Please ask the [CODEOWNERS](./CODEOWNERS) before making significant changes.  I'd hate for you to put in a lot of work for something that doesn't align with the vision of this project.
-3. Search on Github within the repo for the issue or Pull Request. This means you have to read through the issue(s) in order to determine if your particular issue has already been created. Don't forget to look through the closed ones as well.
+2. Please ask the [CODEOWNERS](./CODEOWNERS) before making significant changes.  We'd hate for you to put in a lot of work for something that doesn't align with the vision of this project.
+3. Search on Github within the repo for the issue or Pull Request. This signals to use that you have read through the issue(s) in order to determine if your particular issue has already been created. Don't forget to look through the closed ones as well.
 4. If the issue has not been fixed then try to reproduce the issue in a fresh clone of the repository off the main branch. Read below on [how to set up your environment](#create-a-pull-request).
 5. Create a [reduced test case](http://css-tricks.com/reduced-test-cases/) as outlined by Chris Coyier of [CSS Tricks](http://css-tricks.com/).  Link to the [Code Pen](http://codepen.io), [JS Bin](http://jsbin.com), or whatever you use, as long as its publicly accessible.
 6. Read our [branching strategy](#branching-strategy), [commit conventions](#commit-conventions) below for tips on how to contribute. We won't accept any pull request that doesn't adhere, so be forewarned.
@@ -53,23 +53,20 @@ Now its time to submit a ticket. Bug reports should be thorough and not leave an
 Follow the example below and you'll be on the right path. Let's assume that a you're trying build a new page on your application and the icons aren't showing up:
 
 ```markdown
-Title: Icons are not showing up
+Title: Ad is not rendering
 
 **Describe the bug**
 
-Developing my application and when it loads up
-the browser, I don't see any of the SVG icons loading up.
+Add in the Fledge code, as per the README instructions, and no ad is showing up in the expected ad slot on the page.
 
 **To Reproduce**
 
-1. Open http://example.com/new-app
-2. There is a blue button in the right side of the toolbar that says "Edit"
-3. Notice there should be a pencil icon, and there is nothing.
+1. Open http://example.com/
+2. No ads render on the page, but particularly the 300x250 ad near the top right rail is not showing.
 
 **Expected Behavior**
 
-When loading any page that contains an icon, I expect the icon to load alongside
-the other assets on the page, ie text, components, modules, etc
+When loading any page that contains Fledge code, the ad should show up.
 
 **OS**: OSX 10.8.3
 **Browser(s) Version(s)**: All browsers, but founded initially in Chrome 38.0.2125.111
@@ -83,7 +80,7 @@ the other assets on the page, ie text, components, modules, etc
 - **Results**: Passed
 - **Line(s) of Code**: n/a
 - **Message**: n/a
-- **Console Errors**: 404 error on "svg/symbol-defs.svg"
+- **Console Errors**: "No eligible buyer specified"
 ```
 
 ### Testing
@@ -118,17 +115,14 @@ Follow the example below and you'll be on the right path.
 ```markdown
 Title: Progress bar component
 
-**Is your feature request related to a problem? Please describe.**
-Not related to a problem. I would like to see an indicator of impressions to ad requests
-so that I can visualize the loss.
+**Is your feature request related to a problem? Please describe.** 
+Noticing that as I add more than 3 ads to the page, each auction is taking longer and longer.
 
 **Describe the solution you'd like**
-I think a progress bar where the total value shown is the full width of
-the contained area, and the part that is filled in is the impressions.
+Its worth looking into any performance shaving within the library as publishers should be able to run more than 3 auctions per page.
 
 **Describe alternatives you've considered**
-A funnel chart was considered but its too similar to Googles design and
-Legal fears repercussions.
+N/A
 
 **Additional context**
 N/A
@@ -192,7 +186,7 @@ For those of you willing to help out, that's great!!! Here's a quick how-to with
 
 **ALL WORK REQUIRES A BRANCH. WE DO NOT PUSH DIRECTLY TO MAIN!**
 
-There are a lot of [various](http://nvie.com/posts/a-successful-git-branching-model/) [opinions](https://docs.microsoft.com/en-us/vsts/git/concepts/git-branching-guidance) on [branching](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow) [strategies](https://barro.github.io/2016/02/a-succesful-git-branching-model-considered-harmful/) and while all of them are great and have their place, they all tend to add a lot of overhead and maintenance with little value to the workflow. We prefer to use the simplified strategy known as [Github flow](https://guides.github.com/introduction/flow/). So when working with the library, there's no need to prefix it with `feature/` or `hotfix/` or anything like that; Github's PR-style workflow allows for quick and disposable branches. Create branches off `main` and use descriptive names such as `create-donut-chart`, `refactor-dropdown` so that users can easily see what's being worked on. 
+There are a lot of [various](http://nvie.com/posts/a-successful-git-branching-model/) [opinions](https://docs.microsoft.com/en-us/vsts/git/concepts/git-branching-guidance) on [branching](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow) [strategies](https://barro.github.io/2016/02/a-succesful-git-branching-model-considered-harmful/) and while all of them are great and have their place, they all tend to add a lot of overhead and maintenance with little value to the workflow. We prefer to use the simplified strategy known as [Github flow](https://guides.github.com/introduction/flow/). So when working with the library, there's no need to prefix it with `feature/` or `hotfix/` or anything like that; Github's PR-style workflow allows for quick and disposable branches. Create branches off `main` and use descriptive names such as `create-addtional-ads-support`, `refactor-post-message` so that users can easily see what's being worked on. 
 
 #### Naming
 
@@ -201,7 +195,7 @@ Branch names should short, concise and easy to understand the work that is being
 * **Use only lower case letters**. Lowercasing makes it quicker to type by providing fewer letters to get working. Avoid upper case letters as it requires a higher level of dexterity that can decrease the speed of workflow
 * **Use dashes instead of underscores**. The same is true as above, they're are easier to type and require less dexterity.
 * **Don't prefix the branch name with any particular pattern**. Unless you regularly clean up your local branches, it's likely to increase the number of characters and tabbing through in order to complete the branch name you seek 
-* **Don't include the ticket number**. Adding it falls into the same faults as suggestion 2 above; it requires a lot more typing in order to tab complete through to the branch you may want
+* **Don't include the ticket number**. Adding it falls into the same faults as suggestion 3 above; it requires a lot more typing in order to tab complete through to the branch you may want
 
  When searching through a bunch of branches, `issue-123` doesn't provide any inherent value to the developer in hopes to find the feature they want to help out on; however seeing `modal-trigger-open` gives the developer some insight into what work is being done.
 
@@ -350,7 +344,7 @@ There are many ways to contribute! Most of them don't require any official statu
 
 All of the below positions are granted based on the project team's needs, as well as their consensus opinion about the persons desire to help. The process is relatively informal, and it's likely that people who express interest in participating can be granted the permissions they'd like.
 
-You can spot a collaborator on the repo by looking at [the teams](https://github.com/orgs/legion/teams).
+You can spot a collaborator on the repo by looking at [the teams](https://github.com/orgs/magniteengineering/teams).
 
 ### Permissions
 
@@ -366,6 +360,6 @@ Owner | Granted to people ultimately responsible for the project, its community,
 
 - [Reduced Test Cases](http://css-tricks.com/reduced-test-cases/)
 - [General GitHub documentation](http://help.github.com/)
-- [GitHub Send Pull Request Documentation](http://help.github.com/send-pull-requests/)
+- [GitHub Send Pull Request Documentation](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests)
 - [GitHub Using Pull Request Documentation](https://help.github.com/articles/using-pull-requests/)
 - [Forking a Github Repo](http://help.github.com/fork-a-repo/)

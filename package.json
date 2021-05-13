@@ -45,7 +45,7 @@
     ]
   },
   "engines": {
-    "node": "^12.16.0 || >=13.2.0"
+    "node": "^14.x"
   },
   "eslintConfig": {
     "extends": "@theholocron",
