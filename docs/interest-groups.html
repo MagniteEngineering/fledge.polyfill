@@ -43,7 +43,7 @@
 		<script type="module">
 			import * as idb from 'https://cdn.jsdelivr.net/npm/idb-keyval@5/dist/esm/index.js';
 			import Fledge from './scripts/api/esm/index.js';
-			const fledge = new Fledge(true);
+			const fledge = new Fledge('https://magniteengineering.github.io/fledge.polyfill/iframe.html', true);
 			const customStore = idb.createStore('fledge.v1', 'interest-groups');
 
 			document.getElementById("join-ig").onclick = async function joinGroup() {
