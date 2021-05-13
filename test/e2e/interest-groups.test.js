@@ -48,7 +48,7 @@ describe('Fledge', () => {
 			await page.goto('http://localhost:3000/test/e2e/');
 			const result = await page.evaluate(() =>
 				new Promise(resolve => {
-					const request = window.indexedDB.open('Fledge');
+					const request = window.indexedDB.open('fledge.v1');
 					request.onsuccess = () => {
 						const db = request.result;
 						db.transaction('interest-groups', 'readonly').objectStore('interest-groups').get('magnite.com-test-interest').onsuccess = function (event) {
