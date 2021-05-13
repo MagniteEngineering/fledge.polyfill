@@ -44,6 +44,7 @@
 			import * as idb from 'https://cdn.jsdelivr.net/npm/idb-keyval@5/dist/esm/index.js';
 			import Fledge from './scripts/api/esm/index.js';
 			const fledge = new Fledge(true);
+			const customStore = idb.createStore('fledge.v1', 'interest-groups');
 
 			document.getElementById("join-ig").onclick = async function joinGroup() {
 				await fledge.joinAdInterestGroup({
@@ -61,7 +62,7 @@
 				}, parseInt(document.getElementById('expiration').value), true);
 			};
 
-			const interestGroups = await idb.entries();
+			const interestGroups = await idb.entries(customStore);
 			if (interestGroups.length > 0) {
 				const list = document.createElement("ul");
 				interestGroups.map(([ key, value ]) => {
