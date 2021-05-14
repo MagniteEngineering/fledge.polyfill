@@ -333,8 +333,6 @@ async function leaveAdInterestGroup (group, debug) {
 	return true;
 }
 
-/* eslint-disable camelcase */
-
 /*
  * @function
  * @name getEligible
@@ -449,7 +447,7 @@ const getScores = async (bids, conf, debug) => {
 		let score;
 
 		try {
-			score = callScore(bid?.ad, bid?.bid, conf, conf?.trustedScoringSignals, {
+			score = scoreAd(bid?.ad, bid?.bid, conf, conf?.trustedScoringSignals, {
 				topWindowHostname: window.top.location.hostname,
 				interestGroupOwner: bid.owner,
 				interestGroupName: bid.name,
@@ -549,7 +547,7 @@ const getTrustedSignals = async (url, keys, debug) => {
  * @return {null | Promise<Token>}
  *
  * @example
- *   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interstGroupBuyers: [ 'www.buyer.com' ] });
+ *   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interestGroupBuyers: [ 'www.buyer.com' ] });
  */
 async function runAdAuction (conf, debug) {
 	debug && echo.groupCollapsed('Fledge API: runAdAuction');

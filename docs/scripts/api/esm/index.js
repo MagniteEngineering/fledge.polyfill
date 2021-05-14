@@ -129,7 +129,7 @@ const echo = {
 	asWarning: warningFormatting,
 };
 
-/* eslint-disable camelcase, no-cond-assign */
+/* eslint-disable no-cond-assign */
 
 /*
  * @function
@@ -198,7 +198,7 @@ const getBuyerReport = async (conf, results, sellersReport, debug) => {
 			try {
 				debug && echo.log(echo.asProcess('fetching buyer reporting'));
 				// generate a report by providing all of the necessary information
-				report = runReport(conf?.auctionSignals, conf?.perBuyerSignals?.[results.bid.owner], sellersReport, {
+				report = reportWin(conf?.auctionSignals, conf?.perBuyerSignals?.[results.bid.owner], sellersReport, {
 					topWindowHostname: window.top.location.hostname,
 					interestGroupOwner: results.bid.owner,
 					interestGroupName: results.bid.name,
