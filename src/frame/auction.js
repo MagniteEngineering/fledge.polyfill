@@ -18,7 +18,7 @@ import {
  * @return {null | Promise<Token>}
  *
  * @example
- *   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interstGroupBuyers: [ 'www.buyer.com' ] });
+ *   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interestGroupBuyers: [ 'www.buyer.com' ] });
  */
 export default async function runAdAuction (conf, debug) {
 	debug && echo.groupCollapsed('Fledge API: runAdAuction');
