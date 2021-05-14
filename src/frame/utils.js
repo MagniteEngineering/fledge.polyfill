@@ -57,6 +57,13 @@ export const getBids = async (bidders, conf, debug) => Promise.all(
 		// generate a bid by providing all of the necessary information
 		let bid;
 		try {
+			debug && echo.log(echo.asProcess(`generating a bid`));
+			debug && echo.groupCollapsed(`generateBid params:`);
+			debug && echo.log(echo.asInfo(`bidder:`), bidder);
+			debug && echo.log(echo.asInfo(`auction signals:`), conf?.auctionSignals);
+			debug && echo.log(echo.asInfo(`per buyer signals:`), conf?.perBuyerSignals?.[bidder.owner]);
+			debug && echo.log(echo.asInfo(`trusted bidding signals:`), trustedSignals);
+			debug && echo.groupEnd();
 			bid = generateBid(bidder, conf?.auctionSignals, conf?.perBuyerSignals?.[bidder.owner], trustedSignals, {
 				topWindowHostname: window.top.location.hostname,
 				seller: conf.seller,
@@ -169,14 +176,18 @@ const getTrustedSignals = async (url, keys, debug) => {
 
 	const isJSON = response => /\bapplication\/json\b/.test(response?.headers?.get('content-type'));
 
+	debug && echo.log(echo.asProcess(`fetching keys from trusted signals url: ${url}`));
 	const response = await fetch(`${url}?${hostname}&keys=${keys.join(',')}`)
 		.then(response => {
 			if (!response.ok) {
-				throw new Error('Something went wrong! The response returned was not ok.');
+				debug && echo.log(echo.asWarning(`Something went wrong! The response returned was not ok.`));
+				debug && echo.log({ response });
+				// throw new Error('Something went wrong! The response returned was not ok.');
 			}
 
 			if (!isJSON(response)) {
-				throw new Error('Response was not in the format of JSON.');
+				debug && echo.log(echo.asWarning(`Response was not in the format of JSON. Response was: ${response?.headers?.get('content-type')}`));
+				// throw new Error('Response was not in the format of JSON.');
 			}
 
 			return response.json();
@@ -186,20 +197,24 @@ const getTrustedSignals = async (url, keys, debug) => {
 			debug && echo.log(error);
 			return null;
 		});
+	debug && echo.log(echo.asSuccess('response:'), response);
 
 	const signals = {};
-	for (const [ key, value ] of response) {
+	for (const key in response) {
 		if (keys.includes(key)) {
-			signals[key] = value;
+			signals[key] = response[key];
 		}
 	}
-
-	if (!(signals && Object.keys(signals).length === 0 && signals.constructor === Object)) {
+	debug && echo.log(signals);
+	debug && echo.log(Object.keys(signals).length === 0);
+	debug && echo.log(signals.constructor !== Object);
+	if (!signals || Object.keys(signals).length === 0 || signals.constructor !== Object) {
 		debug && echo.log(echo.asWarning(`No signals found!`));
 		debug && echo.groupEnd();
 		return null;
 	}
 
+	debug && echo.log(echo.asSuccess('signals:'), signals);
 	debug && echo.groupEnd();
 	return signals;
 };
