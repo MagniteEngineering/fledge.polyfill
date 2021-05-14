@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.3.0 (2021-05-14)
+
+### Features
+
+* convert all snake_case to camelCase ([#74](https://github.com/MagniteEngineering/fledge.polyfill/issues/74)) ([9f035d0](https://github.com/MagniteEngineering/fledge.polyfill/commit/9f035d0))
+
 ### 0.2.0 (2021-05-13)
 
 

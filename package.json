@@ -3,7 +3,7 @@
   "homepage": "https://github.com/MagniteEngineering/fledge.polyfill#readme",
   "description": "A Fledge JavaScript polyfill",
   "author": "Newton Koumantzelis",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "main": "dist/api/cjs/index.js",
   "module": "dist/api/esm/index.js",
   "files": [
