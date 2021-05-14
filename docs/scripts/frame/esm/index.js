@@ -270,7 +270,7 @@ async function joinAdInterestGroup (options, expiry, debug) {
 	debug && echo.log(echo.asInfo('checking for an existing interest group:'), group);
 	if (group) {
 		debug && echo.log(echo.asProcess('updating an interest group'));
-		await update(id, (old) => ({
+		await update(id, old => ({
 			...old,
 			...options,
 			_expired: Date.now() + expiry,
@@ -489,32 +489,34 @@ const getTrustedSignals = async (url, keys, debug) => {
 	const isJSON = response => /\bapplication\/json\b/.test(response?.headers?.get('content-type'));
 
 	debug && echo.log(echo.asProcess(`fetching keys from trusted signals url: ${url}`));
-	const response = await fetch(`${url}?${hostname}&keys=${keys.join(',')}`)
-		.then(response => {
-			if (!response.ok) {
-				debug && echo.log(echo.asWarning(`Something went wrong! The response returned was not ok.`));
-				debug && echo.log({ response });
-				// throw new Error('Something went wrong! The response returned was not ok.');
-			}
-
-			if (!isJSON(response)) {
-				debug && echo.log(echo.asWarning(`Response was not in the format of JSON. Response was: ${response?.headers?.get('content-type')}`));
-				// throw new Error('Response was not in the format of JSON.');
-			}
-
-			return response.json();
-		})
-		.catch(error => {
-			debug && echo.log(echo.asAlert('There was a problem with your fetch operation:'));
-			debug && echo.log(error);
+	let data;
+	try {
+		const response = await fetch(`${url}?${hostname}&keys=${keys.join(',')}`);
+		echo.log({response});
+		if (!response.ok) {
+			debug && echo.log(echo.asWarning(`Something went wrong! The response returned was not ok.`));
+			debug && echo.log({ response });
+			// throw new Error('Something went wrong! The response returned was not ok.');
 			return null;
-		});
-	debug && echo.log(echo.asSuccess('response:'), response);
+		}
+
+		if (!isJSON(response)) {
+			debug && echo.log(echo.asWarning(`Response was not in the format of JSON. Response was: ${response?.headers?.get('content-type')}`));
+			// throw new Error('Response was not in the format of JSON.');
+			return null;
+		}
+		data = await response.json();
+	} catch (error) {
+		debug && echo.log(echo.asAlert('There was a problem with your fetch operation:'));
+		debug && echo.log(error);
+		return null;
+	}
+	debug && echo.log(echo.asSuccess('response:'), data);
 
 	const signals = {};
-	for (const key in response) {
+	for (const key in data) {
 		if (keys.includes(key)) {
-			signals[key] = response[key];
+			signals[key] = data[key];
 		}
 	}
 	debug && echo.log(signals);
