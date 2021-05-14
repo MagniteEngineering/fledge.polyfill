@@ -21,7 +21,7 @@ describe('Fledge', () => {
 					fledge.joinAdInterestGroup({
 						owner: 'magnite.com',
 						name: 'test-interest',
-						bidding_logic_url: 'http://localhost:3000/test/mocks/bl.js',
+						biddingLogicUrl: 'http://localhost:3000/test/mocks/bl.js',
 					}, 1000000).then(() => resolve());
 				});
 			});
@@ -33,7 +33,7 @@ describe('Fledge', () => {
 					fledge.joinAdInterestGroup({
 						owner: 'magnite.com',
 						name: 'test-interest-2',
-						bidding_logic_url: 'http://localhost:3000/test/mocks/bl.js',
+						biddingLogicUrl: 'http://localhost:3000/test/mocks/bl.js',
 					}, 1000000).then(() => resolve());
 				});
 			});
@@ -42,16 +42,16 @@ describe('Fledge', () => {
 				const fledge = new window.fledge('http://localhost:3000/docs/iframe.html');
 				return fledge.runAdAuction({
 					seller: 'publisher.example',
-					decision_logic_url: 'http://localhost:3000/test/mocks/dl.js',
-					trusted_scoring_signals_url: 'http://localhost:3000/test/e2e/tss/',
-					interest_group_buyers: '*',
-					additional_bids: [
+					decisionLogicUrl: 'http://localhost:3000/test/mocks/dl.js',
+					trustedScoringSignalsUrl: 'http://localhost:3000/test/e2e/tss/',
+					interestGroupBuyers: '*',
+					additionalBids: [
 						{
 							price: 1,
 							class: 'deal',
 						},
 					],
-					auction_signals: {
+					auctionSignals: {
 						size: {
 							w: 300,
 							h: 200,
@@ -64,13 +64,13 @@ describe('Fledge', () => {
 						],
 						location: 'atf',
 					},
-					seller_signals: {
+					sellerSignals: {
 						account_id: 1234,
 						site_id: 1234,
 						zone_id: 1234,
 						size_id: 123,
 					},
-					per_buyer_signals: {
+					perBuyerSignals: {
 						'dsp.com': {
 							content_quality: 230,
 						},
@@ -90,16 +90,16 @@ describe('Fledge', () => {
 				const fledge = new window.fledge('http://localhost:3000/docs/iframe.html');
 				return fledge.runAdAuction({
 					seller: 'publisher.example',
-					decision_logic_url: 'http://localhost:3000/test/mocks/dl.js',
-					trusted_scoring_signals_url: 'http://localhost:3000/test/e2e/tss/',
-					interest_group_buyers: '*',
-					additional_bids: [
+					decisionLogicUrl: 'http://localhost:3000/test/mocks/dl.js',
+					trustedScoringSignalsUrl: 'http://localhost:3000/test/e2e/tss/',
+					interestGroupBuyers: '*',
+					additionalBids: [
 						{
 							price: 1,
 							class: 'deal',
 						},
 					],
-					auction_signals: {
+					auctionSignals: {
 						size: {
 							w: 300,
 							h: 200,
@@ -112,13 +112,13 @@ describe('Fledge', () => {
 						],
 						location: 'atf',
 					},
-					seller_signals: {
+					sellerSignals: {
 						account_id: 1234,
 						site_id: 1234,
 						zone_id: 1234,
 						size_id: 123,
 					},
-					per_buyer_signals: {
+					perBuyerSignals: {
 						'dsp.com': {
 							content_quality: 230,
 						},

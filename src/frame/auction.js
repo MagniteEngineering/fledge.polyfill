@@ -18,15 +18,15 @@ import {
  * @return {null | Promise<Token>}
  *
  * @example
- *   runAdAuction({ seller: 'foo', decision_logic_url: 'http://example.com/auction', interst_group_buyers: [ 'www.buyer.com' ] });
+ *   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interstGroupBuyers: [ 'www.buyer.com' ] });
  */
 export default async function runAdAuction (conf, debug) {
 	debug && echo.groupCollapsed('Fledge API: runAdAuction');
 	const interestGroups = await idb.entries(customStore);
 	debug && echo.log(echo.asInfo('all interest groups:'), interestGroups);
 
-	const eligible = getEligible(interestGroups, conf.interest_group_buyers, debug);
-	debug && echo.log(echo.asInfo('eligible buyers based on "interest_group_buyers":'), eligible);
+	const eligible = getEligible(interestGroups, conf.interestGroupBuyers, debug);
+	debug && echo.log(echo.asInfo('eligible buyers based on "interestGroupBuyers":'), eligible);
 	if (!eligible) {
 		debug && echo.log(echo.asAlert('No eligible interest group buyers found!'));
 		return null;

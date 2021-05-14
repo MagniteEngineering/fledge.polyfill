@@ -283,7 +283,7 @@ const getIGKey = (owner, name) => `${owner}-${name}`;
  * @return {true}
  *
  * @example
- *   joinAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' }, 2592000000);
+ *   joinAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' }, 2592000000);
  */
 async function joinAdInterestGroup (options, expiry, debug) {
 	debug && echo.groupCollapsed('Fledge API: joinAdInterest');
@@ -321,7 +321,7 @@ async function joinAdInterestGroup (options, expiry, debug) {
  * @return {true}
  *
  * @example
- *   leaveAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' });
+ *   leaveAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' });
  */
 async function leaveAdInterestGroup (group, debug) {
 	debug && echo.groupCollapsed('Fledge API: leaveAdInterest');
@@ -377,28 +377,23 @@ const getBids = async (bidders, conf, debug) => Promise.all(
 	bidders.map(async ([ key, bidder ]) => {
 		debug && echo.groupCollapsed(`auction utils: getBids => ${key}`);
 		const time0 = performance.now();
-		const { generateBid, generate_bid } = await Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(bidder.bidding_logic_url)); });
-		let callBid = generateBid;
-
-		if (generate_bid && !generateBid) {
-			callBid = generate_bid;
-		}
+		const { generateBid } = await Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(bidder.biddingLogicUrl)); });
 
 		// check if there is even a generateBid function
 		// if not, removed bidder from elibility
-		if (!callBid && typeof callBid !== 'function') {
+		if (!generateBid && typeof generateBid !== 'function') {
 			debug && echo.log(echo.asWarning(`No 'generateBid' function found!`));
 			debug && echo.groupEnd();
 			return null;
 		}
 
-		const trustedSignals = await getTrustedSignals(bidder?.trusted_bidding_signals_url, bidder?.trusted_bidding_signals_keys, debug);
+		const trustedSignals = await getTrustedSignals(bidder?.trustedBiddingSignalsUrl, bidder?.trustedBiddingSignalsKeys, debug);
 
 		// generate a bid by providing all of the necessary information
 		let bid;
 		try {
-			bid = callBid(bidder, conf?.auction_signals, conf?.per_buyer_signals?.[bidder.owner], trustedSignals, {
-				top_window_hostname: window.top.location.hostname,
+			bid = generateBid(bidder, conf?.auctionSignals, conf?.perBuyerSignals?.[bidder.owner], trustedSignals, {
+				topWindowHostname: window.top.location.hostname,
 				seller: conf.seller,
 			});
 			debug && echo.log(echo.asInfo('bid:'), bid);
@@ -441,16 +436,11 @@ const getBids = async (bidders, conf, debug) => Promise.all(
  */
 const getScores = async (bids, conf, debug) => {
 	debug && echo.groupCollapsed(`auction utils: getScores`);
-	const { scoreAd, score_ad } = await Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(conf.decision_logic_url)); });
-	let callScore = scoreAd;
-
-	if (score_ad && !scoreAd) {
-		callScore = score_ad;
-	}
+	const { scoreAd } = await Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(conf.decisionLogicUrl)); });
 
 	// check if there is even a scoreAd function
 	// if not, return null
-	if (!callScore && typeof callScore !== 'function') {
+	if (!scoreAd && typeof scoreAd !== 'function') {
 		debug && echo.log(echo.asWarning(`No 'scoreAd' function was found!`));
 		return null;
 	}
@@ -459,11 +449,11 @@ const getScores = async (bids, conf, debug) => {
 		let score;
 
 		try {
-			score = callScore(bid?.ad, bid?.bid, conf, conf?.trusted_scoring_signals, {
-				top_window_hostname: window.top.location.hostname,
-				interest_group_owner: bid.owner,
-				interest_group_name: bid.name,
-				bidding_duration_msec: bid.duration,
+			score = callScore(bid?.ad, bid?.bid, conf, conf?.trustedScoringSignals, {
+				topWindowHostname: window.top.location.hostname,
+				interestGroupOwner: bid.owner,
+				interestGroupName: bid.name,
+				biddingDurationMsec: bid.duration,
 			});
 			debug && echo.log(echo.asInfo(`score:`), score);
 		} catch (err) {
@@ -559,15 +549,15 @@ const getTrustedSignals = async (url, keys, debug) => {
  * @return {null | Promise<Token>}
  *
  * @example
- *   runAdAuction({ seller: 'foo', decision_logic_url: 'http://example.com/auction', interst_group_buyers: [ 'www.buyer.com' ] });
+ *   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interstGroupBuyers: [ 'www.buyer.com' ] });
  */
 async function runAdAuction (conf, debug) {
 	debug && echo.groupCollapsed('Fledge API: runAdAuction');
 	const interestGroups = await entries(customStore);
 	debug && echo.log(echo.asInfo('all interest groups:'), interestGroups);
 
-	const eligible = getEligible(interestGroups, conf.interest_group_buyers, debug);
-	debug && echo.log(echo.asInfo('eligible buyers based on "interest_group_buyers":'), eligible);
+	const eligible = getEligible(interestGroups, conf.interestGroupBuyers, debug);
+	debug && echo.log(echo.asInfo('eligible buyers based on "interestGroupBuyers":'), eligible);
 	if (!eligible) {
 		debug && echo.log(echo.asAlert('No eligible interest group buyers found!'));
 		return null;

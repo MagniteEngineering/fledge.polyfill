@@ -36,7 +36,7 @@ Even though the examples below point to a `node_modules` directory, you should p
     const options = {
         owner: "www.buyer.com",
         name: "an-interest-group",
-        bidding_logic_url: "https://dsp.com/bidding",
+        biddingLogicUrl: "https://dsp.com/bidding",
     };
 
     // join an interest group
@@ -56,8 +56,8 @@ Even though the examples below point to a `node_modules` directory, you should p
 
     const options = {
         seller: "www.seller.com",
-        decision_logic_url: "https://ssp.com/auction",
-        interest_group_buyers: [
+        decisionLogicUrl: "https://ssp.com/auction",
+        interestGroupBuyers: [
             "www.buyer1.com",
             "www.buyer2.com",
         ],
@@ -69,7 +69,7 @@ Even though the examples below point to a `node_modules` directory, you should p
 
 ### Render the Ad
 
-In the future, rendering an ad will be handled by the Fledge API and would be passed to a Fenced Frame (which hasn't be established yet).  In the polyfill world, we don't have access to a Fenced Frame and so its required for the consumer of this library to create their own `iframe` and pass the results from the auction to it.  Thankfully, we've created a temporary feature for you to handle this in a way that respects the intention of the proposal by keeping the results opaque in the form of a token that represents the winning ad `rendering_url`.
+In the future, rendering an ad will be handled by the Fledge API and would be passed to a Fenced Frame (which hasn't be established yet).  In the polyfill world, we don't have access to a Fenced Frame and so its required for the consumer of this library to create their own `iframe` and pass the results from the auction to it.  Thankfully, we've created a temporary feature for you to handle this in a way that respects the intention of the proposal by keeping the results opaque in the form of a token that represents the winning ad `renderingUrl`.
 
 ```html
 <script type="module">
@@ -104,13 +104,13 @@ The following is the data structure with types for the options:
 ```ts
 interface AuctionOptions {
   seller: typeof string;
-  decision_logic_url: typeof url;
-  interest_group_buyers: typeof array;
-  trusted_scoring_signals_url?; typeof url;
-  additional_bids?: typeof array;
-  auction_signals?: typeof object;
-  seller_signals?: typeof object;
-  per_buyer_signals?: typeof object;
+  decisionLogicUrl: typeof url;
+  interestGroupBuyers: typeof array;
+  trustedScoringSignalsUrl?; typeof url;
+  additionalBids?: typeof array;
+  auctionSignals?: typeof object;
+  sellerSignals?: typeof object;
+  perBuyerSignals?: typeof object;
 }
 ```
 
@@ -130,11 +130,11 @@ The following is the data structure with types for the options:
 interface InterestGroup {
   owner: typeof string;
   name: typeof string;
-  bidding_logic_url: typeof url;
-  daily_update_url?: typeof url;
-  trusted_bidding_signals_url?; typeof url;
-  trusted_bidding_signals_keys?: typeof array;
-  user_bidding_signals?: typeof object;
+  biddingLogicUrl: typeof url;
+  dailyUpdateUrl?: typeof url;
+  trustedBiddingSignalsUrl?; typeof url;
+  trustedBiddingSignalsKeys?: typeof array;
+  userBiddingSignals?: typeof object;
   ads?: typeof array;
 }
 ```
@@ -161,11 +161,11 @@ The following is the data structure with types for the options:
 interface InterestGroup {
   owner: typeof string;
   name: typeof string;
-  bidding_logic_url?: typeof url;
-  daily_update_url?: typeof url;
-  trusted_bidding_signals_url?; typeof url;
-  trusted_bidding_signals_keys?: typeof array;
-  user_bidding_signals?: typeof object;
+  biddingLogicUrl?: typeof url;
+  dailyUpdateUrl?: typeof url;
+  trustedBiddingSignalsUrl?; typeof url;
+  trustedBiddingSignalsKeys?: typeof array;
+  userBiddingSignals?: typeof object;
   ads?: typeof array;
 }
 ```
