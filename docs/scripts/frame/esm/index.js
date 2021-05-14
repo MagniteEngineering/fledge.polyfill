@@ -270,10 +270,11 @@ async function joinAdInterestGroup (options, expiry, debug) {
 	debug && echo.log(echo.asInfo('checking for an existing interest group:'), group);
 	if (group) {
 		debug && echo.log(echo.asProcess('updating an interest group'));
-		await update(id, {
-			_expired: Date.now() + expiry,
+		await update(id, (old) => ({
+			...old,
 			...options,
-		}, customStore);
+			_expired: Date.now() + expiry,
+		}), customStore);
 	} else {
 		debug && echo.log(echo.asProcess('creating a new interest group'));
 		await set(id, {
@@ -369,7 +370,7 @@ const getBids = async (bidders, conf, debug) => Promise.all(
 		let bid;
 		try {
 			debug && echo.log(echo.asProcess(`generating a bid`));
-			debug && echo.groupCollapsed(`generateBid params => ${key}:`);
+			debug && echo.groupCollapsed(`generateBid params:`);
 			debug && echo.log(echo.asInfo(`bidder:`), bidder);
 			debug && echo.log(echo.asInfo(`auction signals:`), conf?.auctionSignals);
 			debug && echo.log(echo.asInfo(`per buyer signals:`), conf?.perBuyerSignals?.[bidder.owner]);
@@ -492,7 +493,7 @@ const getTrustedSignals = async (url, keys, debug) => {
 		.then(response => {
 			if (!response.ok) {
 				debug && echo.log(echo.asWarning(`Something went wrong! The response returned was not ok.`));
-				debug && echo.log({response});
+				debug && echo.log({ response });
 				// throw new Error('Something went wrong! The response returned was not ok.');
 			}
 
