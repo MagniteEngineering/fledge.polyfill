@@ -151,7 +151,7 @@ const echo = {
 	asWarning: warningFormatting,
 };
 
-/* eslint-disable camelcase, no-cond-assign */
+/* eslint-disable no-cond-assign */
 
 /*
  * @function
@@ -164,15 +164,10 @@ const echo = {
  */
 const getSellerReport = async (conf, results, debug) => {
 	debug && echo.groupCollapsed('render utils: getSellerReport');
-	const { report_result, reportResult } = await Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(conf.decision_logic_url)); });
-	let runReport = reportResult;
-
-	if (report_result) {
-		runReport = report_result;
-	}
+	const { reportResult } = await Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(conf.decisionLogicUrl)); });
 
 	// check if there is even a function
-	if (!runReport || typeof runReport !== 'function') {
+	if (!reportResult || typeof reportResult !== 'function') {
 		debug && echo.log(echo.asWarning(`No 'reportResult' function found!`));
 		debug && echo.groupEnd();
 		return null;
@@ -182,11 +177,11 @@ const getSellerReport = async (conf, results, debug) => {
 	// generate a report by providing all of the necessary information
 	try {
 		debug && echo.log(echo.asProcess('fetching seller reporting'));
-		report = runReport(conf, {
-			top_window_hostname: window.top.location.hostname,
-			interest_group_owner: results.bid.owner,
-			interest_group_name: results.bid.name,
-			render_url: results.bid.render,
+		report = reportResult(conf, {
+			topWindowHostname: window.top.location.hostname,
+			interestGroupOwner: results.bid.owner,
+			interestGroupName: results.bid.name,
+			renderUrl: results.bid.render,
 			bid: results.bid.bid,
 		});
 		debug && echo.log(echo.asSuccess('report found'));
@@ -212,16 +207,10 @@ const getSellerReport = async (conf, results, debug) => {
  */
 const getBuyerReport = async (conf, results, sellersReport, debug) => {
 	debug && echo.groupCollapsed('render utils: getBuyerReport');
-	const wins = Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(results.bid.bidding_logic_url)); })
-		.then(({ reportWin, report_win }) => {
-			let runReport = reportWin;
-
-			if (report_win) {
-				runReport = report_win;
-			}
-
+	const wins = Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(results.bid.biddingLogicUrl)); })
+		.then(({ reportWin }) => {
 			// check if there is even a function
-			if (!runReport || typeof runReport !== 'function') {
+			if (!reportWin || typeof reportWin !== 'function') {
 				debug && echo.log(echo.asWarning(`No 'reportWin' function found!`));
 				return null;
 			}
@@ -231,11 +220,11 @@ const getBuyerReport = async (conf, results, sellersReport, debug) => {
 			try {
 				debug && echo.log(echo.asProcess('fetching buyer reporting'));
 				// generate a report by providing all of the necessary information
-				report = runReport(conf?.auction_signals, conf?.per_buyer_signals?.[results.bid.owner], sellersReport, {
-					top_window_hostname: window.top.location.hostname,
-					interest_group_owner: results.bid.owner,
-					interest_group_name: results.bid.name,
-					render_url: results.bid.render,
+				report = reportWin(conf?.auctionSignals, conf?.perBuyerSignals?.[results.bid.owner], sellersReport, {
+					topWindowHostname: window.top.location.hostname,
+					interestGroupOwner: results.bid.owner,
+					interestGroupName: results.bid.name,
+					renderUrl: results.bid.render,
 					bid: results.bid.bid,
 				});
 				debug && echo.log(echo.asSuccess('report found'));
@@ -540,23 +529,23 @@ async function renderAd (selector, token, debug) {
 
 const AuctionConf = {
 	seller: 'string',
-	decision_logic_url: 'url',
-	interest_group_buyers: 'mixed',
-	trusted_scoring_signals_url: 'url',
-	additional_bids: 'array',
-	auction_signals: 'object',
-	seller_signals: 'object',
-	per_buyer_signals: 'object',
+	decisionLogicUrl: 'url',
+	interestGroupBuyers: 'mixed',
+	trustedScoringSignalsUrl: 'url',
+	additionalBids: 'array',
+	auctionSignals: 'object',
+	sellerSignals: 'object',
+	perBuyerSignals: 'object',
 };
 
 const InterestGroup = {
 	owner: 'string',
 	name: 'string',
-	bidding_logic_url: 'url',
-	daily_update_url: 'url', // @TODO: support this potentially on the auction, grabbing the latest interest group data, and updating the IDB store with it
-	trusted_bidding_signals_url: 'url',
-	trusted_bidding_signals_keys: 'array',
-	user_bidding_signals: 'object',
+	biddingLogicUrl: 'url',
+	dailyUpdateUrl: 'url', // @TODO: support this potentially on the auction, grabbing the latest interest group data, and updating the IDB store with it
+	trustedBiddingSignalsUrl: 'url',
+	trustedBiddingSignalsKeys: 'array',
+	userBiddingSignals: 'object',
 	ads: 'array',
 };
 
@@ -611,7 +600,7 @@ class Fledge {
 	* @return {true}
 	*
 	* @example
-	*   joinAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' }, 2592000000);
+	*   joinAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' }, 2592000000);
 	*/
 	async joinAdInterestGroup (options, expiry) {
 		this._debug && echo.group('Fledge: Join an Interest Group');
@@ -619,7 +608,7 @@ class Fledge {
 		this._debug && echo.log(echo.asInfo('interest group expiration:'), `${expiry}: (human-readable: ${new Date(Date.now() + expiry).toLocaleString()})`);
 		validate.param(options, 'object');
 		validate.param(expiry, 'number');
-		validate.hasRequiredKeys(options, [ 'owner', 'name', 'bidding_logic_url' ]);
+		validate.hasRequiredKeys(options, [ 'owner', 'name', 'biddingLogicUrl' ]);
 		validate.hasInvalidOptionTypes(options, InterestGroup);
 
 		if (expiry > MAX_EXPIRATION) {
@@ -650,7 +639,7 @@ class Fledge {
 	* @return {true}
 	*
 	* @example
-	*   leaveAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' });
+	*   leaveAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' });
 	*/
 	async leaveAdInterestGroup (group) {
 		this._debug && echo.group('Fledge: Leave an Interest Group');
@@ -682,13 +671,13 @@ class Fledge {
 	* @return {null | Promise<Token>}
 	*
 	* @example
-	*   runAdAuction({ seller: 'foo', decision_logic_url: 'http://example.com/auction', interst_group_buyers: [ 'www.buyer.com' ] });
+	*   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interstGroupBuyers: [ 'www.buyer.com' ] });
 	*/
 	async runAdAuction (conf) {
 		this._debug && echo.group('Fledge: Auction');
 		this._debug && echo.log(echo.asInfo('auction config:'), conf);
 		validate.param(conf, 'object');
-		validate.hasRequiredKeys(conf, [ 'seller', 'decision_logic_url', 'interest_group_buyers' ]);
+		validate.hasRequiredKeys(conf, [ 'seller', 'decisionLogicUrl', 'interestGroupBuyers' ]);
 		validate.hasInvalidOptionTypes(conf, AuctionConf);
 
 		this._debug && echo.groupCollapsed('message channel');

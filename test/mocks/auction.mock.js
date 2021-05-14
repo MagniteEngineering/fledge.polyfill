@@ -23,15 +23,15 @@ export const mockPerBuyerSignals = {
 };
 export const mockRequiredOptions = {
 	seller: mockSeller,
-	decision_logic_url: mockDecisionLogicUrl,
-	interest_group_buyers: mockInterestGroupBuyers,
+	decisionLogicUrl: mockDecisionLogicUrl,
+	interestGroupBuyers: mockInterestGroupBuyers,
 };
 export const mockOptionals = {
-	trusted_scoring_signals_url: mockTrustedScoringSignalsUrl,
-	additional_bids: mockAdditionalBids,
-	auction_signals: mockAuctionSignals,
-	seller_signals: mockSellerSignals,
-	per_buyer_signals: mockPerBuyerSignals,
+	trustedScoringSignalsUrl: mockTrustedScoringSignalsUrl,
+	additionalBids: mockAdditionalBids,
+	auctionSignals: mockAuctionSignals,
+	sellerSignals: mockSellerSignals,
+	perBuyerSignals: mockPerBuyerSignals,
 };
 export const mockAllOptions = {
 	...mockRequiredOptions,
@@ -47,7 +47,7 @@ export const mockBid = {
 	ad: {
 		auction: {},
 		browser: {
-			top_window_hostname: 'localhost',
+			topWindowHostname: 'localhost',
 			seller: 'www.ssp.com',
 		},
 		buyer: {},
@@ -56,7 +56,7 @@ export const mockBid = {
 			_expired: 1621792745000,
 			owner: 'www.rp.com',
 			name: 'womens-running-shoes',
-			bidding_logic_url: 'https://dark-organic-appeal.glitch.me/bid.js',
+			biddingLogicUrl: 'https://dark-organic-appeal.glitch.me/bid.js',
 			_created: 1619200745000,
 			_updated: 1619200745000,
 		},

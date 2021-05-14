@@ -1,4 +1,4 @@
-/* eslint-disable camelcase, no-cond-assign */
+/* eslint-disable no-cond-assign */
 import { echo } from '@theholocron/klaxon';
 
 /*
@@ -12,15 +12,10 @@ import { echo } from '@theholocron/klaxon';
  */
 export const getSellerReport = async (conf, results, debug) => {
 	debug && echo.groupCollapsed('render utils: getSellerReport');
-	const { report_result, reportResult } = await import(conf.decision_logic_url);
-	let runReport = reportResult;
-
-	if (report_result) {
-		runReport = report_result;
-	}
+	const { reportResult } = await import(conf.decisionLogicUrl);
 
 	// check if there is even a function
-	if (!runReport || typeof runReport !== 'function') {
+	if (!reportResult || typeof reportResult !== 'function') {
 		debug && echo.log(echo.asWarning(`No 'reportResult' function found!`));
 		debug && echo.groupEnd();
 		return null;
@@ -30,11 +25,11 @@ export const getSellerReport = async (conf, results, debug) => {
 	// generate a report by providing all of the necessary information
 	try {
 		debug && echo.log(echo.asProcess('fetching seller reporting'));
-		report = runReport(conf, {
-			top_window_hostname: window.top.location.hostname,
-			interest_group_owner: results.bid.owner,
-			interest_group_name: results.bid.name,
-			render_url: results.bid.render,
+		report = reportResult(conf, {
+			topWindowHostname: window.top.location.hostname,
+			interestGroupOwner: results.bid.owner,
+			interestGroupName: results.bid.name,
+			renderUrl: results.bid.render,
 			bid: results.bid.bid,
 		});
 		debug && echo.log(echo.asSuccess('report found'));
@@ -60,16 +55,10 @@ export const getSellerReport = async (conf, results, debug) => {
  */
 export const getBuyerReport = async (conf, results, sellersReport, debug) => {
 	debug && echo.groupCollapsed('render utils: getBuyerReport');
-	const wins = import(results.bid.bidding_logic_url)
-		.then(({ reportWin, report_win }) => {
-			let runReport = reportWin;
-
-			if (report_win) {
-				runReport = report_win;
-			}
-
+	const wins = import(results.bid.biddingLogicUrl)
+		.then(({ reportWin }) => {
 			// check if there is even a function
-			if (!runReport || typeof runReport !== 'function') {
+			if (!reportWin || typeof reportWin !== 'function') {
 				debug && echo.log(echo.asWarning(`No 'reportWin' function found!`));
 				return null;
 			}
@@ -79,11 +68,11 @@ export const getBuyerReport = async (conf, results, sellersReport, debug) => {
 			try {
 				debug && echo.log(echo.asProcess('fetching buyer reporting'));
 				// generate a report by providing all of the necessary information
-				report = runReport(conf?.auction_signals, conf?.per_buyer_signals?.[results.bid.owner], sellersReport, {
-					top_window_hostname: window.top.location.hostname,
-					interest_group_owner: results.bid.owner,
-					interest_group_name: results.bid.name,
-					render_url: results.bid.render,
+				report = reportWin(conf?.auctionSignals, conf?.perBuyerSignals?.[results.bid.owner], sellersReport, {
+					topWindowHostname: window.top.location.hostname,
+					interestGroupOwner: results.bid.owner,
+					interestGroupName: results.bid.name,
+					renderUrl: results.bid.render,
 					bid: results.bid.bid,
 				});
 				debug && echo.log(echo.asSuccess('report found'));

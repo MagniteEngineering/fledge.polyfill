@@ -1,18 +1,18 @@
 /* eslint-disable camelcase */
-import { generate_bid } from './dsp.js';
-import { score_ad } from './ssp.js';
+import { generateBid } from './dsp.js';
+import { scoreAd } from './ssp.js';
 
 const interestGroup = {
 	owner: 'dsp.com',
 	name: 'nike-womens-running-shoes',
-	bidding_logic_url: 'dsp.com/nike/bid.js',
-	daily_update_url: 'dsp.com/nike/update',
-	trusted_bidding_signals_url: 'kv-server.com',
-	trusted_bidding_signals_keys: [
+	biddingLogicUrl: 'dsp.com/nike/bid.js',
+	dailyUpdateUrl: 'dsp.com/nike/update',
+	trustedBiddingSignalsUrl: 'kv-server.com',
+	trustedBiddingSignalsKeys: [
 		'budget',
 		'size',
 	],
-	user_bidding_signals: {
+	userBiddingSignals: {
 		timestamp: 123456789,
 		hostname: 'nike.com',
 		path: '/w/womens-running-shoes',
@@ -25,23 +25,23 @@ const interestGroup = {
 
 const auctionConfig = {
 	seller: 'magnite.com',
-	decision_logic_url: 'magnite.com/espn/auction.js',
-	interest_group_buyers: [
+	decisionLogicUrl: 'magnite.com/espn/auction.js',
+	interestGroupBuyers: [
 		'www.tradedesk.com',
 		'nike.com',
 	],
-	additional_bids: [
+	additionalBids: [
 		'other_source_ad1',
 		'other_source_ad2',
 	],
-	auction_signals: {
+	auctionSignals: {
 		ad_size: '300x250',
 		publisher_id: 123456,
 	},
-	seller_signals: {
+	seller_Sgnals: {
 		price_floor: 0.50,
 	},
-	per_buyer_signals: {
+	perBuyerSignals: {
 		'www.tradedesk.com': {
 			base_price: 1.00,
 		},
@@ -51,27 +51,27 @@ const auctionConfig = {
 	},
 };
 
-const bid = generate_bid(
+const bid = generateBid(
 	interestGroup,
-	auctionConfig.auction_signals,
-	auctionConfig.per_buyer_signals['nike.com'],
+	auctionConfig.auctionSignals,
+	auctionConfig.perBuyerSignals['nike.com'],
 	{
 		budget: 10,
 		size: '300x250',
 	},
 	{
-		top_window_hostname: 'www.example-publisher.com',
+		topWindowHostname: 'www.example-publisher.com',
 		seller: 'www.example-ssp.com',
-		join_count: 3,
-		bid_count: 17,
-		prev_wins: [
+		joinCount: 3,
+		bidCount: 17,
+		prevWins: [
 			[ 'time1', 'ad1' ],
 			[ 'time2', 'ad2' ],
 		],
 	},
 );
 
-const score = score_ad(
+const score = scoreAd(
 	bid.ad,
 	bid.bid,
 	auctionConfig,
@@ -79,11 +79,11 @@ const score = score_ad(
 		url: 'https://example.com/creative.html',
 	},
 	{
-		top_window_hostname: 'www.example-publisher.com',
-		interest_group_owner: 'www.example-dsp.com',
-		interest_group_name: 'womens-running-shoes',
-		ad_render_fingerprint: 'M0rNy1D5RVowjnpa',
-		bidding_duration_msec: 12,
+		topWindowHostname: 'www.example-publisher.com',
+		interestGroupOwner: 'www.example-dsp.com',
+		interestGroupName: 'womens-running-shoes',
+		adRenderFingerprint: 'M0rNy1D5RVowjnpa',
+		biddingDurationMsec: 12,
 	},
 );
 
