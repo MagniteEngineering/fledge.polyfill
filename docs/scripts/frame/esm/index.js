@@ -429,11 +429,27 @@ const getScores = async (bids, conf, debug) => {
 		return null;
 	}
 
-	return bids.map(bid => {
-		let score;
+	return Promise.all(bids.map(async bid => {
+		debug && echo.groupCollapsed(`auction utils: getScores => ${bid.name}`);
+		echo.log(echo.asInfo('bid:'), bid);
 
+		let trustedSignalsKeys;
+		if (bid.ad && bid.ad.length > 0) {
+			trustedSignalsKeys = bid?.ad?.map(({ renderUrl }) => renderUrl);
+		}
+		echo.log(echo.asInfo('trusted scoring signals keys:'), trustedSignalsKeys);
+		const trustedSignals = await getTrustedSignals(conf?.trustedScoringSignalsUrl, trustedSignalsKeys, debug);
+
+		let score;
 		try {
-			score = scoreAd(bid?.ad, bid?.bid, conf, conf?.trustedScoringSignals, {
+			debug && echo.log(echo.asProcess(`scoring a bid`));
+			debug && echo.groupCollapsed(`scoreAd params:`);
+			debug && echo.log(echo.asInfo(`ad:`), bid?.ad);
+			debug && echo.log(echo.asInfo(`bid:`), bid?.bid);
+			debug && echo.log(echo.asInfo(`conf:`), conf);
+			debug && echo.log(echo.asInfo(`trusted scoring signals:`), trustedSignals);
+			debug && echo.groupEnd();
+			score = scoreAd(bid?.ad, bid?.bid, conf, trustedSignals, {
 				topWindowHostname: window.top.location.hostname,
 				interestGroupOwner: bid.owner,
 				interestGroupName: bid.name,
@@ -445,15 +461,14 @@ const getScores = async (bids, conf, debug) => {
 			debug && echo.log(err);
 			score = -1;
 		}
+		debug && echo.groupEnd();
 
 		debug && echo.groupEnd();
 		return {
 			bid,
 			score,
 		};
-	})
-		.filter(({ score }) => score > 0)
-		.sort((a, b) => (a.score > b.score) ? 1 : -1);
+	}));
 };
 
 /*
@@ -492,7 +507,7 @@ const getTrustedSignals = async (url, keys, debug) => {
 	let data;
 	try {
 		const response = await fetch(`${url}?${hostname}&keys=${keys.join(',')}`);
-		echo.log({response});
+		echo.log(echo.asInfo('response:'), response);
 		if (!response.ok) {
 			debug && echo.log(echo.asWarning(`Something went wrong! The response returned was not ok.`));
 			debug && echo.log({ response });
@@ -569,7 +584,10 @@ async function runAdAuction (conf, debug) {
 	}
 
 	debug && echo.log(echo.asProcess('getting all scores, filtering and sorting'));
-	const [ winner ] = await getScores(filteredBids, conf, debug);
+	const winners = await getScores(filteredBids, conf, debug);
+	const [ winner ] = winners
+		.filter(({ score }) => score > 0)
+		.sort((a, b) => (a.score > b.score) ? 1 : -1);
 	debug && echo.log(echo.asInfo('winner:'), winner);
 	if (!winner) {
 		debug && echo.log(echo.asAlert('No winner found!'));
