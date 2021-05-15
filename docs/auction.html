@@ -22,14 +22,14 @@
 		<div id="ad-slot-1"></div>
 		<script type="module">
 			import Fledge from './scripts/api/esm/index.js';
-			const fledge = new Fledge('http://localhost:8000/iframe.html', true);
+			const fledge = new Fledge('https://magniteengineering.github.io/fledge.polyfill/iframe.html', true);
 			const timeStart = performance.now();
 
 			const options = {
 				seller: 'publisher.example',
 				interestGroupBuyers: '*',
 				decisionLogicUrl: 'https://entertaining-glitter-bowler.glitch.me/score.js',
-				trustedScoringSignalsUrl: 'http://example.com/',
+				trustedScoringSignalsUrl: 'https://magniteengineering.github.io/fledge.polyfill/get-scoring-signals.json',
 				additionalBids: [],
 				auctionSignals: {
 					size: {
