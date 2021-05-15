@@ -50,7 +50,11 @@
 				await fledge.joinAdInterestGroup({
 					owner: document.getElementById('owner').value,
 					name: document.getElementById('name').value,
-					biddingLogicUrl: document.getElementById('url').value
+					biddingLogicUrl: document.getElementById('url').value,
+					trustedBiddingSignalsUrl: 'https://magniteengineering.github.io/fledge.polyfill/get-values.json',
+					trustedBiddingSignalsKeys: [
+						'ads',
+					],
 				}, parseInt(document.getElementById('expiration').value), true);
 			};
 

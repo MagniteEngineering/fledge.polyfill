@@ -1,0 +1,10 @@
+{
+  "ads": [
+    {
+      "id": 1234,
+      "bid": 1.23,
+      "creativeUrl": "http://foo.com",
+      "domains": ["example.com"]
+    }
+  ]
+}

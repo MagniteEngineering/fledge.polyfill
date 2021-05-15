@@ -44,7 +44,10 @@ export default async function runAdAuction (conf, debug) {
 	}
 
 	debug && echo.log(echo.asProcess('getting all scores, filtering and sorting'));
-	const [ winner ] = await getScores(filteredBids, conf, debug);
+	const winners = await getScores(filteredBids, conf, debug);
+	const [ winner ] = winners
+		.filter(({ score }) => score > 0)
+		.sort((a, b) => (a.score > b.score) ? 1 : -1);
 	debug && echo.log(echo.asInfo('winner:'), winner);
 	if (!winner) {
 		debug && echo.log(echo.asAlert('No winner found!'));
