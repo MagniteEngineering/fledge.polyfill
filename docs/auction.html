@@ -56,20 +56,25 @@
 					},
 				},
 			};
-			const auctionResults = await fledge.runAdAuction(options);
-			const timeRender = performance.now();
 
-			if (auctionResults) {
-				await fledge.renderAd('#ad-slot-1', auctionResults, true);
-			} else {
-				document.getElementById('ad-slot-1').innerHTML = 'No eligible ads!';
-			}
+			let timeRender;
+			(async () => {
+				const auctionResults = await fledge.runAdAuction(options);
+				console.log({auctionResults});
+				timeRender = performance.now();
 
-			const timeEnd = performance.now();
-			const auctionTiming = `${(timeRender - timeStart)}ms`;
-			const renderTiming = `${(timeEnd - timeRender)}ms`;
-			document.getElementById('auction-stats').innerHTML = auctionTiming;
-			document.getElementById('render-stats').innerHTML = renderTiming;
+				if (auctionResults) {
+					await fledge.renderAd('#ad-slot-1', auctionResults, true);
+				} else {
+					document.getElementById('ad-slot-1').innerHTML = 'No eligible ads!';
+				}
+
+				const timeEnd = performance.now();
+				const auctionTiming = `${(timeRender - timeStart)}ms`;
+				const renderTiming = `${(timeEnd - timeRender)}ms`;
+				document.getElementById('auction-stats').innerHTML = auctionTiming;
+				document.getElementById('render-stats').innerHTML = renderTiming;
+			})();
 		</script>
 	</body>
 </html>

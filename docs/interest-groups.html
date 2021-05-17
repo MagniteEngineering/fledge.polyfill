@@ -66,22 +66,24 @@
 				}, parseInt(document.getElementById('expiration').value), true);
 			};
 
-			const interestGroups = await idb.entries(customStore);
-			if (interestGroups.length > 0) {
-				const list = document.createElement("ul");
-				interestGroups.map(([ key, value ]) => {
-					const newLi = document.createElement("li");
-					const newContent = document.createTextNode(`owner: ${value.owner}, name: ${value.name}`);
-					newLi.appendChild(newContent);
-					list.appendChild(newLi);
-				});
-				document.getElementById('igs').appendChild(list);
-			} else {
-				const para = document.createElement("p");
-				const newContent = document.createTextNode('No Interest Groups found.  Go join one.');
-				para.appendChild(newContent);
-				document.getElementById('igs').appendChild(para);
-			}
+			(async () => {
+				const interestGroups = await idb.entries(customStore);
+				if (interestGroups.length > 0) {
+					const list = document.createElement("ul");
+					interestGroups.map(([ key, value ]) => {
+						const newLi = document.createElement("li");
+						const newContent = document.createTextNode(`owner: ${value.owner}, name: ${value.name}`);
+						newLi.appendChild(newContent);
+						list.appendChild(newLi);
+					});
+					document.getElementById('igs').appendChild(list);
+				} else {
+					const para = document.createElement("p");
+					const newContent = document.createTextNode('No Interest Groups found.  Go join one.');
+					para.appendChild(newContent);
+					document.getElementById('igs').appendChild(para);
+				}
+			})();
 		</script>
 	</body>
 </html>
