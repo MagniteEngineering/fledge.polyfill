@@ -1,155 +1,24 @@
 'use strict';
 
 function _interopNamespace(e) {
-	if (e && e.__esModule) return e;
-	var n = Object.create(null);
-	if (e) {
-		Object.keys(e).forEach(function (k) {
-			if (k !== 'default') {
-				var d = Object.getOwnPropertyDescriptor(e, k);
-				Object.defineProperty(n, k, d.get ? d : {
-					enumerable: true,
-					get: function () {
-						return e[k];
-					}
-				});
-			}
-		});
-	}
-	n['default'] = e;
-	return Object.freeze(n);
+    if (e && e.__esModule) return e;
+    var n = Object.create(null);
+    if (e) {
+        Object.keys(e).forEach(function (k) {
+            if (k !== 'default') {
+                var d = Object.getOwnPropertyDescriptor(e, k);
+                Object.defineProperty(n, k, d.get ? d : {
+                    enumerable: true,
+                    get: function () {
+                        return e[k];
+                    }
+                });
+            }
+        });
+    }
+    n['default'] = e;
+    return Object.freeze(n);
 }
-
-/* eslint-disable no-console, compat/compat */
-
-let queue = [];
-const TOKEN = {};
-const RESET_INPUT = '%c ';
-const RESET_CSS = '';
-
-// Attach formatting utility method.
-function alertFormatting (value) {
-	queue.push({
-		value,
-		css: 'display: inline-block; background-color: #dc3545; color: #ffffff; font-weight: bold; padding: 3px 7px 3px 7px; border-radius: 3px 3px 3px 3px;',
-	});
-
-	return (TOKEN);
-}
-
-function infoFormatting (value) {
-	queue.push({
-		value,
-		css: 'color: #0366d6; font-weight: bold;',
-	});
-
-	return (TOKEN);
-}
-
-function processFormatting (value) {
-	queue.push({
-		value: `${value}…`,
-		css: 'color: #8c8c8c; font-style: italic;',
-	});
-
-	return (TOKEN);
-}
-
-function successFormatting (value) {
-	queue.push({
-		value,
-		css: 'color: #289d45; font-weight: bold;',
-	});
-
-	return (TOKEN);
-}
-
-// Attach formatting utility method.
-function warningFormatting (value) {
-	queue.push({
-		value,
-		css: 'display: inline-block; background-color: #ffc107; color: black; font-weight: bold; padding: 3px 7px 3px 7px; border-radius: 3px 3px 3px 3px;',
-	});
-
-	return (TOKEN);
-}
-
-// I provide an echo-based proxy to the given Console Function. This uses an
-// internal queue to aggregate values before calling the given Console
-// Function with the desired formatting.
-function using (consoleFunction) {
-	function consoleFunctionProxy (...args) {
-		// As we loop over the arguments, we're going to aggregate a set of
-		// inputs and modifiers. The Inputs will ultimately be collapsed down
-		// into a single string that acts as the first console.log parameter
-		// while the modifiers are then SPREAD into console.log as 2...N.
-		// --
-		// NOTE: After each input/modifier pair, I'm adding a RESET pairing.
-		// This implicitly resets the CSS after every formatted pairing.
-		const inputs = [];
-		const modifiers = [];
-		args.forEach(arg => {
-			// When the formatting utility methods are called, they return
-			// a special token. This indicates that we should pull the
-			// corresponding value out of the QUEUE instead of trying to
-			// output the given argument directly.
-			if (arg === TOKEN) {
-				const item = queue.shift();
-
-				inputs.push((`%c${item.value}`), RESET_INPUT);
-				modifiers.push(item.css, RESET_CSS);
-
-				// For every other argument type, output the value directly.
-			} else {
-				if ((typeof (arg) === 'object') || (typeof (arg) === 'function')) {
-					inputs.push('%o', RESET_INPUT);
-					modifiers.push(arg, RESET_CSS);
-				} else {
-					inputs.push((`%c${arg}`), RESET_INPUT);
-					modifiers.push(RESET_CSS, RESET_CSS);
-				}
-			}
-		});
-
-		consoleFunction(inputs.join(''), ...modifiers);
-
-		// Once we output the aggregated value, reset the queue. This should have
-		// already been emptied by the .shift() calls; but the explicit reset
-		// here acts as both a marker of intention as well as a fail-safe.
-		queue = [];
-	}
-
-	return (consoleFunctionProxy);
-}
-
-const echo = {
-	// Console(ish) functions.
-	assert: using(console.assert),
-	clear: using(console.clear),
-	count: using(console.count),
-	countReset: using(console.countReset),
-	debug: using(console.debug),
-	dir: using(console.dir),
-	error: using(console.error),
-	group: using(console.group),
-	groupCollapsed: using(console.groupCollapsed),
-	groupEnd: using(console.groupEnd),
-	info: using(console.info),
-	log: using(console.log),
-	table: using(console.table),
-	time: using(console.time),
-	timeEnd: using(console.timeEnd),
-	timeLog: using(console.timeLog),
-	trace: using(console.trace),
-	warn: using(console.warn),
-
-	// Formatting functions.
-	asAlert: alertFormatting,
-	asInfo: infoFormatting,
-	asProcess: processFormatting,
-	asSuccess: successFormatting,
-	asWarning: warningFormatting,
-};
 
 const VERSION = 1;
 
@@ -285,20 +154,16 @@ const getIGKey = (owner, name) => `${owner}-${name}`;
  * @example
  *   joinAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' }, 2592000000);
  */
-async function joinAdInterestGroup (options, expiry, debug) {
-	debug && echo.groupCollapsed('Fledge API: joinAdInterest');
+async function joinAdInterestGroup (options, expiry) {
 	const id = getIGKey(options.owner, options.name);
 	const group = await get(id, customStore);
-	debug && echo.log(echo.asInfo('checking for an existing interest group:'), group);
 	if (group) {
-		debug && echo.log(echo.asProcess('updating an interest group'));
 		await update(id, old => ({
 			...old,
 			...options,
 			_expired: Date.now() + expiry,
 		}), customStore);
 	} else {
-		debug && echo.log(echo.asProcess('creating a new interest group'));
 		await set(id, {
 			_created: Date.now(),
 			_expired: Date.now() + expiry,
@@ -306,10 +171,6 @@ async function joinAdInterestGroup (options, expiry, debug) {
 			...options,
 		}, customStore);
 	}
-	debug && echo.log(echo.asSuccess('interest group id:'), id);
-	debug && echo.groupEnd();
-
-	return true;
 }
 
 /*
@@ -324,14 +185,8 @@ async function joinAdInterestGroup (options, expiry, debug) {
  * @example
  *   leaveAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' });
  */
-async function leaveAdInterestGroup (group, debug) {
-	debug && echo.groupCollapsed('Fledge API: leaveAdInterest');
-	debug && echo.log(echo.asProcess('deleting an existing interest group'));
+async function leaveAdInterestGroup (group) {
 	await del(getIGKey(group.owner, group.name), customStore);
-	debug && echo.log(echo.asSuccess('interest group deleted'));
-	debug && echo.groupEnd();
-
-	return true;
 }
 
 /*
@@ -343,23 +198,16 @@ async function leaveAdInterestGroup (group, debug) {
  * @param {array<String>} eligibility - a list of eligible owners to check against
  * @return {Array<Object> | null} an array of objects; null if none found;
  */
-const getEligible = (groups, eligibility, debug) => {
-	debug && echo.groupCollapsed('auction utils: getEligible');
+const getEligible = (groups, eligibility) => {
 	if (eligibility === '*') {
-		debug && echo.info(`using the wildcard yields all groups`);
-		debug && echo.groupEnd();
 		return groups;
 	}
 
 	const eligible = groups.filter(([ key, value ]) => eligibility.includes(value.owner));
 	if (eligible.length) {
-		debug && echo.info(`found some eligible buyers`);
-		debug && echo.groupEnd();
 		return eligible;
 	}
 
-	debug && echo.log(echo.asWarning(`No groups were eligible!`));
-	debug && echo.groupEnd();
 	return null;
 };
 
@@ -372,40 +220,27 @@ const getEligible = (groups, eligibility, debug) => {
  * @param {array<Object>} conf - an auction configuration object
  * @return {object | null} an array of objects containing bids; null if none found
  */
-const getBids = async (bidders, conf, debug) => Promise.all(
+const getBids = async (bidders, conf) => Promise.all(
 	bidders.map(async ([ key, bidder ]) => {
-		debug && echo.groupCollapsed(`auction utils: getBids => ${key}`);
 		const time0 = performance.now();
 		const { generateBid } = await Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(bidder.biddingLogicUrl)); });
 
 		// check if there is even a generateBid function
 		// if not, removed bidder from elibility
 		if (!generateBid && typeof generateBid !== 'function') {
-			debug && echo.log(echo.asWarning(`No 'generateBid' function found!`));
-			debug && echo.groupEnd();
 			return null;
 		}
 
-		const trustedSignals = await getTrustedSignals(bidder?.trustedBiddingSignalsUrl, bidder?.trustedBiddingSignalsKeys, debug);
+		const trustedSignals = await getTrustedSignals(bidder?.trustedBiddingSignalsUrl, bidder?.trustedBiddingSignalsKeys);
 
 		// generate a bid by providing all of the necessary information
 		let bid;
 		try {
-			debug && echo.log(echo.asProcess(`generating a bid`));
-			debug && echo.groupCollapsed(`generateBid params:`);
-			debug && echo.log(echo.asInfo(`bidder:`), bidder);
-			debug && echo.log(echo.asInfo(`auction signals:`), conf?.auctionSignals);
-			debug && echo.log(echo.asInfo(`per buyer signals:`), conf?.perBuyerSignals?.[bidder.owner]);
-			debug && echo.log(echo.asInfo(`trusted bidding signals:`), trustedSignals);
-			debug && echo.groupEnd();
 			bid = generateBid(bidder, conf?.auctionSignals, conf?.perBuyerSignals?.[bidder.owner], trustedSignals, {
 				topWindowHostname: window.top.location.hostname,
 				seller: conf.seller,
 			});
-			debug && echo.log(echo.asInfo('bid:'), bid);
 		} catch (err) {
-			debug && echo.log(echo.asAlert(`There was an error in the 'generateBid' function:`));
-			debug && echo.log(err);
 			return null;
 		}
 
@@ -416,13 +251,10 @@ const getBids = async (bidders, conf, debug) => Promise.all(
 			(bid.bid && typeof bid.bid === 'number') &&
 			(bid.render && (typeof bid.render === 'string' || Array.isArray(bid.render)))
 		)) {
-			debug && echo.log(echo.asWarning(`No bid found!`));
-			debug && echo.groupEnd();
 			return null;
 		}
 
 		const time1 = performance.now();
-		debug && echo.groupEnd();
 		return {
 			...bidder,
 			...bid,
@@ -440,52 +272,34 @@ const getBids = async (bidders, conf, debug) => Promise.all(
  * @param {array<Object>} conf - an auction configuration object
  * @return {object | null} a sorted, filtered array of objects containing scores
  */
-const getScores = async (bids, conf, debug) => {
-	debug && echo.groupCollapsed(`auction utils: getScores`);
+const getScores = async (bids, conf) => {
 	const { scoreAd } = await Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(conf.decisionLogicUrl)); });
 
 	// check if there is even a scoreAd function
 	// if not, return null
 	if (!scoreAd && typeof scoreAd !== 'function') {
-		debug && echo.log(echo.asWarning(`No 'scoreAd' function was found!`));
 		return null;
 	}
 
 	return Promise.all(bids.map(async bid => {
-		debug && echo.groupCollapsed(`auction utils: getScores => ${bid.name}`);
-		echo.log(echo.asInfo('bid:'), bid);
-
 		let trustedSignalsKeys;
 		if (bid.ad && bid.ad.length > 0) {
 			trustedSignalsKeys = bid?.ad?.map(({ renderUrl }) => renderUrl);
 		}
-		echo.log(echo.asInfo('trusted scoring signals keys:'), trustedSignalsKeys);
-		const trustedSignals = await getTrustedSignals(conf?.trustedScoringSignalsUrl, trustedSignalsKeys, debug);
+		const trustedSignals = await getTrustedSignals(conf?.trustedScoringSignalsUrl, trustedSignalsKeys);
 
 		let score;
 		try {
-			debug && echo.log(echo.asProcess(`scoring a bid`));
-			debug && echo.groupCollapsed(`scoreAd params:`);
-			debug && echo.log(echo.asInfo(`ad:`), bid?.ad);
-			debug && echo.log(echo.asInfo(`bid:`), bid?.bid);
-			debug && echo.log(echo.asInfo(`conf:`), conf);
-			debug && echo.log(echo.asInfo(`trusted scoring signals:`), trustedSignals);
-			debug && echo.groupEnd();
 			score = scoreAd(bid?.ad, bid?.bid, conf, trustedSignals, {
 				topWindowHostname: window.top.location.hostname,
 				interestGroupOwner: bid.owner,
 				interestGroupName: bid.name,
 				biddingDurationMsec: bid.duration,
 			});
-			debug && echo.log(echo.asInfo(`score:`), score);
 		} catch (err) {
-			debug && echo.log(echo.asAlert(`There was an error in the 'scoreAd' function:`));
-			debug && echo.log(err);
 			score = -1;
 		}
-		debug && echo.groupEnd();
 
-		debug && echo.groupEnd();
 		return {
 			bid,
 			score,
@@ -513,42 +327,31 @@ const uuid = () => ([ 1e7 ] + -1e3 + -4e3 + -8e3 + -1e11)
  * @param {array<String>} an array of strings
  * @return {object} a JSON response
  */
-const getTrustedSignals = async (url, keys, debug) => {
-	debug && echo.groupCollapsed('auction utils: getTrustedSignals');
+const getTrustedSignals = async (url, keys) => {
 	const hostname = `hostname=${window.top.location.hostname}`;
 
 	if (!(url && keys)) {
-		debug && echo.log(echo.asWarning(`No 'url' or 'keys' found!`));
-		debug && echo.groupEnd();
 		return undefined;
 	}
 
 	const isJSON = response => /\bapplication\/json\b/.test(response?.headers?.get('content-type'));
 
-	debug && echo.log(echo.asProcess(`fetching keys from trusted signals url: ${url}`));
 	let data;
 	try {
 		const response = await fetch(`${url}?${hostname}&keys=${keys.join(',')}`);
-		echo.log(echo.asInfo('response:'), response);
 		if (!response.ok) {
-			debug && echo.log(echo.asWarning(`Something went wrong! The response returned was not ok.`));
-			debug && echo.log({ response });
 			// throw new Error('Something went wrong! The response returned was not ok.');
 			return null;
 		}
 
 		if (!isJSON(response)) {
-			debug && echo.log(echo.asWarning(`Response was not in the format of JSON. Response was: ${response?.headers?.get('content-type')}`));
 			// throw new Error('Response was not in the format of JSON.');
 			return null;
 		}
 		data = await response.json();
 	} catch (error) {
-		debug && echo.log(echo.asAlert('There was a problem with your fetch operation:'));
-		debug && echo.log(error);
 		return null;
 	}
-	debug && echo.log(echo.asSuccess('response:'), data);
 
 	const signals = {};
 	for (const key in data) {
@@ -556,17 +359,10 @@ const getTrustedSignals = async (url, keys, debug) => {
 			signals[key] = data[key];
 		}
 	}
-	debug && echo.log(signals);
-	debug && echo.log(Object.keys(signals).length === 0);
-	debug && echo.log(signals.constructor !== Object);
 	if (!signals || Object.keys(signals).length === 0 || signals.constructor !== Object) {
-		debug && echo.log(echo.asWarning(`No signals found!`));
-		debug && echo.groupEnd();
 		return null;
 	}
 
-	debug && echo.log(echo.asSuccess('signals:'), signals);
-	debug && echo.groupEnd();
 	return signals;
 };
 
@@ -582,42 +378,29 @@ const getTrustedSignals = async (url, keys, debug) => {
  * @example
  *   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interestGroupBuyers: [ 'www.buyer.com' ] });
  */
-async function runAdAuction (conf, debug) {
-	debug && echo.groupCollapsed('Fledge API: runAdAuction');
+async function runAdAuction (conf) {
 	const interestGroups = await entries(customStore);
-	debug && echo.log(echo.asInfo('all interest groups:'), interestGroups);
 
-	const eligible = getEligible(interestGroups, conf.interestGroupBuyers, debug);
-	debug && echo.log(echo.asInfo('eligible buyers based on "interestGroupBuyers":'), eligible);
+	const eligible = getEligible(interestGroups, conf.interestGroupBuyers);
 	if (!eligible) {
-		debug && echo.log(echo.asAlert('No eligible interest group buyers found!'));
 		return null;
 	}
 
-	const bids = await getBids(eligible, conf, debug);
-	debug && echo.log(echo.asInfo('all bids from each buyer:'), bids);
+	const bids = await getBids(eligible, conf);
 
 	const filteredBids = bids.filter(item => item);
-	debug && echo.log(echo.asInfo('filtered bids:'), filteredBids);
 	if (!filteredBids.length) {
-		debug && echo.log(echo.asAlert('No bids found!'));
-		debug && echo.groupEnd();
 		return null;
 	}
 
-	debug && echo.log(echo.asProcess('getting all scores, filtering and sorting'));
-	const winners = await getScores(filteredBids, conf, debug);
+	const winners = await getScores(filteredBids, conf);
 	const [ winner ] = winners
 		.filter(({ score }) => score > 0)
 		.sort((a, b) => (a.score > b.score) ? 1 : -1);
-	debug && echo.log(echo.asInfo('winner:'), winner);
 	if (!winner) {
-		debug && echo.log(echo.asAlert('No winner found!'));
-		debug && echo.groupEnd();
 		return null;
 	}
 
-	debug && echo.log(echo.asProcess('creating an entry in the auction store'));
 	const token = uuid();
 	sessionStorage.setItem(token, JSON.stringify({
 		origin: `${window.top.location.origin}${window.top.location.pathname}`,
@@ -625,9 +408,7 @@ async function runAdAuction (conf, debug) {
 		conf,
 		...winner,
 	}));
-	debug && echo.log(echo.asSuccess('auction token:'), token);
 
-	debug && echo.groupEnd();
 	return token;
 }
 
@@ -640,29 +421,29 @@ async function fledgeAPI ({ data, ports }) {
 		switch (data[0]) {
 			case 'joinAdInterestGroup': {
 				const [ , request ] = data;
-				const [ options, expiry, debug ] = request;
+				const [ options, expiry ] = request;
 
-				await joinAdInterestGroup(options, expiry, debug);
+				await joinAdInterestGroup(options, expiry);
 
 				return true;
 			}
 			case 'leaveAdInterestGroup': {
 				const [ , request ] = data;
-				const [ group, debug ] = request;
+				const [ group ] = request;
 
-				await leaveAdInterestGroup(group, debug);
+				await leaveAdInterestGroup(group);
 
 				return true;
 			}
 			case 'runAdAuction': {
 				const [ , request ] = data;
-				const [ conf, debug ] = request;
+				const [ conf ] = request;
 
 				if (ports.length !== 1) {
 					throw new Error(`Port transfer mismatch during request: expected 1 port, but received ${ports.length}`);
 				}
 				const [ port ] = ports;
-				const token = await runAdAuction(conf, debug);
+				const token = await runAdAuction(conf);
 				const response = [ true, token ];
 				port.postMessage(response);
 				port.close();
@@ -683,31 +464,18 @@ async function fledgeAPI ({ data, ports }) {
 }
 
 async function frame () {
-	const { searchParams } = new URL(window.location);
-	const debug = searchParams.get('debug') || false;
-	debug && echo.group('Fledge: Storage Frame');
-
-	const admin = searchParams.get('admin') || false;
-
-	if (!admin) {
-		// check whenever the document is being framed by a site which you don’t expect it to be framed by
-		const [ parentOrigin ] = window.location.ancestorOrigins;
-		if (parentOrigin === undefined) {
-			debug && echo.log(echo.asWarning('It appears your attempting to access this from the top-level document'));
-			debug && echo.log({ origin: parentOrigin, location: window.location });
-			throw new Error(`Can't call 'postMessage' on the Frame window when run as a top-level document`);
-		}
-
-		// connect to the storage iframe and send a message
-		const { port1: receiver, port2: sender } = new MessageChannel();
-		debug && echo.log('message channel receiver:', receiver);
-		debug && echo.log('message channel sender:', sender);
-		receiver.onmessage = fledgeAPI;
-		window.parent.postMessage({
-			'fledge.polyfill': VERSION,
-		}, parentOrigin, [ sender ]);
+	// check whenever the document is being framed by a site which you don’t expect it to be framed by
+	const [ parentOrigin ] = window.location.ancestorOrigins;
+	if (parentOrigin === undefined) {
+		throw new Error(`Can't call 'postMessage' on the Frame window when run as a top-level document`);
 	}
-	debug && echo.groupEnd();
+
+	// connect to the storage iframe and send a message
+	const { port1: receiver, port2: sender } = new MessageChannel();
+	receiver.onmessage = fledgeAPI;
+	window.parent.postMessage({
+		'fledge.polyfill': VERSION,
+	}, parentOrigin, [ sender ]);
 }
 
 module.exports = frame;

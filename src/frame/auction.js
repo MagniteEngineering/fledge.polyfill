@@ -1,4 +1,3 @@
-import { echo } from '@theholocron/klaxon';
 import * as idb from 'idb-keyval';
 import { customStore } from './interest-group';
 import {
@@ -20,42 +19,29 @@ import {
  * @example
  *   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interestGroupBuyers: [ 'www.buyer.com' ] });
  */
-export default async function runAdAuction (conf, debug) {
-	debug && echo.groupCollapsed('Fledge API: runAdAuction');
+export default async function runAdAuction (conf) {
 	const interestGroups = await idb.entries(customStore);
-	debug && echo.log(echo.asInfo('all interest groups:'), interestGroups);
 
-	const eligible = getEligible(interestGroups, conf.interestGroupBuyers, debug);
-	debug && echo.log(echo.asInfo('eligible buyers based on "interestGroupBuyers":'), eligible);
+	const eligible = getEligible(interestGroups, conf.interestGroupBuyers);
 	if (!eligible) {
-		debug && echo.log(echo.asAlert('No eligible interest group buyers found!'));
 		return null;
 	}
 
-	const bids = await getBids(eligible, conf, debug);
-	debug && echo.log(echo.asInfo('all bids from each buyer:'), bids);
+	const bids = await getBids(eligible, conf);
 
 	const filteredBids = bids.filter(item => item);
-	debug && echo.log(echo.asInfo('filtered bids:'), filteredBids);
 	if (!filteredBids.length) {
-		debug && echo.log(echo.asAlert('No bids found!'));
-		debug && echo.groupEnd();
 		return null;
 	}
 
-	debug && echo.log(echo.asProcess('getting all scores, filtering and sorting'));
-	const winners = await getScores(filteredBids, conf, debug);
+	const winners = await getScores(filteredBids, conf);
 	const [ winner ] = winners
 		.filter(({ score }) => score > 0)
 		.sort((a, b) => (a.score > b.score) ? 1 : -1);
-	debug && echo.log(echo.asInfo('winner:'), winner);
 	if (!winner) {
-		debug && echo.log(echo.asAlert('No winner found!'));
-		debug && echo.groupEnd();
 		return null;
 	}
 
-	debug && echo.log(echo.asProcess('creating an entry in the auction store'));
 	const token = uuid();
 	sessionStorage.setItem(token, JSON.stringify({
 		origin: `${window.top.location.origin}${window.top.location.pathname}`,
@@ -63,8 +49,6 @@ export default async function runAdAuction (conf, debug) {
 		conf,
 		...winner,
 	}));
-	debug && echo.log(echo.asSuccess('auction token:'), token);
 
-	debug && echo.groupEnd();
 	return token;
 }

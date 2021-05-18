@@ -1,4 +1,3 @@
-import { echo } from '@theholocron/klaxon';
 import VERSION from '../version';
 
 /*
@@ -174,19 +173,13 @@ const getMessage = (target, filter) => new Promise((resolve, reject) => {
 	target.addEventListener('messageerror', messageErrorListener);
 });
 
-function getFromFrame (port, debug) {
-	debug && echo.groupCollapsed('message utils: getFromFrame');
-	debug && echo.log(echo.asProcess('getting message from iframe'));
+function getFromFrame (port) {
 	const message = getMessage(port, () => true);
 	port.start();
-	debug && echo.log(echo.asSuccess('grabbed message from iframe, started port'));
-	debug && echo.groupEnd();
 	return message;
 }
 
-async function getFramePort (iframe, expectedOrigin, debug) {
-	debug && echo.groupCollapsed('message utils: getFromPort');
-	debug && echo.log(echo.asProcess('getting message from iframe'));
+async function getFramePort (iframe, expectedOrigin) {
 	const { data, ports, origin } = await getMessage(window, ({ source }) => source === iframe.contentWindow);
 
 	if (origin !== expectedOrigin) {
@@ -199,7 +192,6 @@ async function getFramePort (iframe, expectedOrigin, debug) {
 		throw new Error(`Message ports are mismatched! Expected 1 port, received ${ports.length}`);
 	}
 
-	debug && echo.groupEnd();
 	return ports[0];
 }
 
