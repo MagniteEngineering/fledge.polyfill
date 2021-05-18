@@ -1,5 +1,7 @@
 # Prototypes
 
+**This directory is hidden intentionally for the sake of posterity and retaining the initial work that was done, but is not expected to be maintained or be relevant.**
+
 Any discussion or open question that may have been posed from our initial tech spec, this is our attempt to answer those questions.
 
 The two biggest categories of prototypes revolve around [ES Modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) and [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API).
@@ -26,7 +28,7 @@ This demo was setup to answer the question of the possibility for posting data t
 
 ### Running the Demo
 
-You will need to run a server for both HTML files within the each of the subsequent directories.  Using `npx serve __proto__/cross-domain` within the current working directory would suffice.  It will provide you a URL that you can paste into the browser. But you'll need to find a way to serve it with a different domain to truly test the cross-domain message posting.  Hosting one file using a service like <https://glitch.com> or <https://github.com> are both viable options.
+You will need to run a server for both HTML files within the each of the subsequent directories.  Using `npx serve .prototypes/cross-domain` within the current working directory would suffice.  It will provide you a URL that you can paste into the browser. But you'll need to find a way to serve it with a different domain to truly test the cross-domain message posting.  Hosting one file using a service like <https://glitch.com> or <https://github.com> are both viable options.
 
 From that URL, you should see that the `index.html` page is calling a script and in order to confirm that groups were stored, check in the DevTools "Application" tab under the "IndexedDB" tab.
 
@@ -47,7 +49,7 @@ The answer is _yes we can_.
 
 ### Running the Demo
 
-You will need to run a server within the current directory.  Using `npx serve __proto__/es-modules/basic` within the current working directory would suffice.  It will provide you a URL that you can paste into the browser. 
+You will need to run a server within the current directory.  Using `npx serve .prototypes/es-modules/basic` within the current working directory would suffice.  It will provide you a URL that you can paste into the browser. 
 
 From that URL, you should see that the `index.html` page is calling a script which imports an ES module from another file.
 
@@ -59,7 +61,7 @@ The answer is _yes we can_.
 
 ### Running the Demo
 
-You will need to run a server within the current directory.  Using `npx serve __proto__/es-modules/dynamic` within the current working directory would suffice.  It will provide you a URL that you can paste into the browser. 
+You will need to run a server within the current directory.  Using `npx serve .prototypes/es-modules/dynamic` within the current working directory would suffice.  It will provide you a URL that you can paste into the browser. 
 
 From that URL, you should see that the `index.html` page is calling a script which imports an ES module from a URL that is hosted on a completely different domain.
 
@@ -69,7 +71,7 @@ The **auction** demo was set up to showcase what an auction might look like impo
 
 ### Running the Demo
 
-You will need to run a server within the current directory.  Using `npx serve __proto__/es-modules/auction` within the current working directory would suffice.  It will provide you a URL that you can paste into the browser. 
+You will need to run a server within the current directory.  Using `npx serve .prototypes/es-modules/auction` within the current working directory would suffice.  It will provide you a URL that you can paste into the browser. 
 
 From that URL, you should see that the `index.html` page is calling a few scripts that should simulate what an auction might look like in the end.
 
@@ -83,6 +85,6 @@ The answer is _yes we can_.
 
 ### Running the Demo
 
-This demo requires a bit more setup, so in order to get started you need to `cd __proto__/indexed-db` and run `npm install` in order to install the dependencies required.  Using `npx serve __proto__/indexed-db` within the current working directory would suffice.  It will provide you a URL that you can paste into the browser. 
+This demo requires a bit more setup, so in order to get started you need to `cd .prototypes/indexed-db` and run `npm install` in order to install the dependencies required.  Using `npx serve .prototypes/indexed-db` within the current working directory would suffice.  It will provide you a URL that you can paste into the browser. 
 
 From that URL, you should see that the `index.html` page is calling a script and in order to confirm that groups were stored, check in the DevTools "Application" tab under the "IndexedDB" tab.

@@ -1,8 +1,8 @@
 export const mockOwner = 'mock-owner.com';
 export const mockName = 'mockName';
-export const mockBiddingLogicUrl = 'https://mock.dsp.example/bidding_logic_url';
-export const mockDailyUpdateUrl = 'https://mock.dsp.example/daily_update_url';
-export const mockTrustedBiddingSignalsUrl = 'https://mock.dsp.example/trusted_bidding_signals_url';
+export const mockBiddingLogicUrl = 'https://mock.dsp.example/bidding-logic-url';
+export const mockDailyUpdateUrl = 'https://mock.dsp.example/daily-update-url';
+export const mockTrustedBiddingSignalsUrl = 'https://mock.dsp.example/trusted-bidding-signals-url';
 export const mockTrustedBiddingSignalsKeys = [
 	'mockTBSK',
 	'anotherMockTBSK',
@@ -16,7 +16,7 @@ export const mockAds = [
 		meta: {
 			id: 'adid',
 		},
-		rendering_url: 'https://mock.dsp.example/ad_url',
+		renderingUrl: 'https://mock.dsp.example/ad-url',
 	},
 ];
 export const mockExpiry = 24 * 60 * 60 * 1000;
@@ -24,13 +24,13 @@ export const mockMaxExpiry = 30 * mockExpiry;
 export const mockRequiredOptions = {
 	owner: mockOwner,
 	name: mockName,
-	bidding_logic_url: mockBiddingLogicUrl,
+	biddingLogicUrl: mockBiddingLogicUrl,
 };
 export const mockOptionals = {
-	daily_update_url: mockDailyUpdateUrl,
-	trusted_bidding_signals_url: mockTrustedBiddingSignalsUrl,
-	trusted_bidding_signals_keys: mockTrustedBiddingSignalsKeys,
-	user_bidding_signals: mockUserBiddingSignals,
+	dailyUpdateUrl: mockDailyUpdateUrl,
+	trustedBiddingSignalsUrl: mockTrustedBiddingSignalsUrl,
+	trustedBiddingSignalsKeys: mockTrustedBiddingSignalsKeys,
+	userBiddingSignals: mockUserBiddingSignals,
 	ads: mockAds,
 };
 export const mockAllOptions = {

@@ -8,8 +8,7 @@ This section details which versions are currently being supported with security 
 
 | Version  | Supported          |
 | -------- | ------------------ |
-| 1.x.x    | :white_check_mark: |
-|  0.x.x   | :x:                |
+|  0.x.x   | :white_check_mark: |
 
 ## Reporting a Vulnerability
 

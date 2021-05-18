@@ -3,7 +3,7 @@
   "homepage": "https://github.com/MagniteEngineering/fledge.polyfill#readme",
   "description": "A Fledge JavaScript polyfill",
   "author": "Newton Koumantzelis",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "main": "dist/api/cjs/index.js",
   "module": "dist/api/esm/index.js",
   "files": [
@@ -45,7 +45,7 @@
     ]
   },
   "engines": {
-    "node": "^12.16.0 || >=13.2.0"
+    "node": "^14.x"
   },
   "eslintConfig": {
     "extends": "@theholocron",
@@ -95,12 +95,12 @@
     "commit": "commit",
     "predist": "rollup -c node:@theholocron/rollup-config --input=src/frame --output=dist/frame --name=fledgeframe --exports=default",
     "dist": "rollup -c node:@theholocron/rollup-config --input=src/api --output=dist/api --name=fledge --exports=default",
-    "predocs": "rollup -c node:@theholocron/rollup-config --input=src/frame --output=docs/scripts/frame --name=fledgeframe --exports=default --watch",
-    "docs": "rollup -c node:@theholocron/rollup-config --input=src/api --output=docs/scripts/api --name=fledge --exports=default --watch",
+    "predocs": "rollup -c node:@theholocron/rollup-config --input=src/frame --output=docs/scripts/frame --name=fledgeframe --exports=default",
+    "docs": "rollup -c node:@theholocron/rollup-config --input=src/api --output=docs/scripts/api --name=fledge --exports=default",
     "lint": "eslint .",
     "release": "semantic-release",
     "serve": "serve . -l 3000",
-    "start": "npm run serve",
+    "start": "serve docs -l 8000",
     "test": "npm run test:docs && npm run test:unit && npm run test:e2e",
     "test:docs": "alex .",
     "pretest:e2e": "npm run dist",

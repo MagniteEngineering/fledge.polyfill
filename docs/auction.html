@@ -22,17 +22,16 @@
 		<div id="ad-slot-1"></div>
 		<script type="module">
 			import Fledge from './scripts/api/esm/index.js';
-			const fledge = new Fledge(true);
+			const fledge = new Fledge('https://magniteengineering.github.io/fledge.polyfill/iframe.html', true);
 			const timeStart = performance.now();
 
 			const options = {
 				seller: 'publisher.example',
-				interest_group_buyers: '*',
-				decision_logic_url: 'https://entertaining-glitter-bowler.glitch.me/score.js',
-				// decision_logic_url: 'http://localhost:3000/test/e2e/mock/dl.js',
-				trusted_scoring_signals_url: 'http://localhost:3000/test/e2e/tss/',
-				additional_bids: [],
-				auction_signals: {
+				interestGroupBuyers: '*',
+				decisionLogicUrl: 'https://fledge-auction.glitch.me/score.js',
+				trustedScoringSignalsUrl: 'https://magniteengineering.github.io/fledge.polyfill/get-scoring-signals.json',
+				additionalBids: [],
+				auctionSignals: {
 					size: {
 						w: 300,
 						h: 200,
@@ -45,32 +44,37 @@
 					],
 					location: 'atf',
 				},
-				seller_signals: {
+				sellerSignals: {
 					account_id: 1234,
 					site_id: 1234,
 					zone_id: 1234,
 					size_id: 123,
 				},
-				per_buyer_signals: {
+				perBuyerSignals: {
 					'dsp.com': {
 						content_quality: 230,
 					},
 				},
 			};
-			const auctionResults = await fledge.runAdAuction(options);
-			const timeRender = performance.now();
 
-			if (auctionResults) {
-				await fledge.renderAd('#ad-slot-1', auctionResults, true);
-			} else {
-				document.getElementById('ad-slot-1').innerHTML = 'No eligible ads!';
-			}
+			let timeRender;
+			(async () => {
+				const auctionResults = await fledge.runAdAuction(options);
+				console.log({auctionResults});
+				timeRender = performance.now();
 
-			const timeEnd = performance.now();
-			const auctionTiming = `${(timeRender - timeStart)}ms`;
-			const renderTiming = `${(timeEnd - timeRender)}ms`;
-			document.getElementById('auction-stats').innerHTML = auctionTiming;
-			document.getElementById('render-stats').innerHTML = renderTiming;
+				if (auctionResults) {
+					await fledge.renderAd('#ad-slot-1', auctionResults, true);
+				} else {
+					document.getElementById('ad-slot-1').innerHTML = 'No eligible ads!';
+				}
+
+				const timeEnd = performance.now();
+				const auctionTiming = `${(timeRender - timeStart)}ms`;
+				const renderTiming = `${(timeEnd - timeRender)}ms`;
+				document.getElementById('auction-stats').innerHTML = auctionTiming;
+				document.getElementById('render-stats').innerHTML = renderTiming;
+			})();
 		</script>
 	</body>
 </html>

@@ -1,9 +1,6 @@
 **Description**
 <!-- A clear and concise description of why the feature is necessary -->
 
-**Screenshots (optional)**
-<!-- If applicable, add screenshots to help explain your problem -->
-
 **Additional context (optional)**
 <!-- Add any other context about the problem here. Where there any challenges that need to be documented -->
 

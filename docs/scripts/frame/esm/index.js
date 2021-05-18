@@ -261,7 +261,7 @@ const getIGKey = (owner, name) => `${owner}-${name}`;
  * @return {true}
  *
  * @example
- *   joinAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' }, 2592000000);
+ *   joinAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' }, 2592000000);
  */
 async function joinAdInterestGroup (options, expiry, debug) {
 	debug && echo.groupCollapsed('Fledge API: joinAdInterest');
@@ -270,10 +270,11 @@ async function joinAdInterestGroup (options, expiry, debug) {
 	debug && echo.log(echo.asInfo('checking for an existing interest group:'), group);
 	if (group) {
 		debug && echo.log(echo.asProcess('updating an interest group'));
-		await update(id, {
-			_expired: Date.now() + expiry,
+		await update(id, old => ({
+			...old,
 			...options,
-		}, customStore);
+			_expired: Date.now() + expiry,
+		}), customStore);
 	} else {
 		debug && echo.log(echo.asProcess('creating a new interest group'));
 		await set(id, {
@@ -299,7 +300,7 @@ async function joinAdInterestGroup (options, expiry, debug) {
  * @return {true}
  *
  * @example
- *   leaveAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' });
+ *   leaveAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' });
  */
 async function leaveAdInterestGroup (group, debug) {
 	debug && echo.groupCollapsed('Fledge API: leaveAdInterest');
@@ -310,8 +311,6 @@ async function leaveAdInterestGroup (group, debug) {
 
 	return true;
 }
-
-/* eslint-disable camelcase */
 
 /*
  * @function
@@ -355,28 +354,30 @@ const getBids = async (bidders, conf, debug) => Promise.all(
 	bidders.map(async ([ key, bidder ]) => {
 		debug && echo.groupCollapsed(`auction utils: getBids => ${key}`);
 		const time0 = performance.now();
-		const { generateBid, generate_bid } = await import(bidder.bidding_logic_url);
-		let callBid = generateBid;
-
-		if (generate_bid && !generateBid) {
-			callBid = generate_bid;
-		}
+		const { generateBid } = await import(bidder.biddingLogicUrl);
 
 		// check if there is even a generateBid function
 		// if not, removed bidder from elibility
-		if (!callBid && typeof callBid !== 'function') {
+		if (!generateBid && typeof generateBid !== 'function') {
 			debug && echo.log(echo.asWarning(`No 'generateBid' function found!`));
 			debug && echo.groupEnd();
 			return null;
 		}
 
-		const trustedSignals = await getTrustedSignals(bidder?.trusted_bidding_signals_url, bidder?.trusted_bidding_signals_keys, debug);
+		const trustedSignals = await getTrustedSignals(bidder?.trustedBiddingSignalsUrl, bidder?.trustedBiddingSignalsKeys, debug);
 
 		// generate a bid by providing all of the necessary information
 		let bid;
 		try {
-			bid = callBid(bidder, conf?.auction_signals, conf?.per_buyer_signals?.[bidder.owner], trustedSignals, {
-				top_window_hostname: window.top.location.hostname,
+			debug && echo.log(echo.asProcess(`generating a bid`));
+			debug && echo.groupCollapsed(`generateBid params:`);
+			debug && echo.log(echo.asInfo(`bidder:`), bidder);
+			debug && echo.log(echo.asInfo(`auction signals:`), conf?.auctionSignals);
+			debug && echo.log(echo.asInfo(`per buyer signals:`), conf?.perBuyerSignals?.[bidder.owner]);
+			debug && echo.log(echo.asInfo(`trusted bidding signals:`), trustedSignals);
+			debug && echo.groupEnd();
+			bid = generateBid(bidder, conf?.auctionSignals, conf?.perBuyerSignals?.[bidder.owner], trustedSignals, {
+				topWindowHostname: window.top.location.hostname,
 				seller: conf.seller,
 			});
 			debug && echo.log(echo.asInfo('bid:'), bid);
@@ -419,29 +420,40 @@ const getBids = async (bidders, conf, debug) => Promise.all(
  */
 const getScores = async (bids, conf, debug) => {
 	debug && echo.groupCollapsed(`auction utils: getScores`);
-	const { scoreAd, score_ad } = await import(conf.decision_logic_url);
-	let callScore = scoreAd;
-
-	if (score_ad && !scoreAd) {
-		callScore = score_ad;
-	}
+	const { scoreAd } = await import(conf.decisionLogicUrl);
 
 	// check if there is even a scoreAd function
 	// if not, return null
-	if (!callScore && typeof callScore !== 'function') {
+	if (!scoreAd && typeof scoreAd !== 'function') {
 		debug && echo.log(echo.asWarning(`No 'scoreAd' function was found!`));
 		return null;
 	}
 
-	return bids.map(bid => {
-		let score;
+	return Promise.all(bids.map(async bid => {
+		debug && echo.groupCollapsed(`auction utils: getScores => ${bid.name}`);
+		echo.log(echo.asInfo('bid:'), bid);
 
+		let trustedSignalsKeys;
+		if (bid.ad && bid.ad.length > 0) {
+			trustedSignalsKeys = bid?.ad?.map(({ renderUrl }) => renderUrl);
+		}
+		echo.log(echo.asInfo('trusted scoring signals keys:'), trustedSignalsKeys);
+		const trustedSignals = await getTrustedSignals(conf?.trustedScoringSignalsUrl, trustedSignalsKeys, debug);
+
+		let score;
 		try {
-			score = callScore(bid?.ad, bid?.bid, conf, conf?.trusted_scoring_signals, {
-				top_window_hostname: window.top.location.hostname,
-				interest_group_owner: bid.owner,
-				interest_group_name: bid.name,
-				bidding_duration_msec: bid.duration,
+			debug && echo.log(echo.asProcess(`scoring a bid`));
+			debug && echo.groupCollapsed(`scoreAd params:`);
+			debug && echo.log(echo.asInfo(`ad:`), bid?.ad);
+			debug && echo.log(echo.asInfo(`bid:`), bid?.bid);
+			debug && echo.log(echo.asInfo(`conf:`), conf);
+			debug && echo.log(echo.asInfo(`trusted scoring signals:`), trustedSignals);
+			debug && echo.groupEnd();
+			score = scoreAd(bid?.ad, bid?.bid, conf, trustedSignals, {
+				topWindowHostname: window.top.location.hostname,
+				interestGroupOwner: bid.owner,
+				interestGroupName: bid.name,
+				biddingDurationMsec: bid.duration,
 			});
 			debug && echo.log(echo.asInfo(`score:`), score);
 		} catch (err) {
@@ -449,15 +461,14 @@ const getScores = async (bids, conf, debug) => {
 			debug && echo.log(err);
 			score = -1;
 		}
+		debug && echo.groupEnd();
 
 		debug && echo.groupEnd();
 		return {
 			bid,
 			score,
 		};
-	})
-		.filter(({ score }) => score > 0)
-		.sort((a, b) => (a.score > b.score) ? 1 : -1);
+	}));
 };
 
 /*
@@ -492,37 +503,47 @@ const getTrustedSignals = async (url, keys, debug) => {
 
 	const isJSON = response => /\bapplication\/json\b/.test(response?.headers?.get('content-type'));
 
-	const response = await fetch(`${url}?${hostname}&keys=${keys.join(',')}`)
-		.then(response => {
-			if (!response.ok) {
-				throw new Error('Something went wrong! The response returned was not ok.');
-			}
-
-			if (!isJSON(response)) {
-				throw new Error('Response was not in the format of JSON.');
-			}
-
-			return response.json();
-		})
-		.catch(error => {
-			debug && echo.log(echo.asAlert('There was a problem with your fetch operation:'));
-			debug && echo.log(error);
+	debug && echo.log(echo.asProcess(`fetching keys from trusted signals url: ${url}`));
+	let data;
+	try {
+		const response = await fetch(`${url}?${hostname}&keys=${keys.join(',')}`);
+		echo.log(echo.asInfo('response:'), response);
+		if (!response.ok) {
+			debug && echo.log(echo.asWarning(`Something went wrong! The response returned was not ok.`));
+			debug && echo.log({ response });
+			// throw new Error('Something went wrong! The response returned was not ok.');
 			return null;
-		});
+		}
+
+		if (!isJSON(response)) {
+			debug && echo.log(echo.asWarning(`Response was not in the format of JSON. Response was: ${response?.headers?.get('content-type')}`));
+			// throw new Error('Response was not in the format of JSON.');
+			return null;
+		}
+		data = await response.json();
+	} catch (error) {
+		debug && echo.log(echo.asAlert('There was a problem with your fetch operation:'));
+		debug && echo.log(error);
+		return null;
+	}
+	debug && echo.log(echo.asSuccess('response:'), data);
 
 	const signals = {};
-	for (const [ key, value ] of response) {
+	for (const key in data) {
 		if (keys.includes(key)) {
-			signals[key] = value;
+			signals[key] = data[key];
 		}
 	}
-
-	if (!(signals && Object.keys(signals).length === 0 && signals.constructor === Object)) {
+	debug && echo.log(signals);
+	debug && echo.log(Object.keys(signals).length === 0);
+	debug && echo.log(signals.constructor !== Object);
+	if (!signals || Object.keys(signals).length === 0 || signals.constructor !== Object) {
 		debug && echo.log(echo.asWarning(`No signals found!`));
 		debug && echo.groupEnd();
 		return null;
 	}
 
+	debug && echo.log(echo.asSuccess('signals:'), signals);
 	debug && echo.groupEnd();
 	return signals;
 };
@@ -537,15 +558,15 @@ const getTrustedSignals = async (url, keys, debug) => {
  * @return {null | Promise<Token>}
  *
  * @example
- *   runAdAuction({ seller: 'foo', decision_logic_url: 'http://example.com/auction', interst_group_buyers: [ 'www.buyer.com' ] });
+ *   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interestGroupBuyers: [ 'www.buyer.com' ] });
  */
 async function runAdAuction (conf, debug) {
 	debug && echo.groupCollapsed('Fledge API: runAdAuction');
 	const interestGroups = await entries(customStore);
 	debug && echo.log(echo.asInfo('all interest groups:'), interestGroups);
 
-	const eligible = getEligible(interestGroups, conf.interest_group_buyers, debug);
-	debug && echo.log(echo.asInfo('eligible buyers based on "interest_group_buyers":'), eligible);
+	const eligible = getEligible(interestGroups, conf.interestGroupBuyers, debug);
+	debug && echo.log(echo.asInfo('eligible buyers based on "interestGroupBuyers":'), eligible);
 	if (!eligible) {
 		debug && echo.log(echo.asAlert('No eligible interest group buyers found!'));
 		return null;
@@ -563,7 +584,10 @@ async function runAdAuction (conf, debug) {
 	}
 
 	debug && echo.log(echo.asProcess('getting all scores, filtering and sorting'));
-	const [ winner ] = await getScores(filteredBids, conf, debug);
+	const winners = await getScores(filteredBids, conf, debug);
+	const [ winner ] = winners
+		.filter(({ score }) => score > 0)
+		.sort((a, b) => (a.score > b.score) ? 1 : -1);
 	debug && echo.log(echo.asInfo('winner:'), winner);
 	if (!winner) {
 		debug && echo.log(echo.asAlert('No winner found!'));

@@ -29,7 +29,7 @@ export const getIGKey = (owner, name) => `${owner}-${name}`;
  * @return {true}
  *
  * @example
- *   joinAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' }, 2592000000);
+ *   joinAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' }, 2592000000);
  */
 export async function joinAdInterestGroup (options, expiry, debug) {
 	debug && echo.groupCollapsed('Fledge API: joinAdInterest');
@@ -38,10 +38,11 @@ export async function joinAdInterestGroup (options, expiry, debug) {
 	debug && echo.log(echo.asInfo('checking for an existing interest group:'), group);
 	if (group) {
 		debug && echo.log(echo.asProcess('updating an interest group'));
-		await idb.update(id, {
-			_expired: Date.now() + expiry,
+		await idb.update(id, old => ({
+			...old,
 			...options,
-		}, customStore);
+			_expired: Date.now() + expiry,
+		}), customStore);
 	} else {
 		debug && echo.log(echo.asProcess('creating a new interest group'));
 		await idb.set(id, {
@@ -67,7 +68,7 @@ export async function joinAdInterestGroup (options, expiry, debug) {
  * @return {true}
  *
  * @example
- *   leaveAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' });
+ *   leaveAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' });
  */
 export async function leaveAdInterestGroup (group, debug) {
 	debug && echo.groupCollapsed('Fledge API: leaveAdInterest');

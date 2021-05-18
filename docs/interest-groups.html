@@ -25,7 +25,7 @@
 				<input class="display-block width-half margin-bottom-1 padding-x-1 padding-y-qtr font-size-4" name="name" id="name" type="text" value="fledge-dev"/>
 
 				<label class="display-block margin-bottom-half" for="url">Bidding Logic URL</label>
-				<input class="display-block width-half margin-bottom-1 padding-x-1 padding-y-qtr font-size-4" name="url" id="url" type="text" value="https://dark-organic-appeal.glitch.me/bid.js">
+				<input class="display-block width-half margin-bottom-1 padding-x-1 padding-y-qtr font-size-4" name="url" id="url" type="text" value="https://fledge-auction.glitch.me/bid.js">
 
 				<label class="display-block margin-bottom-half" for="expiration">Expiration</label>
 				<input class="display-block width-half margin-bottom-1 padding-x-1 padding-y-qtr font-size-4" name="expiration" id="expiration" type="text" value="3600000">
@@ -43,14 +43,18 @@
 		<script type="module">
 			import * as idb from 'https://cdn.jsdelivr.net/npm/idb-keyval@5/dist/esm/index.js';
 			import Fledge from './scripts/api/esm/index.js';
-			const fledge = new Fledge(true);
+			const fledge = new Fledge('https://magniteengineering.github.io/fledge.polyfill/iframe.html', true);
 			const customStore = idb.createStore('fledge.v1', 'interest-groups');
 
 			document.getElementById("join-ig").onclick = async function joinGroup() {
 				await fledge.joinAdInterestGroup({
 					owner: document.getElementById('owner').value,
 					name: document.getElementById('name').value,
-					bidding_logic_url: document.getElementById('url').value
+					biddingLogicUrl: document.getElementById('url').value,
+					trustedBiddingSignalsUrl: 'https://magniteengineering.github.io/fledge.polyfill/get-values.json',
+					trustedBiddingSignalsKeys: [
+						'ads',
+					],
 				}, parseInt(document.getElementById('expiration').value), true);
 			};
 
@@ -58,26 +62,28 @@
 				await fledge.leaveAdInterestGroup({
 					owner: document.getElementById('owner').value,
 					name: document.getElementById('name').value,
-					bidding_logic_url: document.getElementById('url').value
+					biddingLogicUrl: document.getElementById('url').value
 				}, parseInt(document.getElementById('expiration').value), true);
 			};
 
-			const interestGroups = await idb.entries(customStore);
-			if (interestGroups.length > 0) {
-				const list = document.createElement("ul");
-				interestGroups.map(([ key, value ]) => {
-					const newLi = document.createElement("li");
-					const newContent = document.createTextNode(`owner: ${value.owner}, name: ${value.name}`);
-					newLi.appendChild(newContent);
-					list.appendChild(newLi);
-				});
-				document.getElementById('igs').appendChild(list);
-			} else {
-				const para = document.createElement("p");
-				const newContent = document.createTextNode('No Interest Groups found.  Go join one.');
-				para.appendChild(newContent);
-				document.getElementById('igs').appendChild(para);
-			}
+			(async () => {
+				const interestGroups = await idb.entries(customStore);
+				if (interestGroups.length > 0) {
+					const list = document.createElement("ul");
+					interestGroups.map(([ key, value ]) => {
+						const newLi = document.createElement("li");
+						const newContent = document.createTextNode(`owner: ${value.owner}, name: ${value.name}`);
+						newLi.appendChild(newContent);
+						list.appendChild(newLi);
+					});
+					document.getElementById('igs').appendChild(list);
+				} else {
+					const para = document.createElement("p");
+					const newContent = document.createTextNode('No Interest Groups found.  Go join one.');
+					para.appendChild(newContent);
+					document.getElementById('igs').appendChild(para);
+				}
+			})();
 		</script>
 	</body>
 </html>

@@ -1,4 +1,4 @@
-import runAdAuction from '../../../src/frame/auction/';
+import runAdAuction from '../../../src/frame/auction';
 import {
 	mockAllOptions,
 } from '../../mocks/auction.mock';

@@ -1,6 +1,6 @@
 import { echo } from '@theholocron/klaxon';
 import * as idb from 'idb-keyval';
-import { customStore } from '../interest-groups/';
+import { customStore } from './interest-group';
 import {
 	getBids,
 	getEligible,
@@ -18,15 +18,15 @@ import {
  * @return {null | Promise<Token>}
  *
  * @example
- *   runAdAuction({ seller: 'foo', decision_logic_url: 'http://example.com/auction', interst_group_buyers: [ 'www.buyer.com' ] });
+ *   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interestGroupBuyers: [ 'www.buyer.com' ] });
  */
 export default async function runAdAuction (conf, debug) {
 	debug && echo.groupCollapsed('Fledge API: runAdAuction');
 	const interestGroups = await idb.entries(customStore);
 	debug && echo.log(echo.asInfo('all interest groups:'), interestGroups);
 
-	const eligible = getEligible(interestGroups, conf.interest_group_buyers, debug);
-	debug && echo.log(echo.asInfo('eligible buyers based on "interest_group_buyers":'), eligible);
+	const eligible = getEligible(interestGroups, conf.interestGroupBuyers, debug);
+	debug && echo.log(echo.asInfo('eligible buyers based on "interestGroupBuyers":'), eligible);
 	if (!eligible) {
 		debug && echo.log(echo.asAlert('No eligible interest group buyers found!'));
 		return null;
@@ -44,7 +44,10 @@ export default async function runAdAuction (conf, debug) {
 	}
 
 	debug && echo.log(echo.asProcess('getting all scores, filtering and sorting'));
-	const [ winner ] = await getScores(filteredBids, conf, debug);
+	const winners = await getScores(filteredBids, conf, debug);
+	const [ winner ] = winners
+		.filter(({ score }) => score > 0)
+		.sort((a, b) => (a.score > b.score) ? 1 : -1);
 	debug && echo.log(echo.asInfo('winner:'), winner);
 	if (!winner) {
 		debug && echo.log(echo.asAlert('No winner found!'));

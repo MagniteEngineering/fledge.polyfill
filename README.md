@@ -36,7 +36,7 @@ Even though the examples below point to a `node_modules` directory, you should p
     const options = {
         owner: "www.buyer.com",
         name: "an-interest-group",
-        bidding_logic_url: "https://dsp.com/bidding",
+        biddingLogicUrl: "https://dsp.com/bidding",
     };
 
     // join an interest group
@@ -56,8 +56,8 @@ Even though the examples below point to a `node_modules` directory, you should p
 
     const options = {
         seller: "www.seller.com",
-        decision_logic_url: "https://ssp.com/auction",
-        interest_group_buyers: [
+        decisionLogicUrl: "https://ssp.com/auction",
+        interestGroupBuyers: [
             "www.buyer1.com",
             "www.buyer2.com",
         ],
@@ -69,7 +69,7 @@ Even though the examples below point to a `node_modules` directory, you should p
 
 ### Render the Ad
 
-In the future, rendering an ad will be handled by the Fledge API and would be passed to a Fenced Frame (which hasn't be established yet).  In the polyfill world, we don't have access to a Fenced Frame and so its required for the consumer of this library to create their own `iframe` and pass the results from the auction to it.  Thankfully, we've created a temporary feature for you to handle this in a way that respects the intention of the proposal by keeping the results opaque in the form of a token that represents the winning ad `rendering_url`.
+In the future, rendering an ad will be handled by the Fledge API and would be passed to a Fenced Frame (which hasn't be established yet).  In the polyfill world, we don't have access to a Fenced Frame and so its required for the consumer of this library to create their own `iframe` and pass the results from the auction to it.  Thankfully, we've created a temporary feature for you to handle this in a way that respects the intention of the proposal by keeping the results opaque in the form of a token that represents the winning ad `renderingUrl`.
 
 ```html
 <script type="module">
@@ -85,7 +85,90 @@ In the future, rendering an ad will be handled by the Fledge API and would be pa
 
 ## Where to Find Documentation
 
-The best way to find out what's available is to dig through source code.
+The best way to find out what's available is to dig through source code, but the following is the API documentation.
+
+### API
+
+#### runAdAuction(conf)
+
+Returns `null` if no winning bid is found.  Returns a `Promise` with a token representation of the winning bids rendering URL.
+
+If an invalid option is passed, then an `Error` will be thrown with a reason to help debug.
+
+##### conf
+
+Type: [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
+
+The following is the data structure with types for the options:
+
+```ts
+interface AuctionOptions {
+  seller: typeof string;
+  decisionLogicUrl: typeof url;
+  interestGroupBuyers: typeof array;
+  trustedScoringSignalsUrl?; typeof url;
+  additionalBids?: typeof array;
+  auctionSignals?: typeof object;
+  sellerSignals?: typeof object;
+  perBuyerSignals?: typeof object;
+}
+```
+
+#### joinAdInterestGroup(options, expiry)
+
+Returns `true` and creates an entry in a cross-domain Indexed dB store.
+
+If an invalid option is passed, then an `Error` will be thrown with a reason to help debug.
+
+##### options
+
+Type: [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
+
+The following is the data structure with types for the options:
+
+```ts
+interface InterestGroup {
+  owner: typeof string;
+  name: typeof string;
+  biddingLogicUrl: typeof url;
+  dailyUpdateUrl?: typeof url;
+  trustedBiddingSignalsUrl?; typeof url;
+  trustedBiddingSignalsKeys?: typeof array;
+  userBiddingSignals?: typeof object;
+  ads?: typeof array;
+}
+```
+
+##### expiry
+
+Type: [`<Number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+
+A number of days (set in milliseconds) that the Interest Group will stay active, with a maximum of 30 days (or 2592000000).
+
+#### leaveAdInterestGroup(group)
+
+Returns `true` and removes an entry in a cross-domain Indexed dB store.
+
+If an invalid option is passed, then an `Error` will be thrown with a reason to help debug.
+
+##### options
+
+Type: [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
+
+The following is the data structure with types for the options:
+
+```ts
+interface InterestGroup {
+  owner: typeof string;
+  name: typeof string;
+  biddingLogicUrl?: typeof url;
+  dailyUpdateUrl?: typeof url;
+  trustedBiddingSignalsUrl?; typeof url;
+  trustedBiddingSignalsKeys?: typeof array;
+  userBiddingSignals?: typeof object;
+  ads?: typeof array;
+}
+```
 
 ## How We Track Changes [![Keep a Changelog](https://img.shields.io/badge/Keep%20a%20Changelog-1.0.0-orange)](https://keepachangelog.com/en/1.0.0/)
 

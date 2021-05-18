@@ -21,19 +21,21 @@ const MAX_EXPIRATION = 2592000000;
 * @const {URL}
 * @description The source URL for the hosted iframe
 */
-const IFRAME_HOST = 'http://localhost:3000/docs/iframe.html';
+const IFRAME_HOST = 'http://localhost:8000';
 
 export default class Fledge {
-	constructor (debug) {
-		const query = debug ? '?debug=true' : '';
+	constructor (url, debug) {
+		this.url = url || `${IFRAME_HOST}/iframe.html`;
+		this._debug = debug;
+
+		const query = this._debug ? '?debug=true' : '';
 		const { iframe, origin } = frame.create({
-			source: `${IFRAME_HOST}${query}`,
+			source: `${this.url}${query}`,
 			style: { display: 'none' },
 		});
 		// iframe.sandbox.add('allow-same-origin', 'allow-scripts');
 		const port = message.getFramePort(iframe, origin);
 
-		this._debug = debug;
 		this._props = {
 			iframe,
 			port,
@@ -59,7 +61,7 @@ export default class Fledge {
 	* @return {true}
 	*
 	* @example
-	*   joinAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' }, 2592000000);
+	*   joinAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' }, 2592000000);
 	*/
 	async joinAdInterestGroup (options, expiry) {
 		this._debug && echo.group('Fledge: Join an Interest Group');
@@ -67,7 +69,7 @@ export default class Fledge {
 		this._debug && echo.log(echo.asInfo('interest group expiration:'), `${expiry}: (human-readable: ${new Date(Date.now() + expiry).toLocaleString()})`);
 		validate.param(options, 'object');
 		validate.param(expiry, 'number');
-		validate.hasRequiredKeys(options, [ 'owner', 'name', 'bidding_logic_url' ]);
+		validate.hasRequiredKeys(options, [ 'owner', 'name', 'biddingLogicUrl' ]);
 		validate.hasInvalidOptionTypes(options, InterestGroup);
 
 		if (expiry > MAX_EXPIRATION) {
@@ -98,7 +100,7 @@ export default class Fledge {
 	* @return {true}
 	*
 	* @example
-	*   leaveAdInterestGroup({ owner: 'foo', name: 'bar', bidding_logic_url: 'http://example.com/bid' });
+	*   leaveAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' });
 	*/
 	async leaveAdInterestGroup (group) {
 		this._debug && echo.group('Fledge: Leave an Interest Group');
@@ -130,13 +132,13 @@ export default class Fledge {
 	* @return {null | Promise<Token>}
 	*
 	* @example
-	*   runAdAuction({ seller: 'foo', decision_logic_url: 'http://example.com/auction', interst_group_buyers: [ 'www.buyer.com' ] });
+	*   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interstGroupBuyers: [ 'www.buyer.com' ] });
 	*/
 	async runAdAuction (conf) {
 		this._debug && echo.group('Fledge: Auction');
 		this._debug && echo.log(echo.asInfo('auction config:'), conf);
 		validate.param(conf, 'object');
-		validate.hasRequiredKeys(conf, [ 'seller', 'decision_logic_url', 'interest_group_buyers' ]);
+		validate.hasRequiredKeys(conf, [ 'seller', 'decisionLogicUrl', 'interestGroupBuyers' ]);
 		validate.hasInvalidOptionTypes(conf, AuctionConf);
 
 		this._debug && echo.groupCollapsed('message channel');
