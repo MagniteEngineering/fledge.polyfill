@@ -2,6 +2,8 @@
 const puppeteer = require('puppeteer');
 const randomstring = require('randomstring');
 const microtime = require('microtime');
+const fibonacci = require('fibonacci');
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
 const joinAdInterestGroups = async (numGroups, page) => {
 	for (let i = 0; i < numGroups; i++) {
@@ -76,14 +78,32 @@ const runTest = async numInterestGroups => {
 	return totalExecutionTime / numAuctions;
 };
 
+const writeToFile = async data => {
+	const csvWriter = createCsvWriter({
+		path: 'performance-results.csv',
+		header: [
+			{ id: 'numIgs', title: 'Number of IGs' },
+			{ id: 'averageTime', title: 'Average Execution Time' },
+		],
+	});
+
+	await csvWriter.writeRecords(data);
+	console.log('The CSV file was written successfully');
+};
+
 module.exports = async () => {
 	console.log(`starting performance test for runAdAuction`);
-	const maxInterestGroups = 100;
-	const results = {};
-	for (let i = 1; i < maxInterestGroups; i += 10) {
-		console.log(`starting performance test for runAdAuction with ${i} interest groups.`);
-		results[i] = await runTest(i);
-		console.log(`average call time: ${results[i]}µs`);
+	const maxInterestGroups = 900;
+	const results = [];
+	for (let i = 1, interestGroups = 1; interestGroups < maxInterestGroups; i++) {
+		interestGroups = fibonacci.iterate(i).number;
+		console.log(`starting performance test for runAdAuction with ${interestGroups} interest groups.`);
+		results.push({
+			numIgs: interestGroups,
+			averageTime: await runTest(interestGroups),
+		});
+		console.log(`average call time: ${results[results.length - 1].averageTime}µs`);
 		console.log('performance test complete');
 	}
+	await writeToFile(results);
 };

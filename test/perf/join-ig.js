@@ -29,8 +29,8 @@ module.exports = async () => {
 
 	console.log(`total time for ${numInterestGroups} calls: ${totalExecutionTime}µs`);
 	console.log(`average call time: ${totalExecutionTime / numInterestGroups}µs`);
-	await browser.close();
 	console.log('performance test complete');
+	return browser.close();
 };
 
 testDef = () => {

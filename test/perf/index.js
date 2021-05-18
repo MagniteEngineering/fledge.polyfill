@@ -4,4 +4,5 @@ const auctionTest = require('./run-auction');
 (async () => {
 	await joinIgTest();
 	await auctionTest();
+	process.exit(0);
 })();
