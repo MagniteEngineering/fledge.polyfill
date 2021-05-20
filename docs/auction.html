@@ -21,8 +21,8 @@
 		<hr />
 		<div id="ad-slot-1"></div>
 		<script type="module">
-			import Fledge from './scripts/api/esm/index.js';
 			const fledge = new Fledge('https://magniteengineering.github.io/fledge.polyfill/iframe.html');
+			import { Fledge, renderFledgeAd } from './scripts/api/esm/index.js';
 			const timeStart = performance.now();
 
 			const options = {
@@ -64,7 +64,7 @@
 				timeRender = performance.now();
 
 				if (auctionResults) {
-					await fledge.renderAd('#ad-slot-1', auctionResults, true);
+					await renderFledgeAd('#ad-slot-1', auctionResults, true);
 				} else {
 					document.getElementById('ad-slot-1').innerHTML = 'No eligible ads!';
 				}
