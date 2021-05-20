@@ -22,7 +22,7 @@ const MAX_EXPIRATION = 2592000000;
 */
 const IFRAME_HOST = 'http://localhost:8000';
 
-export default class Fledge {
+export class Fledge {
 	constructor (url) {
 		this.url = url || `${IFRAME_HOST}/iframe.html`;
 
@@ -130,66 +130,65 @@ export default class Fledge {
 			receiver.close();
 		}
 	}
+}
 
-	/*
-	* @function
-	* @name renderAd
-	* @description render an ad
-	* @author Newton <cnewton@magnite.com>
-	* @param {string} selector - a string reprensenting a valid selector to find an element on the page
-	* @param {string} token - a string that represents the results from an auction run via the `fledge.runAdAuction` call
-	* @throws {Error} Any parameters passed are incorrect or an incorrect type
-	* @return {Promise<null | true>}
-	*
-	* @example
-	*   renderAd('#ad-slot-1', '76941e71-2ed7-416d-9c55-36d07beff786');
-	*/
-	/* eslint-disable-next-line class-methods-use-this */
-	async renderAd (selector, token) {
-		validate.param(selector, 'string');
-		validate.param(token, 'string');
+/*
+* @function
+* @name renderAd
+* @description render an ad
+* @author Newton <cnewton@magnite.com>
+* @param {string} selector - a string reprensenting a valid selector to find an element on the page
+* @param {string} token - a string that represents the results from an auction run via the `fledge.runAdAuction` call
+* @throws {Error} Any parameters passed are incorrect or an incorrect type
+* @return {Promise<null | true>}
+*
+* @example
+*   renderAd('#ad-slot-1', '76941e71-2ed7-416d-9c55-36d07beff786');
+*/
+export async function renderFledgeAd (selector, token) {
+	validate.param(selector, 'string');
+	validate.param(token, 'string');
 
-		const target = document.querySelector(selector);
-		if (!target) {
-			throw new Error(`Target not found on the page! Please check that ${target} exists on the page.`);
-		}
-
-		const { origin, conf, winner } = JSON.parse(sessionStorage.getItem(token));
-		if (!winner) {
-			throw new Error(`A token was not found! Token provided: ${token}`);
-		}
-
-		if (origin !== `${window.top.location.origin}${window.top.location.pathname}`) {
-			throw new Error('The ads origin does not match the hosts origin!  No ad was rendered.');
-		}
-
-		frame.create({
-			source: winner.bid.render,
-			target,
-			props: {
-				id: `fledge-auction-${token}`,
-			},
-		});
-		const ad = document.querySelector(`#fledge-auction-${token}`);
-		if (!ad) {
-			throw new Error('Something went wrong! No ad was rendered.');
-		}
-
-		// get the sellers report
-		const sellersReport = await dynamicImport(conf.decisionLogicUrl, 'reportResult', conf, {
-			topWindowHostname: window.top.location.hostname,
-			interestGroupOwner: winner.bid.owner,
-			interestGroupName: winner.bid.name,
-			renderUrl: winner.bid.render,
-			bid: winner.bid.bid,
-		});
-		// get the buyers report
-		await dynamicImport(winner.bid.biddingLogicUrl, 'reportWin', conf?.auctionSignals, conf?.perBuyerSignals?.[winner.bid.owner], sellersReport, {
-			topWindowHostname: window.top.location.hostname,
-			interestGroupOwner: winner.bid.owner,
-			interestGroupName: winner.bid.name,
-			renderUrl: winner.bid.render,
-			bid: winner.bid.bid,
-		});
+	const target = document.querySelector(selector);
+	if (!target) {
+		throw new Error(`Target not found on the page! Please check that ${target} exists on the page.`);
 	}
+
+	const { origin, conf, winner } = JSON.parse(sessionStorage.getItem(token));
+	if (!winner) {
+		throw new Error(`A token was not found! Token provided: ${token}`);
+	}
+
+	if (origin !== `${window.top.location.origin}${window.top.location.pathname}`) {
+		throw new Error('The ads origin does not match the hosts origin!  No ad was rendered.');
+	}
+
+	frame.create({
+		source: winner.bid.render,
+		target,
+		props: {
+			id: `fledge-auction-${token}`,
+		},
+	});
+	const ad = document.querySelector(`#fledge-auction-${token}`);
+	if (!ad) {
+		throw new Error('Something went wrong! No ad was rendered.');
+	}
+
+	// get the sellers report
+	const sellersReport = await dynamicImport(conf.decisionLogicUrl, 'reportResult', conf, {
+		topWindowHostname: window.top.location.hostname,
+		interestGroupOwner: winner.bid.owner,
+		interestGroupName: winner.bid.name,
+		renderUrl: winner.bid.render,
+		bid: winner.bid.bid,
+	});
+	// get the buyers report
+	await dynamicImport(winner.bid.biddingLogicUrl, 'reportWin', conf?.auctionSignals, conf?.perBuyerSignals?.[winner.bid.owner], sellersReport, {
+		topWindowHostname: window.top.location.hostname,
+		interestGroupOwner: winner.bid.owner,
+		interestGroupName: winner.bid.name,
+		renderUrl: winner.bid.render,
+		bid: winner.bid.bid,
+	});
 }
