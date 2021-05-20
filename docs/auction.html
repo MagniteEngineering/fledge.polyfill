@@ -21,8 +21,9 @@
 		<hr />
 		<div id="ad-slot-1"></div>
 		<script type="module">
-			const fledge = new Fledge('https://magniteengineering.github.io/fledge.polyfill/iframe.html');
 			import { Fledge, renderFledgeAd } from './scripts/api/esm/index.js';
+			// const fledge = new Fledge('http://localhost:8000/iframe.html');
+			const fledge = new Fledge('https://magniteengineering.github.io/fledge.polyfill/iframe.html');
 			const timeStart = performance.now();
 
 			const options = {
