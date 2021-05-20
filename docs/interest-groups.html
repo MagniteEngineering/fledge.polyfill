@@ -55,7 +55,7 @@
 					trustedBiddingSignalsKeys: [
 						'ads',
 					],
-				}, parseInt(document.getElementById('expiration').value), true);
+				}, parseInt(document.getElementById('expiration').value));
 			};
 
 			document.getElementById("leave-ig").onclick = async function leaveGroup() {
@@ -63,7 +63,7 @@
 					owner: document.getElementById('owner').value,
 					name: document.getElementById('name').value,
 					biddingLogicUrl: document.getElementById('url').value
-				}, parseInt(document.getElementById('expiration').value), true);
+				}, parseInt(document.getElementById('expiration').value));
 			};
 
 			(async () => {

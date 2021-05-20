@@ -20,82 +20,26 @@ function _interopNamespace(e) {
 	return Object.freeze(n);
 }
 
-/* eslint-disable no-cond-assign */
-
-/*
- * @function
- * @name getSellerReport
- * @description given the results of an auction, grab the report from the seller
- * @author Newton <cnewton@magnite.com>
- * @param {object} conf - an auction configuration object
- * @param {object} results - the results of the auction
- * @return {object} an object of data to pass back to the buyers report
- */
-const getSellerReport = async (conf, results) => {
-	const { reportResult } = await Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(conf.decisionLogicUrl)); });
-
-	// check if there is even a function
-	if (!reportResult || typeof reportResult !== 'function') {
-		return null;
-	}
-
-	let report;
-	// generate a report by providing all of the necessary information
-	try {
-		report = reportResult(conf, {
-			topWindowHostname: window.top.location.hostname,
-			interestGroupOwner: results.bid.owner,
-			interestGroupName: results.bid.name,
-			renderUrl: results.bid.render,
-			bid: results.bid.bid,
-		});
-	} catch (err) {
-		return null;
-	}
-
-	return report;
+const AuctionConf = {
+	seller: 'string',
+	decisionLogicUrl: 'url',
+	interestGroupBuyers: 'mixed',
+	trustedScoringSignalsUrl: 'url',
+	additionalBids: 'array',
+	auctionSignals: 'object',
+	sellerSignals: 'object',
+	perBuyerSignals: 'object',
 };
 
-/*
- * @function
- * @name getBuyerReport
- * @description given the results of an auction, grab the report from the buyer
- * @author Newton <cnewton@magnite.com>
- * @param {object} conf - an auction configuration object
- * @param {object} results - the results of the auction
- * @param {object} report - the report object from the sellers report
- * @return {void} has a side effect of generating a report for the buyer
- */
-const getBuyerReport = async (conf, results, sellersReport) => {
-	const wins = Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(results.bid.biddingLogicUrl)); })
-		.then(({ reportWin }) => {
-			// check if there is even a function
-			if (!reportWin || typeof reportWin !== 'function') {
-				return null;
-			}
-
-			let report;
-
-			try {
-				// generate a report by providing all of the necessary information
-				report = reportWin(conf?.auctionSignals, conf?.perBuyerSignals?.[results.bid.owner], sellersReport, {
-					topWindowHostname: window.top.location.hostname,
-					interestGroupOwner: results.bid.owner,
-					interestGroupName: results.bid.name,
-					renderUrl: results.bid.render,
-					bid: results.bid.bid,
-				});
-			} catch (err) {
-				report = null;
-			}
-
-			return report;
-		})
-		.catch(err => {
-			throw new Error(err);
-		});
-
-	return wins;
+const InterestGroup = {
+	owner: 'string',
+	name: 'string',
+	biddingLogicUrl: 'url',
+	dailyUpdateUrl: 'url', // @TODO: support this potentially on the auction, grabbing the latest interest group data, and updating the IDB store with it
+	trustedBiddingSignalsUrl: 'url',
+	trustedBiddingSignalsKeys: 'array',
+	userBiddingSignals: 'object',
+	ads: 'array',
 };
 
 const VERSION = 1;
@@ -295,6 +239,46 @@ async function getFramePort (iframe, expectedOrigin) {
 	return ports[0];
 }
 
+/*
+ * @function
+ * @name call
+ * @description wrap a promise in a reliable api, similar to Go-style
+ * @author Newton <cnewton@magnite.com>
+ * @param {promise} promise - a promise
+ * @return {Promise<Array>} a promise that resolves to data as the first index in an array, and/or an error in the second index
+ */
+const call = promise => promise
+	.then(data => ([ data, undefined ]))
+	.catch(error => Promise.resolve([ undefined, error ]));
+
+/*
+ * @function
+ * @name dynamicImport
+ * @description dynamically imports a function
+ * @author Newton <cnewton@magnite.com>
+ * @param {URL} url - a fully qualified URL to an ES6 module
+ * @param {string} fn - a function name that exists at the URL
+ * @param {nargs} args - any level of arguments/parameters that the function takes
+ * @return {any} any set of data that the function returns
+ */
+const dynamicImport = async (url, fn, ...args) => {
+	const [ module, moduleErr ] = await call(Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(url)); }));
+
+	if (moduleErr) {
+		return null;
+	}
+
+	if (!module[fn] || typeof module[fn] !== 'function') {
+		return null;
+	}
+
+	try {
+		return module[fn](...args);
+	} catch (err) {
+		return null;
+	}
+};
+
 const frame = {
 	create: createFrame,
 };
@@ -311,72 +295,6 @@ const validate = {
 	printInvalidOptionTypes,
 	type: validateType,
 	param: validateParam,
-};
-
-/*
- * @function
- * @name renderAd
- * @description render an ad
- * @author Newton <cnewton@magnite.com>
- * @param {string} selector - a string reprensenting a valid selector to find an element on the page
- * @param {string} token - a string that represents the results from an auction run via the `fledge.runAdAuction` call
- * @throws {Error} Any parameters passed are incorrect or an incorrect type
- * @return {Promise<null | true>}
- *
- * @example
- *   renderAd('#ad-slot-1', '76941e71-2ed7-416d-9c55-36d07beff786');
- */
-async function renderAd (selector, token) {
-	const target = document.querySelector(selector);
-	if (!target) {
-		throw new Error(`Target not found on the page! Please check that ${target} exists on the page.`);
-	}
-
-	const winner = JSON.parse(sessionStorage.getItem(token));
-	if (!winner) {
-		throw new Error(`A token was not found! Token provided: ${token}`);
-	}
-
-	if (winner?.origin !== `${window.top.location.origin}${window.top.location.pathname}`) {
-		throw new Error('Something went wrong! No ad was rendered.');
-	}
-
-	frame.create({
-		source: winner.bid.render,
-		target,
-		props: {
-			id: `fledge-auction-${token}`,
-		},
-	});
-	const ad = document.querySelector(`#fledge-auction-${token}`);
-	if (!ad) {
-		throw new Error('Something went wrong! No ad was rendered.');
-	}
-
-	const sellersReport = await getSellerReport(winner.conf, winner);
-	await getBuyerReport(winner.conf, winner, sellersReport);
-}
-
-const AuctionConf = {
-	seller: 'string',
-	decisionLogicUrl: 'url',
-	interestGroupBuyers: 'mixed',
-	trustedScoringSignalsUrl: 'url',
-	additionalBids: 'array',
-	auctionSignals: 'object',
-	sellerSignals: 'object',
-	perBuyerSignals: 'object',
-};
-
-const InterestGroup = {
-	owner: 'string',
-	name: 'string',
-	biddingLogicUrl: 'url',
-	dailyUpdateUrl: 'url', // @TODO: support this potentially on the auction, grabbing the latest interest group data, and updating the IDB store with it
-	trustedBiddingSignalsUrl: 'url',
-	trustedBiddingSignalsKeys: 'array',
-	userBiddingSignals: 'object',
-	ads: 'array',
 };
 
 /*
@@ -400,17 +318,13 @@ class Fledge {
 			source: this.url,
 			style: { display: 'none' },
 		});
-		// iframe.sandbox.add('allow-same-origin', 'allow-scripts');
+		iframe.sandbox.add('allow-same-origin', 'allow-scripts');
 		const port = message.getFramePort(iframe, origin);
 
 		this._props = {
 			iframe,
 			port,
 		};
-	}
-
-	set props (props) {
-		this._props = props;
 	}
 
 	get props () {
@@ -480,7 +394,7 @@ class Fledge {
 	* @return {null | Promise<Token>}
 	*
 	* @example
-	*   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interstGroupBuyers: [ 'www.buyer.com' ] });
+	*   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interestGroupBuyers: [ 'www.buyer.com' ] });
 	*/
 	async runAdAuction (conf) {
 		validate.param(conf, 'object');
@@ -496,7 +410,7 @@ class Fledge {
 			] ], [ sender ]);
 			const { data } = await message.getFromFrame(receiver);
 			if (!data[0]) {
-				throw new Error('No data found!');
+				throw new Error('No response from the iframe was found!');
 			}
 			const [ , token ] = data;
 			return token;
@@ -523,7 +437,48 @@ class Fledge {
 		validate.param(selector, 'string');
 		validate.param(token, 'string');
 
-		await renderAd(selector, token);
+		const target = document.querySelector(selector);
+		if (!target) {
+			throw new Error(`Target not found on the page! Please check that ${target} exists on the page.`);
+		}
+
+		const { origin, conf, winner } = JSON.parse(sessionStorage.getItem(token));
+		if (!winner) {
+			throw new Error(`A token was not found! Token provided: ${token}`);
+		}
+
+		if (origin !== `${window.top.location.origin}${window.top.location.pathname}`) {
+			throw new Error('The ads origin does not match the hosts origin!  No ad was rendered.');
+		}
+
+		frame.create({
+			source: winner.bid.render,
+			target,
+			props: {
+				id: `fledge-auction-${token}`,
+			},
+		});
+		const ad = document.querySelector(`#fledge-auction-${token}`);
+		if (!ad) {
+			throw new Error('Something went wrong! No ad was rendered.');
+		}
+
+		// get the sellers report
+		const sellersReport = await dynamicImport(conf.decisionLogicUrl, 'reportResult', conf, {
+			topWindowHostname: window.top.location.hostname,
+			interestGroupOwner: winner.bid.owner,
+			interestGroupName: winner.bid.name,
+			renderUrl: winner.bid.render,
+			bid: winner.bid.bid,
+		});
+		// get the buyers report
+		await dynamicImport(winner.bid.biddingLogicUrl, 'reportWin', conf?.auctionSignals, conf?.perBuyerSignals?.[winner.bid.owner], sellersReport, {
+			topWindowHostname: window.top.location.hostname,
+			interestGroupOwner: winner.bid.owner,
+			interestGroupName: winner.bid.name,
+			renderUrl: winner.bid.render,
+			bid: winner.bid.bid,
+		});
 	}
 }
 

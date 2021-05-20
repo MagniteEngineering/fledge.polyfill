@@ -149,28 +149,28 @@ const getIGKey = (owner, name) => `${owner}-${name}`;
  * @param {object} options - An object of options to create an interest group {@link types}
  * @param {number} expiry - A number of the days (in milliseconds) an interest group should exist, not to exceed 30 days
  * @throws {Error} Any parameters passed are incorrect or an incorrect type
- * @return {true}
+ * @return {Promise<void>}
  *
  * @example
  *   joinAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' }, 2592000000);
  */
-async function joinAdInterestGroup (options, expiry) {
+function joinAdInterestGroup (options, expiry) {
 	const id = getIGKey(options.owner, options.name);
-	const group = await get(id, customStore);
+	const group = get(id, customStore);
 	if (group) {
-		await update(id, old => ({
+		return update(id, old => ({
 			...old,
 			...options,
 			_expired: Date.now() + expiry,
 		}), customStore);
-	} else {
-		await set(id, {
-			_created: Date.now(),
-			_expired: Date.now() + expiry,
-			_updated: Date.now(),
-			...options,
-		}, customStore);
 	}
+
+	return set(id, {
+		_created: Date.now(),
+		_expired: Date.now() + expiry,
+		_updated: Date.now(),
+		...options,
+	}, customStore);
 }
 
 /*
@@ -180,88 +180,70 @@ async function joinAdInterestGroup (options, expiry) {
  * @author Newton <cnewton@magnite.com>
  * @param {object} options - An object of options to create an interest group {@link types}
  * @throws {Error} Any parameters passed are incorrect or an incorrect type
- * @return {true}
+ * @return {Promise<void>}
  *
  * @example
  *   leaveAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' });
  */
-async function leaveAdInterestGroup (group) {
-	await del(getIGKey(group.owner, group.name), customStore);
-}
+const leaveAdInterestGroup = group =>
+	del(getIGKey(group.owner, group.name), customStore);
 
-/*
- * @function
- * @name getEligible
- * @description filter all buyers by their owner field to ensure they're eligible to bid
- * @author Newton <cnewton@magnite.com>
- * @param {array<Object>} groups - an array of objects containing interest group buyers
- * @param {array<String>} eligibility - a list of eligible owners to check against
- * @return {Array<Object> | null} an array of objects; null if none found;
- */
-const getEligible = (groups, eligibility) => {
-	if (eligibility === '*') {
-		return groups;
+const call = promise => promise
+	.then(data => ([ data, undefined ]))
+	.catch(error => Promise.resolve([ undefined, error ]));
+
+const dynamicImport = async (url, fn, ...args) => {
+	const [ module, moduleErr ] = await call(Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(url)); }));
+
+	if (moduleErr) {
+		return null;
 	}
 
-	const eligible = groups.filter(([ key, value ]) => eligibility.includes(value.owner));
-	if (eligible.length) {
-		return eligible;
+	if (!module[fn] || typeof module[fn] !== 'function') {
+		return null;
 	}
 
-	return null;
+	try {
+		return module[fn](...args);
+	} catch (err) {
+		return null;
+	}
 };
 
 /*
  * @function
- * @name getBids
- * @description given a set of bidders, grab their bid
+ * @name getBid
+ * @description grab a bid
  * @author Newton <cnewton@magnite.com>
- * @param {array<Object>} bidders - a list of bidders (also referred to as interest groups)
+ * @param {Object} bidder - a bidders (also referred to as interest groups)
  * @param {array<Object>} conf - an auction configuration object
  * @return {object | null} an array of objects containing bids; null if none found
  */
-const getBids = async (bidders, conf) => Promise.all(
-	bidders.map(async ([ key, bidder ]) => {
-		const time0 = performance.now();
-		const { generateBid } = await Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(bidder.biddingLogicUrl)); });
+const getBid = async (bidder, conf) => {
+	const startTime = performance.now();
+	const trustedSignals = await getTrustedSignals(bidder?.trustedBiddingSignalsUrl, bidder?.trustedBiddingSignalsKeys);
+	const bid = await dynamicImport(bidder.biddingLogicUrl, 'generateBid', bidder, conf?.auctionSignals, conf?.perBuyerSignals?.[bidder.owner], trustedSignals, {
+		topWindowHostname: window.top.location.hostname,
+		seller: conf.seller,
+	});
 
-		// check if there is even a generateBid function
-		// if not, removed bidder from elibility
-		if (!generateBid && typeof generateBid !== 'function') {
-			return null;
-		}
+	// check if generateBid function returned the necessary parts to score
+	// if not, removed bidder from elibility
+	if (!(
+		(bid.ad && typeof bid.ad === 'object') &&
+		(bid.bid && typeof bid.bid === 'number') &&
+		(bid.render && (typeof bid.render === 'string' || Array.isArray(bid.render)))
+	)) {
+		return false;
+	}
 
-		const trustedSignals = await getTrustedSignals(bidder?.trustedBiddingSignalsUrl, bidder?.trustedBiddingSignalsKeys);
-
-		// generate a bid by providing all of the necessary information
-		let bid;
-		try {
-			bid = generateBid(bidder, conf?.auctionSignals, conf?.perBuyerSignals?.[bidder.owner], trustedSignals, {
-				topWindowHostname: window.top.location.hostname,
-				seller: conf.seller,
-			});
-		} catch (err) {
-			return null;
-		}
-
-		// check if generateBid function returned the necessary parts to score
-		// if not, removed bidder from elibility
-		if (!(
-			(bid.ad && typeof bid.ad === 'object') &&
-			(bid.bid && typeof bid.bid === 'number') &&
-			(bid.render && (typeof bid.render === 'string' || Array.isArray(bid.render)))
-		)) {
-			return null;
-		}
-
-		const time1 = performance.now();
-		return {
-			...bidder,
-			...bid,
-			duration: time1 - time0,
-		};
-	}),
-);
+	const endTime = performance.now();
+	return {
+		...bidder,
+		...bid,
+		duration: endTime - startTime,
+	};
+};
 
 /*
  * @function
@@ -272,40 +254,25 @@ const getBids = async (bidders, conf) => Promise.all(
  * @param {array<Object>} conf - an auction configuration object
  * @return {object | null} a sorted, filtered array of objects containing scores
  */
-const getScores = async (bids, conf) => {
-	const { scoreAd } = await Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(conf.decisionLogicUrl)); });
-
-	// check if there is even a scoreAd function
-	// if not, return null
-	if (!scoreAd && typeof scoreAd !== 'function') {
-		return null;
+const getScores = async (bids, conf) => Promise.all(bids.map(async bid => {
+	let trustedSignalsKeys;
+	if (bid.ad && bid.ad.length > 0) {
+		trustedSignalsKeys = bid?.ad?.map(({ renderUrl }) => renderUrl);
 	}
+	const trustedSignals = await getTrustedSignals(conf?.trustedScoringSignalsUrl, trustedSignalsKeys);
 
-	return Promise.all(bids.map(async bid => {
-		let trustedSignalsKeys;
-		if (bid.ad && bid.ad.length > 0) {
-			trustedSignalsKeys = bid?.ad?.map(({ renderUrl }) => renderUrl);
-		}
-		const trustedSignals = await getTrustedSignals(conf?.trustedScoringSignalsUrl, trustedSignalsKeys);
+	const score = await dynamicImport(conf.decisionLogicUrl, 'scoreAd', bid?.ad, bid?.bid, conf, trustedSignals, {
+		topWindowHostname: window.top.location.hostname,
+		interestGroupOwner: bid.owner,
+		interestGroupName: bid.name,
+		biddingDurationMsec: bid.duration,
+	});
 
-		let score;
-		try {
-			score = scoreAd(bid?.ad, bid?.bid, conf, trustedSignals, {
-				topWindowHostname: window.top.location.hostname,
-				interestGroupOwner: bid.owner,
-				interestGroupName: bid.name,
-				biddingDurationMsec: bid.duration,
-			});
-		} catch (err) {
-			score = -1;
-		}
-
-		return {
-			bid,
-			score,
-		};
-	}));
-};
+	return {
+		bid,
+		score,
+	};
+}));
 
 /*
  * @function
@@ -328,30 +295,19 @@ const uuid = () => ([ 1e7 ] + -1e3 + -4e3 + -8e3 + -1e11)
  * @return {object} a JSON response
  */
 const getTrustedSignals = async (url, keys) => {
-	const hostname = `hostname=${window.top.location.hostname}`;
-
 	if (!(url && keys)) {
 		return undefined;
 	}
 
+	const hostname = `hostname=${window.top.location.hostname}`;
 	const isJSON = response => /\bapplication\/json\b/.test(response?.headers?.get('content-type'));
 
-	let data;
-	try {
-		const response = await fetch(`${url}?${hostname}&keys=${keys.join(',')}`);
-		if (!response.ok) {
-			// throw new Error('Something went wrong! The response returned was not ok.');
-			return null;
-		}
-
-		if (!isJSON(response)) {
-			// throw new Error('Response was not in the format of JSON.');
-			return null;
-		}
-		data = await response.json();
-	} catch (error) {
+	const [ response, responseErr ] = await call(fetch(`${url}?${hostname}&keys=${keys.join(',')}`));
+	if (responseErr || !response.ok || !isJSON(response)) {
 		return null;
 	}
+
+	const data = await response.json();
 
 	const signals = {};
 	for (const key in data) {
@@ -379,21 +335,24 @@ const getTrustedSignals = async (url, keys) => {
  *   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interestGroupBuyers: [ 'www.buyer.com' ] });
  */
 async function runAdAuction (conf) {
-	const interestGroups = await entries(customStore);
-
-	const eligible = getEligible(interestGroups, conf.interestGroupBuyers);
-	if (!eligible) {
+	const entries$1 = await entries(customStore);
+	const interestGroups = entries$1
+		.flatMap(([ key, value ]) => value) // flatten the two-dimensional array ([igKey, igKeyProps]) to only igKeyProps
+		.filter(item => conf.interestGroupBuyers !== '*' ? conf.interestGroupBuyers.includes(item.owner) : item); // check owner of ig is allowed per conf.interestGroupBuyers
+	if (!interestGroups || !Array.isArray(interestGroups) || interestGroups.length === 0) {
 		return null;
 	}
 
-	const bids = await getBids(eligible, conf);
-
-	const filteredBids = bids.filter(item => item);
-	if (!filteredBids.length) {
+	const bids = await Promise
+		.all(interestGroups
+			.map(bidder => getBid(bidder, conf))
+			.filter(item => item),
+		);
+	if (!bids.length) {
 		return null;
 	}
 
-	const winners = await getScores(filteredBids, conf);
+	const winners = await getScores(bids, conf);
 	const [ winner ] = winners
 		.filter(({ score }) => score > 0)
 		.sort((a, b) => (a.score > b.score) ? 1 : -1);
@@ -406,7 +365,7 @@ async function runAdAuction (conf) {
 		origin: `${window.top.location.origin}${window.top.location.pathname}`,
 		timestamp: Date.now(),
 		conf,
-		...winner,
+		winner,
 	}));
 
 	return token;
