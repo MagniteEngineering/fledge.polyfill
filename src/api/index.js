@@ -1,9 +1,9 @@
-import render from './render';
 import {
 	AuctionConf,
 	InterestGroup,
 } from './types';
 import {
+	dynamicImport,
 	frame,
 	message,
 	validate,
@@ -30,17 +30,13 @@ export default class Fledge {
 			source: this.url,
 			style: { display: 'none' },
 		});
-		// iframe.sandbox.add('allow-same-origin', 'allow-scripts');
+		iframe.sandbox.add('allow-same-origin', 'allow-scripts');
 		const port = message.getFramePort(iframe, origin);
 
 		this._props = {
 			iframe,
 			port,
 		};
-	}
-
-	set props (props) {
-		this._props = props;
 	}
 
 	get props () {
@@ -110,7 +106,7 @@ export default class Fledge {
 	* @return {null | Promise<Token>}
 	*
 	* @example
-	*   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interstGroupBuyers: [ 'www.buyer.com' ] });
+	*   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interestGroupBuyers: [ 'www.buyer.com' ] });
 	*/
 	async runAdAuction (conf) {
 		validate.param(conf, 'object');
@@ -126,7 +122,7 @@ export default class Fledge {
 			] ], [ sender ]);
 			const { data } = await message.getFromFrame(receiver);
 			if (!data[0]) {
-				throw new Error('No data found!');
+				throw new Error('No response from the iframe was found!');
 			}
 			const [ , token ] = data;
 			return token;
@@ -153,6 +149,47 @@ export default class Fledge {
 		validate.param(selector, 'string');
 		validate.param(token, 'string');
 
-		await render(selector, token);
+		const target = document.querySelector(selector);
+		if (!target) {
+			throw new Error(`Target not found on the page! Please check that ${target} exists on the page.`);
+		}
+
+		const { origin, conf, winner } = JSON.parse(sessionStorage.getItem(token));
+		if (!winner) {
+			throw new Error(`A token was not found! Token provided: ${token}`);
+		}
+
+		if (origin !== `${window.top.location.origin}${window.top.location.pathname}`) {
+			throw new Error('The ads origin does not match the hosts origin!  No ad was rendered.');
+		}
+
+		frame.create({
+			source: winner.bid.render,
+			target,
+			props: {
+				id: `fledge-auction-${token}`,
+			},
+		});
+		const ad = document.querySelector(`#fledge-auction-${token}`);
+		if (!ad) {
+			throw new Error('Something went wrong! No ad was rendered.');
+		}
+
+		// get the sellers report
+		const sellersReport = await dynamicImport(conf.decisionLogicUrl, 'reportResult', conf, {
+			topWindowHostname: window.top.location.hostname,
+			interestGroupOwner: winner.bid.owner,
+			interestGroupName: winner.bid.name,
+			renderUrl: winner.bid.render,
+			bid: winner.bid.bid,
+		});
+		// get the buyers report
+		await dynamicImport(winner.bid.biddingLogicUrl, 'reportWin', conf?.auctionSignals, conf?.perBuyerSignals?.[winner.bid.owner], sellersReport, {
+			topWindowHostname: window.top.location.hostname,
+			interestGroupOwner: winner.bid.owner,
+			interestGroupName: winner.bid.name,
+			renderUrl: winner.bid.render,
+			bid: winner.bid.bid,
+		});
 	}
 }

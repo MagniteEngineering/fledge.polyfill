@@ -1,76 +1,59 @@
-/*
- * @function
- * @name getEligible
- * @description filter all buyers by their owner field to ensure they're eligible to bid
- * @author Newton <cnewton@magnite.com>
- * @param {array<Object>} groups - an array of objects containing interest group buyers
- * @param {array<String>} eligibility - a list of eligible owners to check against
- * @return {Array<Object> | null} an array of objects; null if none found;
- */
-export const getEligible = (groups, eligibility) => {
-	if (eligibility === '*') {
-		return groups;
+const call = promise => promise
+	.then(data => ([ data, undefined ]))
+	.catch(error => Promise.resolve([ undefined, error ]));
+
+const dynamicImport = async (url, fn, ...args) => {
+	const [ module, moduleErr ] = await call(import(url));
+
+	if (moduleErr) {
+		return null;
 	}
 
-	const eligible = groups.filter(([ key, value ]) => eligibility.includes(value.owner));
-	if (eligible.length) {
-		return eligible;
+	if (!module[fn] || typeof module[fn] !== 'function') {
+		return null;
 	}
 
-	return null;
+	try {
+		return module[fn](...args);
+	} catch (err) {
+		return null;
+	}
 };
 
 /*
  * @function
- * @name getBids
- * @description given a set of bidders, grab their bid
+ * @name getBid
+ * @description grab a bid
  * @author Newton <cnewton@magnite.com>
- * @param {array<Object>} bidders - a list of bidders (also referred to as interest groups)
+ * @param {Object} bidder - a bidders (also referred to as interest groups)
  * @param {array<Object>} conf - an auction configuration object
  * @return {object | null} an array of objects containing bids; null if none found
  */
-export const getBids = async (bidders, conf) => Promise.all(
-	bidders.map(async ([ key, bidder ]) => {
-		const time0 = performance.now();
-		const { generateBid } = await import(bidder.biddingLogicUrl);
+export const getBid = async (bidder, conf) => {
+	const startTime = performance.now();
+	const trustedSignals = await getTrustedSignals(bidder?.trustedBiddingSignalsUrl, bidder?.trustedBiddingSignalsKeys);
+	const bid = await dynamicImport(bidder.biddingLogicUrl, 'generateBid', bidder, conf?.auctionSignals, conf?.perBuyerSignals?.[bidder.owner], trustedSignals, {
+		topWindowHostname: window.top.location.hostname,
+		seller: conf.seller,
+	});
 
-		// check if there is even a generateBid function
-		// if not, removed bidder from elibility
-		if (!generateBid && typeof generateBid !== 'function') {
-			return null;
-		}
+	// check if generateBid function returned the necessary parts to score
+	// if not, removed bidder from elibility
+	if (!(
+		(bid.ad && typeof bid.ad === 'object') &&
+		(bid.bid && typeof bid.bid === 'number') &&
+		(bid.render && (typeof bid.render === 'string' || Array.isArray(bid.render)))
+	)) {
+		return false;
+	}
 
-		const trustedSignals = await getTrustedSignals(bidder?.trustedBiddingSignalsUrl, bidder?.trustedBiddingSignalsKeys);
-
-		// generate a bid by providing all of the necessary information
-		let bid;
-		try {
-			bid = generateBid(bidder, conf?.auctionSignals, conf?.perBuyerSignals?.[bidder.owner], trustedSignals, {
-				topWindowHostname: window.top.location.hostname,
-				seller: conf.seller,
-			});
-		} catch (err) {
-			return null;
-		}
-
-		// check if generateBid function returned the necessary parts to score
-		// if not, removed bidder from elibility
-		if (!(
-			(bid.ad && typeof bid.ad === 'object') &&
-			(bid.bid && typeof bid.bid === 'number') &&
-			(bid.render && (typeof bid.render === 'string' || Array.isArray(bid.render)))
-		)) {
-			return null;
-		}
-
-		const time1 = performance.now();
-		return {
-			...bidder,
-			...bid,
-			duration: time1 - time0,
-		};
-	}),
-);
+	const endTime = performance.now();
+	return {
+		...bidder,
+		...bid,
+		duration: endTime - startTime,
+	};
+};
 
 /*
  * @function
@@ -81,40 +64,25 @@ export const getBids = async (bidders, conf) => Promise.all(
  * @param {array<Object>} conf - an auction configuration object
  * @return {object | null} a sorted, filtered array of objects containing scores
  */
-export const getScores = async (bids, conf) => {
-	const { scoreAd } = await import(conf.decisionLogicUrl);
-
-	// check if there is even a scoreAd function
-	// if not, return null
-	if (!scoreAd && typeof scoreAd !== 'function') {
-		return null;
+export const getScores = async (bids, conf) => Promise.all(bids.map(async bid => {
+	let trustedSignalsKeys;
+	if (bid.ad && bid.ad.length > 0) {
+		trustedSignalsKeys = bid?.ad?.map(({ renderUrl }) => renderUrl);
 	}
+	const trustedSignals = await getTrustedSignals(conf?.trustedScoringSignalsUrl, trustedSignalsKeys);
 
-	return Promise.all(bids.map(async bid => {
-		let trustedSignalsKeys;
-		if (bid.ad && bid.ad.length > 0) {
-			trustedSignalsKeys = bid?.ad?.map(({ renderUrl }) => renderUrl);
-		}
-		const trustedSignals = await getTrustedSignals(conf?.trustedScoringSignalsUrl, trustedSignalsKeys);
+	const score = await dynamicImport(conf.decisionLogicUrl, 'scoreAd', bid?.ad, bid?.bid, conf, trustedSignals, {
+		topWindowHostname: window.top.location.hostname,
+		interestGroupOwner: bid.owner,
+		interestGroupName: bid.name,
+		biddingDurationMsec: bid.duration,
+	});
 
-		let score;
-		try {
-			score = scoreAd(bid?.ad, bid?.bid, conf, trustedSignals, {
-				topWindowHostname: window.top.location.hostname,
-				interestGroupOwner: bid.owner,
-				interestGroupName: bid.name,
-				biddingDurationMsec: bid.duration,
-			});
-		} catch (err) {
-			score = -1;
-		}
-
-		return {
-			bid,
-			score,
-		};
-	}));
-};
+	return {
+		bid,
+		score,
+	};
+}));
 
 /*
  * @function
@@ -137,30 +105,19 @@ export const uuid = () => ([ 1e7 ] + -1e3 + -4e3 + -8e3 + -1e11)
  * @return {object} a JSON response
  */
 const getTrustedSignals = async (url, keys) => {
-	const hostname = `hostname=${window.top.location.hostname}`;
-
 	if (!(url && keys)) {
 		return undefined;
 	}
 
+	const hostname = `hostname=${window.top.location.hostname}`;
 	const isJSON = response => /\bapplication\/json\b/.test(response?.headers?.get('content-type'));
 
-	let data;
-	try {
-		const response = await fetch(`${url}?${hostname}&keys=${keys.join(',')}`);
-		if (!response.ok) {
-			// throw new Error('Something went wrong! The response returned was not ok.');
-			return null;
-		}
-
-		if (!isJSON(response)) {
-			// throw new Error('Response was not in the format of JSON.');
-			return null;
-		}
-		data = await response.json();
-	} catch (error) {
+	const [ response, responseErr ] = await call(fetch(`${url}?${hostname}&keys=${keys.join(',')}`));
+	if (responseErr || !response.ok || !isJSON(response)) {
 		return null;
 	}
+
+	const data = await response.json();
 
 	const signals = {};
 	for (const key in data) {

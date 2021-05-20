@@ -195,6 +195,46 @@ async function getFramePort (iframe, expectedOrigin) {
 	return ports[0];
 }
 
+/*
+ * @function
+ * @name call
+ * @description wrap a promise in a reliable api, similar to Go-style
+ * @author Newton <cnewton@magnite.com>
+ * @param {promise} promise - a promise
+ * @return {Promise<Array>} a promise that resolves to data as the first index in an array, and/or an error in the second index
+ */
+const call = promise => promise
+	.then(data => ([ data, undefined ]))
+	.catch(error => Promise.resolve([ undefined, error ]));
+
+/*
+ * @function
+ * @name dynamicImport
+ * @description dynamically imports a function
+ * @author Newton <cnewton@magnite.com>
+ * @param {URL} url - a fully qualified URL to an ES6 module
+ * @param {string} fn - a function name that exists at the URL
+ * @param {nargs} args - any level of arguments/parameters that the function takes
+ * @return {any} any set of data that the function returns
+ */
+export const dynamicImport = async (url, fn, ...args) => {
+	const [ module, moduleErr ] = await call(import(url));
+
+	if (moduleErr) {
+		return null;
+	}
+
+	if (!module[fn] || typeof module[fn] !== 'function') {
+		return null;
+	}
+
+	try {
+		return module[fn](...args);
+	} catch (err) {
+		return null;
+	}
+};
+
 export const frame = {
 	create: createFrame,
 };
