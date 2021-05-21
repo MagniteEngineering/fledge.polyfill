@@ -16,7 +16,7 @@ module.exports = async () => {
 		const name = randomstring.generate(7);
 		const start = microtime.now();
 		await page.evaluate(name => {
-			const fledge = new window.fledge('http://localhost:3000/docs/iframe.html');
+			const fledge = new window.fledge.Fledge('http://localhost:3000/docs/iframe.html');
 			return fledge.joinAdInterestGroup({
 				owner: 'magnite.com',
 				name,
