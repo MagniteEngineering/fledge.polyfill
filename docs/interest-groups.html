@@ -42,8 +42,9 @@
 		</div>
 		<script type="module">
 			import * as idb from 'https://cdn.jsdelivr.net/npm/idb-keyval@5/dist/esm/index.js';
-			import Fledge from './scripts/api/esm/index.js';
-			const fledge = new Fledge('https://magniteengineering.github.io/fledge.polyfill/iframe.html', true);
+			import { Fledge } from './scripts/api/esm/index.js';
+			// const fledge = new Fledge('http://localhost:8000/iframe.html');
+			const fledge = new Fledge('https://magniteengineering.github.io/fledge.polyfill/iframe.html');
 			const customStore = idb.createStore('fledge.v1', 'interest-groups');
 
 			document.getElementById("join-ig").onclick = async function joinGroup() {
@@ -55,7 +56,7 @@
 					trustedBiddingSignalsKeys: [
 						'ads',
 					],
-				}, parseInt(document.getElementById('expiration').value), true);
+				}, parseInt(document.getElementById('expiration').value));
 			};
 
 			document.getElementById("leave-ig").onclick = async function leaveGroup() {
@@ -63,7 +64,7 @@
 					owner: document.getElementById('owner').value,
 					name: document.getElementById('name').value,
 					biddingLogicUrl: document.getElementById('url').value
-				}, parseInt(document.getElementById('expiration').value), true);
+				}, parseInt(document.getElementById('expiration').value));
 			};
 
 			(async () => {

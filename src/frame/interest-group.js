@@ -1,4 +1,3 @@
-import { echo } from '@theholocron/klaxon';
 import * as idb from 'idb-keyval';
 
 export const customStore = idb.createStore('fledge.v1', 'interest-groups');
@@ -26,36 +25,28 @@ export const getIGKey = (owner, name) => `${owner}-${name}`;
  * @param {object} options - An object of options to create an interest group {@link types}
  * @param {number} expiry - A number of the days (in milliseconds) an interest group should exist, not to exceed 30 days
  * @throws {Error} Any parameters passed are incorrect or an incorrect type
- * @return {true}
+ * @return {Promise<void>}
  *
  * @example
  *   joinAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' }, 2592000000);
  */
-export async function joinAdInterestGroup (options, expiry, debug) {
-	debug && echo.groupCollapsed('Fledge API: joinAdInterest');
+export function joinAdInterestGroup (options, expiry) {
 	const id = getIGKey(options.owner, options.name);
-	const group = await idb.get(id, customStore);
-	debug && echo.log(echo.asInfo('checking for an existing interest group:'), group);
+	const group = idb.get(id, customStore);
 	if (group) {
-		debug && echo.log(echo.asProcess('updating an interest group'));
-		await idb.update(id, old => ({
+		return idb.update(id, old => ({
 			...old,
 			...options,
 			_expired: Date.now() + expiry,
 		}), customStore);
-	} else {
-		debug && echo.log(echo.asProcess('creating a new interest group'));
-		await idb.set(id, {
-			_created: Date.now(),
-			_expired: Date.now() + expiry,
-			_updated: Date.now(),
-			...options,
-		}, customStore);
 	}
-	debug && echo.log(echo.asSuccess('interest group id:'), id);
-	debug && echo.groupEnd();
 
-	return true;
+	return idb.set(id, {
+		_created: Date.now(),
+		_expired: Date.now() + expiry,
+		_updated: Date.now(),
+		...options,
+	}, customStore);
 }
 
 /*
@@ -65,17 +56,10 @@ export async function joinAdInterestGroup (options, expiry, debug) {
  * @author Newton <cnewton@magnite.com>
  * @param {object} options - An object of options to create an interest group {@link types}
  * @throws {Error} Any parameters passed are incorrect or an incorrect type
- * @return {true}
+ * @return {Promise<void>}
  *
  * @example
  *   leaveAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' });
  */
-export async function leaveAdInterestGroup (group, debug) {
-	debug && echo.groupCollapsed('Fledge API: leaveAdInterest');
-	debug && echo.log(echo.asProcess('deleting an existing interest group'));
-	await idb.del(getIGKey(group.owner, group.name), customStore);
-	debug && echo.log(echo.asSuccess('interest group deleted'));
-	debug && echo.groupEnd();
-
-	return true;
-}
+export const leaveAdInterestGroup = group =>
+	idb.del(getIGKey(group.owner, group.name), customStore);

@@ -1,9 +1,7 @@
-import { echo } from '@theholocron/klaxon';
 import * as idb from 'idb-keyval';
 import { customStore } from './interest-group';
 import {
-	getBids,
-	getEligible,
+	getBid,
 	getScores,
 	uuid,
 } from './utils';
@@ -20,51 +18,39 @@ import {
  * @example
  *   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interestGroupBuyers: [ 'www.buyer.com' ] });
  */
-export default async function runAdAuction (conf, debug) {
-	debug && echo.groupCollapsed('Fledge API: runAdAuction');
-	const interestGroups = await idb.entries(customStore);
-	debug && echo.log(echo.asInfo('all interest groups:'), interestGroups);
-
-	const eligible = getEligible(interestGroups, conf.interestGroupBuyers, debug);
-	debug && echo.log(echo.asInfo('eligible buyers based on "interestGroupBuyers":'), eligible);
-	if (!eligible) {
-		debug && echo.log(echo.asAlert('No eligible interest group buyers found!'));
+export default async function runAdAuction (conf) {
+	const entries = await idb.entries(customStore);
+	const interestGroups = entries
+		.flatMap(([ key, value ]) => value) // flatten the two-dimensional array ([igKey, igKeyProps]) to only igKeyProps
+		.filter(item => conf.interestGroupBuyers !== '*' ? conf.interestGroupBuyers.includes(item.owner) : item); // check owner of ig is allowed per conf.interestGroupBuyers
+	if (!interestGroups || !Array.isArray(interestGroups) || interestGroups.length === 0) {
 		return null;
 	}
 
-	const bids = await getBids(eligible, conf, debug);
-	debug && echo.log(echo.asInfo('all bids from each buyer:'), bids);
-
-	const filteredBids = bids.filter(item => item);
-	debug && echo.log(echo.asInfo('filtered bids:'), filteredBids);
-	if (!filteredBids.length) {
-		debug && echo.log(echo.asAlert('No bids found!'));
-		debug && echo.groupEnd();
+	const bids = await Promise
+		.all(interestGroups
+			.map(bidder => getBid(bidder, conf))
+			.filter(item => item),
+		);
+	if (!bids.length) {
 		return null;
 	}
 
-	debug && echo.log(echo.asProcess('getting all scores, filtering and sorting'));
-	const winners = await getScores(filteredBids, conf, debug);
+	const winners = await getScores(bids, conf);
 	const [ winner ] = winners
 		.filter(({ score }) => score > 0)
 		.sort((a, b) => (a.score > b.score) ? 1 : -1);
-	debug && echo.log(echo.asInfo('winner:'), winner);
 	if (!winner) {
-		debug && echo.log(echo.asAlert('No winner found!'));
-		debug && echo.groupEnd();
 		return null;
 	}
 
-	debug && echo.log(echo.asProcess('creating an entry in the auction store'));
 	const token = uuid();
 	sessionStorage.setItem(token, JSON.stringify({
 		origin: `${window.top.location.origin}${window.top.location.pathname}`,
 		timestamp: Date.now(),
 		conf,
-		...winner,
+		winner,
 	}));
-	debug && echo.log(echo.asSuccess('auction token:'), token);
 
-	debug && echo.groupEnd();
 	return token;
 }

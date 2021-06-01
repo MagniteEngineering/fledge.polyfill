@@ -10,3 +10,4 @@
 
 # Don't diff or textually merge source maps
 *.map   binary
+docs/scripts/**/* binary
