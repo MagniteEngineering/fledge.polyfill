@@ -6,7 +6,7 @@ describe('Fledge', () => {
 			const page = await context.newPage();
 			await page.goto('http://localhost:3000/test/e2e/');
 
-			const fledge = await page.evaluate(() => new window.fledge('http://localhost:3000/docs/iframe.html'));
+			const fledge = await page.evaluate(() => new window.fledge.Fledge('http://localhost:3000/docs/iframe.html'));
 			expect(() => fledge.runAdAuction()).toThrow();
 		});
 
@@ -16,7 +16,7 @@ describe('Fledge', () => {
 			await page.goto('http://localhost:3000/test/e2e/');
 
 			await page.evaluate(() => {
-				const fledge = new window.fledge('http://localhost:3000/docs/iframe.html');
+				const fledge = new window.fledge.Fledge('http://localhost:3000/docs/iframe.html');
 				return new Promise(resolve => {
 					fledge.joinAdInterestGroup({
 						owner: 'magnite.com',
@@ -28,7 +28,7 @@ describe('Fledge', () => {
 
 			await page.goto('http://localhost:3000/test/e2e/');
 			await page.evaluate(() => {
-				const fledge = new window.fledge('http://localhost:3000/docs/iframe.html');
+				const fledge = new window.fledge.Fledge('http://localhost:3000/docs/iframe.html');
 				return new Promise(resolve => {
 					fledge.joinAdInterestGroup({
 						owner: 'magnite.com',
@@ -39,7 +39,7 @@ describe('Fledge', () => {
 			});
 
 			const result = await page.evaluate(() => {
-				const fledge = new window.fledge('http://localhost:3000/docs/iframe.html');
+				const fledge = new window.fledge.Fledge('http://localhost:3000/docs/iframe.html');
 				return fledge.runAdAuction({
 					seller: 'publisher.example',
 					decisionLogicUrl: 'http://localhost:3000/test/mocks/dl.js',
@@ -87,7 +87,7 @@ describe('Fledge', () => {
 
 			// call runAdAuction with no interest groups
 			const result = await page.evaluate(() => {
-				const fledge = new window.fledge('http://localhost:3000/docs/iframe.html');
+				const fledge = new window.fledge.Fledge('http://localhost:3000/docs/iframe.html');
 				return fledge.runAdAuction({
 					seller: 'publisher.example',
 					decisionLogicUrl: 'http://localhost:3000/test/mocks/dl.js',
