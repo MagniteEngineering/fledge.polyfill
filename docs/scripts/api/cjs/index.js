@@ -1,5 +1,7 @@
 'use strict';
 
+Object.defineProperty(exports, '__esModule', { value: true });
+
 function _interopNamespace(e) {
 	if (e && e.__esModule) return e;
 	var n = Object.create(null);
@@ -20,229 +22,26 @@ function _interopNamespace(e) {
 	return Object.freeze(n);
 }
 
-/* eslint-disable no-console, compat/compat */
-
-let queue = [];
-const TOKEN = {};
-const RESET_INPUT = '%c ';
-const RESET_CSS = '';
-
-// Attach formatting utility method.
-function alertFormatting (value) {
-	queue.push({
-		value,
-		css: 'display: inline-block; background-color: #dc3545; color: #ffffff; font-weight: bold; padding: 3px 7px 3px 7px; border-radius: 3px 3px 3px 3px;',
-	});
-
-	return (TOKEN);
-}
-
-function infoFormatting (value) {
-	queue.push({
-		value,
-		css: 'color: #0366d6; font-weight: bold;',
-	});
-
-	return (TOKEN);
-}
-
-function processFormatting (value) {
-	queue.push({
-		value: `${value}…`,
-		css: 'color: #8c8c8c; font-style: italic;',
-	});
-
-	return (TOKEN);
-}
-
-function successFormatting (value) {
-	queue.push({
-		value,
-		css: 'color: #289d45; font-weight: bold;',
-	});
-
-	return (TOKEN);
-}
-
-// Attach formatting utility method.
-function warningFormatting (value) {
-	queue.push({
-		value,
-		css: 'display: inline-block; background-color: #ffc107; color: black; font-weight: bold; padding: 3px 7px 3px 7px; border-radius: 3px 3px 3px 3px;',
-	});
-
-	return (TOKEN);
-}
-
-// I provide an echo-based proxy to the given Console Function. This uses an
-// internal queue to aggregate values before calling the given Console
-// Function with the desired formatting.
-function using (consoleFunction) {
-	function consoleFunctionProxy (...args) {
-		// As we loop over the arguments, we're going to aggregate a set of
-		// inputs and modifiers. The Inputs will ultimately be collapsed down
-		// into a single string that acts as the first console.log parameter
-		// while the modifiers are then SPREAD into console.log as 2...N.
-		// --
-		// NOTE: After each input/modifier pair, I'm adding a RESET pairing.
-		// This implicitly resets the CSS after every formatted pairing.
-		const inputs = [];
-		const modifiers = [];
-		args.forEach(arg => {
-			// When the formatting utility methods are called, they return
-			// a special token. This indicates that we should pull the
-			// corresponding value out of the QUEUE instead of trying to
-			// output the given argument directly.
-			if (arg === TOKEN) {
-				const item = queue.shift();
-
-				inputs.push((`%c${item.value}`), RESET_INPUT);
-				modifiers.push(item.css, RESET_CSS);
-
-				// For every other argument type, output the value directly.
-			} else {
-				if ((typeof (arg) === 'object') || (typeof (arg) === 'function')) {
-					inputs.push('%o', RESET_INPUT);
-					modifiers.push(arg, RESET_CSS);
-				} else {
-					inputs.push((`%c${arg}`), RESET_INPUT);
-					modifiers.push(RESET_CSS, RESET_CSS);
-				}
-			}
-		});
-
-		consoleFunction(inputs.join(''), ...modifiers);
-
-		// Once we output the aggregated value, reset the queue. This should have
-		// already been emptied by the .shift() calls; but the explicit reset
-		// here acts as both a marker of intention as well as a fail-safe.
-		queue = [];
-	}
-
-	return (consoleFunctionProxy);
-}
-
-const echo = {
-	// Console(ish) functions.
-	assert: using(console.assert),
-	clear: using(console.clear),
-	count: using(console.count),
-	countReset: using(console.countReset),
-	debug: using(console.debug),
-	dir: using(console.dir),
-	error: using(console.error),
-	group: using(console.group),
-	groupCollapsed: using(console.groupCollapsed),
-	groupEnd: using(console.groupEnd),
-	info: using(console.info),
-	log: using(console.log),
-	table: using(console.table),
-	time: using(console.time),
-	timeEnd: using(console.timeEnd),
-	timeLog: using(console.timeLog),
-	trace: using(console.trace),
-	warn: using(console.warn),
-
-	// Formatting functions.
-	asAlert: alertFormatting,
-	asInfo: infoFormatting,
-	asProcess: processFormatting,
-	asSuccess: successFormatting,
-	asWarning: warningFormatting,
+const AuctionConf = {
+	seller: 'string',
+	decisionLogicUrl: 'url',
+	interestGroupBuyers: 'mixed',
+	trustedScoringSignalsUrl: 'url',
+	additionalBids: 'array',
+	auctionSignals: 'object',
+	sellerSignals: 'object',
+	perBuyerSignals: 'object',
 };
 
-/* eslint-disable no-cond-assign */
-
-/*
- * @function
- * @name getSellerReport
- * @description given the results of an auction, grab the report from the seller
- * @author Newton <cnewton@magnite.com>
- * @param {object} conf - an auction configuration object
- * @param {object} results - the results of the auction
- * @return {object} an object of data to pass back to the buyers report
- */
-const getSellerReport = async (conf, results, debug) => {
-	debug && echo.groupCollapsed('render utils: getSellerReport');
-	const { reportResult } = await Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(conf.decisionLogicUrl)); });
-
-	// check if there is even a function
-	if (!reportResult || typeof reportResult !== 'function') {
-		debug && echo.log(echo.asWarning(`No 'reportResult' function found!`));
-		debug && echo.groupEnd();
-		return null;
-	}
-
-	let report;
-	// generate a report by providing all of the necessary information
-	try {
-		debug && echo.log(echo.asProcess('fetching seller reporting'));
-		report = reportResult(conf, {
-			topWindowHostname: window.top.location.hostname,
-			interestGroupOwner: results.bid.owner,
-			interestGroupName: results.bid.name,
-			renderUrl: results.bid.render,
-			bid: results.bid.bid,
-		});
-		debug && echo.log(echo.asSuccess('report found'));
-	} catch (err) {
-		echo.log(echo.asAlert(err));
-		debug && echo.groupEnd();
-		return null;
-	}
-
-	debug && echo.groupEnd();
-	return report;
-};
-
-/*
- * @function
- * @name getBuyerReport
- * @description given the results of an auction, grab the report from the buyer
- * @author Newton <cnewton@magnite.com>
- * @param {object} conf - an auction configuration object
- * @param {object} results - the results of the auction
- * @param {object} report - the report object from the sellers report
- * @return {void} has a side effect of generating a report for the buyer
- */
-const getBuyerReport = async (conf, results, sellersReport, debug) => {
-	debug && echo.groupCollapsed('render utils: getBuyerReport');
-	const wins = Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(results.bid.biddingLogicUrl)); })
-		.then(({ reportWin }) => {
-			// check if there is even a function
-			if (!reportWin || typeof reportWin !== 'function') {
-				debug && echo.log(echo.asWarning(`No 'reportWin' function found!`));
-				return null;
-			}
-
-			let report;
-
-			try {
-				debug && echo.log(echo.asProcess('fetching buyer reporting'));
-				// generate a report by providing all of the necessary information
-				report = reportWin(conf?.auctionSignals, conf?.perBuyerSignals?.[results.bid.owner], sellersReport, {
-					topWindowHostname: window.top.location.hostname,
-					interestGroupOwner: results.bid.owner,
-					interestGroupName: results.bid.name,
-					renderUrl: results.bid.render,
-					bid: results.bid.bid,
-				});
-				debug && echo.log(echo.asSuccess('report found'));
-			} catch (err) {
-				echo.log(echo.asAlert(`There was an error in the 'reportWin' function:`));
-				echo.log(err);
-				report = null;
-			}
-
-			return report;
-		})
-		.catch(err => {
-			echo.log(echo.asAlert(err));
-			return null;
-		});
-
-	debug && echo.groupEnd();
-	return wins;
+const InterestGroup = {
+	owner: 'string',
+	name: 'string',
+	biddingLogicUrl: 'url',
+	dailyUpdateUrl: 'url', // @TODO: support this potentially on the auction, grabbing the latest interest group data, and updating the IDB store with it
+	trustedBiddingSignalsUrl: 'url',
+	trustedBiddingSignalsKeys: 'array',
+	userBiddingSignals: 'object',
+	ads: 'array',
 };
 
 const VERSION = 1;
@@ -420,19 +219,13 @@ const getMessage = (target, filter) => new Promise((resolve, reject) => {
 	target.addEventListener('messageerror', messageErrorListener);
 });
 
-function getFromFrame (port, debug) {
-	debug && echo.groupCollapsed('message utils: getFromFrame');
-	debug && echo.log(echo.asProcess('getting message from iframe'));
+function getFromFrame (port) {
 	const message = getMessage(port, () => true);
 	port.start();
-	debug && echo.log(echo.asSuccess('grabbed message from iframe, started port'));
-	debug && echo.groupEnd();
 	return message;
 }
 
-async function getFramePort (iframe, expectedOrigin, debug) {
-	debug && echo.groupCollapsed('message utils: getFromPort');
-	debug && echo.log(echo.asProcess('getting message from iframe'));
+async function getFramePort (iframe, expectedOrigin) {
 	const { data, ports, origin } = await getMessage(window, ({ source }) => source === iframe.contentWindow);
 
 	if (origin !== expectedOrigin) {
@@ -445,9 +238,48 @@ async function getFramePort (iframe, expectedOrigin, debug) {
 		throw new Error(`Message ports are mismatched! Expected 1 port, received ${ports.length}`);
 	}
 
-	debug && echo.groupEnd();
 	return ports[0];
 }
+
+/*
+ * @function
+ * @name call
+ * @description wrap a promise in a reliable api, similar to Go-style
+ * @author Newton <cnewton@magnite.com>
+ * @param {promise} promise - a promise
+ * @return {Promise<Array>} a promise that resolves to data as the first index in an array, and/or an error in the second index
+ */
+const call = promise => promise
+	.then(data => ([ data, undefined ]))
+	.catch(error => Promise.resolve([ undefined, error ]));
+
+/*
+ * @function
+ * @name dynamicImport
+ * @description dynamically imports a function
+ * @author Newton <cnewton@magnite.com>
+ * @param {URL} url - a fully qualified URL to an ES6 module
+ * @param {string} fn - a function name that exists at the URL
+ * @param {nargs} args - any level of arguments/parameters that the function takes
+ * @return {any} any set of data that the function returns
+ */
+const dynamicImport = async (url, fn, ...args) => {
+	const [ module, moduleErr ] = await call(Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(url)); }));
+
+	if (moduleErr) {
+		return null;
+	}
+
+	if (!module[fn] || typeof module[fn] !== 'function') {
+		return null;
+	}
+
+	try {
+		return module[fn](...args);
+	} catch (err) {
+		return null;
+	}
+};
 
 const frame = {
 	create: createFrame,
@@ -468,88 +300,6 @@ const validate = {
 };
 
 /*
- * @function
- * @name renderAd
- * @description render an ad
- * @author Newton <cnewton@magnite.com>
- * @param {string} selector - a string reprensenting a valid selector to find an element on the page
- * @param {string} token - a string that represents the results from an auction run via the `fledge.runAdAuction` call
- * @throws {Error} Any parameters passed are incorrect or an incorrect type
- * @return {Promise<null | true>}
- *
- * @example
- *   renderAd('#ad-slot-1', '76941e71-2ed7-416d-9c55-36d07beff786');
- */
-async function renderAd (selector, token, debug) {
-	debug && echo.groupCollapsed('Fledge API: renderAd');
-	const target = document.querySelector(selector);
-	if (!target) {
-		throw new Error(`Target not found on the page! Please check that ${target} exists on the page.`);
-	}
-	debug && echo.log(echo.asInfo('target:'), target);
-
-	const winner = JSON.parse(sessionStorage.getItem(token));
-	if (!winner) {
-		throw new Error(`A token was not found! Token provided: ${token}`);
-	}
-	debug && echo.log(echo.asInfo('winner data:'), winner);
-
-	debug && echo.log(echo.asProcess('checking that winner to be rendered is on the same hostname as the auction'));
-	if (winner?.origin !== `${window.top.location.origin}${window.top.location.pathname}`) {
-		debug && echo.error(`Attempting to render the winner on a location that doesn't match the auctions hostname`, { winner: winner.origin, auction: `${window.top.location.origin}${window.top.location.pathname}` });
-		throw new Error('Something went wrong! No ad was rendered.');
-	}
-	debug && echo.log(echo.asSuccess('winner is on the same hostname as the auction'));
-
-	debug && echo.log(echo.asProcess('rendering an iframe with the winning ad'));
-	frame.create({
-		source: winner.bid.render,
-		target,
-		props: {
-			id: `fledge-auction-${token}`,
-		},
-	});
-	const ad = document.querySelector(`#fledge-auction-${token}`);
-	if (!ad) {
-		throw new Error('Something went wrong! No ad was rendered.');
-	}
-	debug && echo.log(echo.asSuccess('iframe with winning ad has rendered'));
-	debug && echo.log(echo.asInfo('ads target:'), ad);
-	debug && echo.groupEnd();
-
-	debug && echo.groupCollapsed('Fledge API: Reporting');
-	const sellersReport = await getSellerReport(winner.conf, winner, debug);
-	debug && echo.log(echo.asSuccess('sellers report:'), sellersReport);
-	const buyersReport = await getBuyerReport(winner.conf, winner, sellersReport, debug);
-	debug && echo.log(echo.asSuccess('buyers report:'), buyersReport);
-	debug && echo.groupEnd();
-
-	return true;
-}
-
-const AuctionConf = {
-	seller: 'string',
-	decisionLogicUrl: 'url',
-	interestGroupBuyers: 'mixed',
-	trustedScoringSignalsUrl: 'url',
-	additionalBids: 'array',
-	auctionSignals: 'object',
-	sellerSignals: 'object',
-	perBuyerSignals: 'object',
-};
-
-const InterestGroup = {
-	owner: 'string',
-	name: 'string',
-	biddingLogicUrl: 'url',
-	dailyUpdateUrl: 'url', // @TODO: support this potentially on the auction, grabbing the latest interest group data, and updating the IDB store with it
-	trustedBiddingSignalsUrl: 'url',
-	trustedBiddingSignalsKeys: 'array',
-	userBiddingSignals: 'object',
-	ads: 'array',
-};
-
-/*
 * @const {number}
 * @summary Maximum expiration allowed for an Interest Group to exist
 * @description Milliseconds occuring per day multiplied by the maximum number of days (maximum dayus (30) * hours per day (24) * minutes per hour (60) * seconds per minute (60) * milliseconds per second (1000))
@@ -563,26 +313,20 @@ const MAX_EXPIRATION = 2592000000;
 const IFRAME_HOST = 'http://localhost:8000';
 
 class Fledge {
-	constructor (url, debug) {
+	constructor (url) {
 		this.url = url || `${IFRAME_HOST}/iframe.html`;
-		this._debug = debug;
 
-		const query = this._debug ? '?debug=true' : '';
 		const { iframe, origin } = frame.create({
-			source: `${this.url}${query}`,
+			source: this.url,
 			style: { display: 'none' },
 		});
-		// iframe.sandbox.add('allow-same-origin', 'allow-scripts');
+		iframe.sandbox.add('allow-same-origin', 'allow-scripts');
 		const port = message.getFramePort(iframe, origin);
 
 		this._props = {
 			iframe,
 			port,
 		};
-	}
-
-	set props (props) {
-		this._props = props;
 	}
 
 	get props () {
@@ -603,9 +347,6 @@ class Fledge {
 	*   joinAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' }, 2592000000);
 	*/
 	async joinAdInterestGroup (options, expiry) {
-		this._debug && echo.group('Fledge: Join an Interest Group');
-		this._debug && echo.log(echo.asInfo('interest group options:'), options);
-		this._debug && echo.log(echo.asInfo('interest group expiration:'), `${expiry}: (human-readable: ${new Date(Date.now() + expiry).toLocaleString()})`);
 		validate.param(options, 'object');
 		validate.param(expiry, 'number');
 		validate.hasRequiredKeys(options, [ 'owner', 'name', 'biddingLogicUrl' ]);
@@ -615,18 +356,11 @@ class Fledge {
 			throw new Error(`'expiry' is set past the allowed maximum value. You must provide an expiration that is less than or equal to ${MAX_EXPIRATION}.`);
 		}
 
-		this._debug && echo.groupCollapsed('message channel');
 		const port = await this.props.port;
-		this._debug && echo.log(echo.asInfo('message port:'), port);
-		this._debug && echo.groupEnd();
-		this._debug && echo.log(echo.asProcess(`sending 'joinAdInterestGroup' message to iframe`));
 		port.postMessage([ 'joinAdInterestGroup', [
 			options,
 			expiry,
-			this._debug,
 		] ]);
-		this._debug && echo.groupEnd();
-		return true;
 	}
 
 	/*
@@ -642,23 +376,14 @@ class Fledge {
 	*   leaveAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' });
 	*/
 	async leaveAdInterestGroup (group) {
-		this._debug && echo.group('Fledge: Leave an Interest Group');
-		this._debug && echo.log(echo.asInfo('interest group:'), group);
 		validate.param(group, 'object');
 		validate.hasRequiredKeys(group, [ 'owner', 'name' ]);
 		validate.hasInvalidOptionTypes(group, InterestGroup);
 
-		this._debug && echo.groupCollapsed('message channel');
 		const port = await this.props.port;
-		this._debug && echo.log(echo.asInfo('message port:'), port);
-		this._debug && echo.groupEnd();
-		this._debug && echo.log(echo.asProcess(`sending 'leaveAdInterestGroup' message to iframe`));
 		port.postMessage([ 'leaveAdInterestGroup', [
 			group,
-			this._debug,
 		] ]);
-		this._debug && echo.groupEnd();
-		return true;
 	}
 
 	/*
@@ -671,68 +396,92 @@ class Fledge {
 	* @return {null | Promise<Token>}
 	*
 	* @example
-	*   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interstGroupBuyers: [ 'www.buyer.com' ] });
+	*   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interestGroupBuyers: [ 'www.buyer.com' ] });
 	*/
 	async runAdAuction (conf) {
-		this._debug && echo.group('Fledge: Auction');
-		this._debug && echo.log(echo.asInfo('auction config:'), conf);
 		validate.param(conf, 'object');
 		validate.hasRequiredKeys(conf, [ 'seller', 'decisionLogicUrl', 'interestGroupBuyers' ]);
 		validate.hasInvalidOptionTypes(conf, AuctionConf);
 
-		this._debug && echo.groupCollapsed('message channel');
 		const port = await this.props.port;
-		this._debug && echo.log(echo.asInfo('message port:'), port);
 		const { port1: receiver, port2: sender } = new MessageChannel();
-		this._debug && echo.log(echo.asInfo('message channel receiver:'), receiver);
-		this._debug && echo.log(echo.asInfo('message channel sender:'), sender);
-		this._debug && echo.groupEnd();
 
 		try {
-			this._debug && echo.log(echo.asProcess(`sending 'runAdAuction' message to iframe`));
 			port.postMessage([ 'runAdAuction', [
 				conf,
-				this._debug,
 			] ], [ sender ]);
-			const { data } = await message.getFromFrame(receiver, this._debug);
+			const { data } = await message.getFromFrame(receiver);
 			if (!data[0]) {
-				throw new Error('No data found!');
+				throw new Error('No response from the iframe was found!');
 			}
-			this._debug && echo.log(echo.asInfo('message data:'), data);
 			const [ , token ] = data;
-			this._debug && echo.log(echo.asSuccess('auction token:'), token);
 			return token;
 		} finally {
 			receiver.close();
-			this._debug && echo.groupEnd();
 		}
-	}
-
-	/*
-	* @function
-	* @name renderAd
-	* @description render an ad
-	* @author Newton <cnewton@magnite.com>
-	* @param {string} selector - a string reprensenting a valid selector to find an element on the page
-	* @param {string} token - a string that represents the results from an auction run via the `fledge.runAdAuction` call
-	* @throws {Error} Any parameters passed are incorrect or an incorrect type
-	* @return {Promise<null | true>}
-	*
-	* @example
-	*   renderAd('#ad-slot-1', '76941e71-2ed7-416d-9c55-36d07beff786');
-	*/
-	async renderAd (selector, token) {
-		this._debug && echo.group('Fledge: Render an Ad');
-		this._debug && echo.log(echo.asInfo('ad slot selector:'), selector);
-		this._debug && echo.log(echo.asInfo('winning ad token:'), token);
-		validate.param(selector, 'string');
-		validate.param(token, 'string');
-
-		await renderAd(selector, token, this._debug);
-		this._debug && echo.log(echo.asSuccess('winning ad rendered'));
-		this._debug && echo.groupEnd();
-		return true;
 	}
 }
 
-module.exports = Fledge;
+/*
+* @function
+* @name renderAd
+* @description render an ad
+* @author Newton <cnewton@magnite.com>
+* @param {string} selector - a string reprensenting a valid selector to find an element on the page
+* @param {string} token - a string that represents the results from an auction run via the `fledge.runAdAuction` call
+* @throws {Error} Any parameters passed are incorrect or an incorrect type
+* @return {Promise<null | true>}
+*
+* @example
+*   renderAd('#ad-slot-1', '76941e71-2ed7-416d-9c55-36d07beff786');
+*/
+async function renderFledgeAd (selector, token) {
+	validate.param(selector, 'string');
+	validate.param(token, 'string');
+
+	const target = document.querySelector(selector);
+	if (!target) {
+		throw new Error(`Target not found on the page! Please check that ${target} exists on the page.`);
+	}
+
+	const { origin, conf, winner } = JSON.parse(sessionStorage.getItem(token));
+	if (!winner) {
+		throw new Error(`A token was not found! Token provided: ${token}`);
+	}
+
+	if (origin !== `${window.top.location.origin}${window.top.location.pathname}`) {
+		throw new Error('The ads origin does not match the hosts origin!  No ad was rendered.');
+	}
+
+	frame.create({
+		source: winner.bid.render,
+		target,
+		props: {
+			id: `fledge-auction-${token}`,
+		},
+	});
+	const ad = document.querySelector(`#fledge-auction-${token}`);
+	if (!ad) {
+		throw new Error('Something went wrong! No ad was rendered.');
+	}
+
+	// get the sellers report
+	const sellersReport = await dynamicImport(conf.decisionLogicUrl, 'reportResult', conf, {
+		topWindowHostname: window.top.location.hostname,
+		interestGroupOwner: winner.bid.owner,
+		interestGroupName: winner.bid.name,
+		renderUrl: winner.bid.render,
+		bid: winner.bid.bid,
+	});
+	// get the buyers report
+	await dynamicImport(winner.bid.biddingLogicUrl, 'reportWin', conf?.auctionSignals, conf?.perBuyerSignals?.[winner.bid.owner], sellersReport, {
+		topWindowHostname: window.top.location.hostname,
+		interestGroupOwner: winner.bid.owner,
+		interestGroupName: winner.bid.name,
+		renderUrl: winner.bid.render,
+		bid: winner.bid.bid,
+	});
+}
+
+exports.Fledge = Fledge;
+exports.renderFledgeAd = renderFledgeAd;

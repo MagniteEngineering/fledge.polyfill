@@ -13,29 +13,29 @@ export default async function fledgeAPI ({ data, ports }) {
 		switch (data[0]) {
 			case 'joinAdInterestGroup': {
 				const [ , request ] = data;
-				const [ options, expiry, debug ] = request;
+				const [ options, expiry ] = request;
 
-				await joinAdInterestGroup(options, expiry, debug);
+				await joinAdInterestGroup(options, expiry);
 
 				return true;
 			}
 			case 'leaveAdInterestGroup': {
 				const [ , request ] = data;
-				const [ group, debug ] = request;
+				const [ group ] = request;
 
-				await leaveAdInterestGroup(group, debug);
+				await leaveAdInterestGroup(group);
 
 				return true;
 			}
 			case 'runAdAuction': {
 				const [ , request ] = data;
-				const [ conf, debug ] = request;
+				const [ conf ] = request;
 
 				if (ports.length !== 1) {
 					throw new Error(`Port transfer mismatch during request: expected 1 port, but received ${ports.length}`);
 				}
 				const [ port ] = ports;
-				const token = await runAdAuction(conf, debug);
+				const token = await runAdAuction(conf);
 				const response = [ true, token ];
 				port.postMessage(response);
 				port.close();
