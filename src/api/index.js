@@ -1,10 +1,9 @@
-import { echo } from '@theholocron/klaxon';
-import render from './render';
 import {
 	AuctionConf,
 	InterestGroup,
 } from './types';
 import {
+	dynamicImport,
 	frame,
 	message,
 	validate,
@@ -23,27 +22,21 @@ const MAX_EXPIRATION = 2592000000;
 */
 const IFRAME_HOST = 'http://localhost:8000';
 
-export default class Fledge {
-	constructor (url, debug) {
+export class Fledge {
+	constructor (url) {
 		this.url = url || `${IFRAME_HOST}/iframe.html`;
-		this._debug = debug;
 
-		const query = this._debug ? '?debug=true' : '';
 		const { iframe, origin } = frame.create({
-			source: `${this.url}${query}`,
+			source: this.url,
 			style: { display: 'none' },
 		});
-		// iframe.sandbox.add('allow-same-origin', 'allow-scripts');
+		iframe.sandbox.add('allow-same-origin', 'allow-scripts');
 		const port = message.getFramePort(iframe, origin);
 
 		this._props = {
 			iframe,
 			port,
 		};
-	}
-
-	set props (props) {
-		this._props = props;
 	}
 
 	get props () {
@@ -64,9 +57,6 @@ export default class Fledge {
 	*   joinAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' }, 2592000000);
 	*/
 	async joinAdInterestGroup (options, expiry) {
-		this._debug && echo.group('Fledge: Join an Interest Group');
-		this._debug && echo.log(echo.asInfo('interest group options:'), options);
-		this._debug && echo.log(echo.asInfo('interest group expiration:'), `${expiry}: (human-readable: ${new Date(Date.now() + expiry).toLocaleString()})`);
 		validate.param(options, 'object');
 		validate.param(expiry, 'number');
 		validate.hasRequiredKeys(options, [ 'owner', 'name', 'biddingLogicUrl' ]);
@@ -76,18 +66,11 @@ export default class Fledge {
 			throw new Error(`'expiry' is set past the allowed maximum value. You must provide an expiration that is less than or equal to ${MAX_EXPIRATION}.`);
 		}
 
-		this._debug && echo.groupCollapsed('message channel');
 		const port = await this.props.port;
-		this._debug && echo.log(echo.asInfo('message port:'), port);
-		this._debug && echo.groupEnd();
-		this._debug && echo.log(echo.asProcess(`sending 'joinAdInterestGroup' message to iframe`));
 		port.postMessage([ 'joinAdInterestGroup', [
 			options,
 			expiry,
-			this._debug,
 		] ]);
-		this._debug && echo.groupEnd();
-		return true;
 	}
 
 	/*
@@ -103,23 +86,14 @@ export default class Fledge {
 	*   leaveAdInterestGroup({ owner: 'foo', name: 'bar', biddingLogicUrl: 'http://example.com/bid' });
 	*/
 	async leaveAdInterestGroup (group) {
-		this._debug && echo.group('Fledge: Leave an Interest Group');
-		this._debug && echo.log(echo.asInfo('interest group:'), group);
 		validate.param(group, 'object');
 		validate.hasRequiredKeys(group, [ 'owner', 'name' ]);
 		validate.hasInvalidOptionTypes(group, InterestGroup);
 
-		this._debug && echo.groupCollapsed('message channel');
 		const port = await this.props.port;
-		this._debug && echo.log(echo.asInfo('message port:'), port);
-		this._debug && echo.groupEnd();
-		this._debug && echo.log(echo.asProcess(`sending 'leaveAdInterestGroup' message to iframe`));
 		port.postMessage([ 'leaveAdInterestGroup', [
 			group,
-			this._debug,
 		] ]);
-		this._debug && echo.groupEnd();
-		return true;
 	}
 
 	/*
@@ -132,66 +106,89 @@ export default class Fledge {
 	* @return {null | Promise<Token>}
 	*
 	* @example
-	*   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interstGroupBuyers: [ 'www.buyer.com' ] });
+	*   runAdAuction({ seller: 'foo', decisionLogicUrl: 'http://example.com/auction', interestGroupBuyers: [ 'www.buyer.com' ] });
 	*/
 	async runAdAuction (conf) {
-		this._debug && echo.group('Fledge: Auction');
-		this._debug && echo.log(echo.asInfo('auction config:'), conf);
 		validate.param(conf, 'object');
 		validate.hasRequiredKeys(conf, [ 'seller', 'decisionLogicUrl', 'interestGroupBuyers' ]);
 		validate.hasInvalidOptionTypes(conf, AuctionConf);
 
-		this._debug && echo.groupCollapsed('message channel');
 		const port = await this.props.port;
-		this._debug && echo.log(echo.asInfo('message port:'), port);
 		const { port1: receiver, port2: sender } = new MessageChannel();
-		this._debug && echo.log(echo.asInfo('message channel receiver:'), receiver);
-		this._debug && echo.log(echo.asInfo('message channel sender:'), sender);
-		this._debug && echo.groupEnd();
 
 		try {
-			this._debug && echo.log(echo.asProcess(`sending 'runAdAuction' message to iframe`));
 			port.postMessage([ 'runAdAuction', [
 				conf,
-				this._debug,
 			] ], [ sender ]);
-			const { data } = await message.getFromFrame(receiver, this._debug);
+			const { data } = await message.getFromFrame(receiver);
 			if (!data[0]) {
-				throw new Error('No data found!');
+				throw new Error('No response from the iframe was found!');
 			}
-			this._debug && echo.log(echo.asInfo('message data:'), data);
 			const [ , token ] = data;
-			this._debug && echo.log(echo.asSuccess('auction token:'), token);
 			return token;
 		} finally {
 			receiver.close();
-			this._debug && echo.groupEnd();
 		}
 	}
+}
 
-	/*
-	* @function
-	* @name renderAd
-	* @description render an ad
-	* @author Newton <cnewton@magnite.com>
-	* @param {string} selector - a string reprensenting a valid selector to find an element on the page
-	* @param {string} token - a string that represents the results from an auction run via the `fledge.runAdAuction` call
-	* @throws {Error} Any parameters passed are incorrect or an incorrect type
-	* @return {Promise<null | true>}
-	*
-	* @example
-	*   renderAd('#ad-slot-1', '76941e71-2ed7-416d-9c55-36d07beff786');
-	*/
-	async renderAd (selector, token) {
-		this._debug && echo.group('Fledge: Render an Ad');
-		this._debug && echo.log(echo.asInfo('ad slot selector:'), selector);
-		this._debug && echo.log(echo.asInfo('winning ad token:'), token);
-		validate.param(selector, 'string');
-		validate.param(token, 'string');
+/*
+* @function
+* @name renderAd
+* @description render an ad
+* @author Newton <cnewton@magnite.com>
+* @param {string} selector - a string reprensenting a valid selector to find an element on the page
+* @param {string} token - a string that represents the results from an auction run via the `fledge.runAdAuction` call
+* @throws {Error} Any parameters passed are incorrect or an incorrect type
+* @return {Promise<null | true>}
+*
+* @example
+*   renderAd('#ad-slot-1', '76941e71-2ed7-416d-9c55-36d07beff786');
+*/
+export async function renderFledgeAd (selector, token) {
+	validate.param(selector, 'string');
+	validate.param(token, 'string');
 
-		await render(selector, token, this._debug);
-		this._debug && echo.log(echo.asSuccess('winning ad rendered'));
-		this._debug && echo.groupEnd();
-		return true;
+	const target = document.querySelector(selector);
+	if (!target) {
+		throw new Error(`Target not found on the page! Please check that ${target} exists on the page.`);
 	}
+
+	const { origin, conf, winner } = JSON.parse(sessionStorage.getItem(token));
+	if (!winner) {
+		throw new Error(`A token was not found! Token provided: ${token}`);
+	}
+
+	if (origin !== `${window.top.location.origin}${window.top.location.pathname}`) {
+		throw new Error('The ads origin does not match the hosts origin!  No ad was rendered.');
+	}
+
+	frame.create({
+		source: winner.bid.render,
+		target,
+		props: {
+			id: `fledge-auction-${token}`,
+		},
+	});
+	const ad = document.querySelector(`#fledge-auction-${token}`);
+	if (!ad) {
+		throw new Error('Something went wrong! No ad was rendered.');
+	}
+
+	// get the sellers report
+	const sellersReport = await dynamicImport(conf.decisionLogicUrl, 'reportResult', conf, {
+		topWindowHostname: window.top.location.hostname,
+		interestGroupOwner: winner.bid.owner,
+		interestGroupName: winner.bid.name,
+		renderUrl: winner.bid.render,
+		bid: winner.bid.bid,
+	});
+	// get the buyers report
+	await dynamicImport(winner.bid.biddingLogicUrl, 'reportWin', conf?.auctionSignals, conf?.perBuyerSignals?.[winner.bid.owner], sellersReport, {
+		topWindowHostname: window.top.location.hostname,
+		interestGroupOwner: winner.bid.owner,
+		interestGroupName: winner.bid.name,
+		renderUrl: winner.bid.render,
+		bid: winner.bid.bid,
+	});
 }

@@ -9,7 +9,7 @@ const joinAdInterestGroups = async (numGroups, page) => {
 	for (let i = 0; i < numGroups; i++) {
 		const name = randomstring.generate(7);
 		await page.evaluate(name => {
-			const fledge = new window.fledge('http://localhost:3000/docs/iframe.html');
+			const fledge = new window.fledge.Fledge('http://localhost:3000/docs/iframe.html');
 			return fledge.joinAdInterestGroup({
 				owner: 'magnite.com',
 				name,
@@ -22,7 +22,7 @@ const joinAdInterestGroups = async (numGroups, page) => {
 const runAuction = async page => {
 	const start = microtime.now();
 	await page.evaluate(() => {
-		const fledge = new window.fledge('http://localhost:3000/docs/iframe.html');
+		const fledge = new window.fledge.Fledge('http://localhost:3000/docs/iframe.html');
 		return fledge.runAdAuction({
 			seller: 'publisher.example',
 			decisionLogicUrl: 'http://localhost:3000/test/mocks/dl.js',

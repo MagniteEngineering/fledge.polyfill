@@ -31,20 +31,6 @@ describe('Utils', () => {
 	});
 
 	describe('Validation', () => {
-		describe('hasInvalidOptionTypes', () => {
-			it('should throw an Error when an invalid option type is provided', () => {
-				const mockOptionsInvalidTypes = {
-					...mockAllOptions,
-					name: 0,
-				};
-				expect(() => validate.hasInvalidOptionTypes(mockOptionsInvalidTypes, InterestGroup)).toThrow();
-			});
-
-			it('should return false when all options types are valid', () => {
-				expect(validate.hasInvalidOptionTypes(mockAllOptions, InterestGroup)).toBe(false);
-			});
-		});
-
 		describe('hasRequiredKeys', () => {
 			it('should throw an Error when a required option type is missing', () => {
 				expect(() => validate.hasRequiredKeys({ foo: 'bar' }, [ 'mock' ])).toThrow();
@@ -58,12 +44,6 @@ describe('Utils', () => {
 		describe('printInvalidOptionTypes', () => {
 			it('should return a string match', () => {
 				expect(validate.printInvalidOptionTypes({ mock: 0 }, [ 'mock' ], { mock: 'string' })).toContain(`'mock' requires a type of "string"! A type of number was provided instead.`);
-			});
-		});
-
-		describe('param', () => {
-			it('should throw an Error when an invalid parameter type is provided', () => {
-				expect(() => validate.param('mock', 'number')).toThrow();
 			});
 		});
 
@@ -163,6 +143,26 @@ describe('Utils', () => {
 					expect(validate.type.url([])).toBe(false);
 					expect(validate.type.url({})).toBe(false);
 				});
+			});
+		});
+
+		describe('validateParam', () => {
+			it('should throw an Error when an invalid parameter type is provided', () => {
+				expect(() => validate.param('mock', 'number')).toThrow();
+			});
+		});
+
+		describe('hasInvalidOptionTypes', () => {
+			it('should throw an Error when an invalid option type is provided', () => {
+				const mockOptionsInvalidTypes = {
+					...mockAllOptions,
+					name: 0,
+				};
+				expect(() => validate.hasInvalidOptionTypes(mockOptionsInvalidTypes, InterestGroup)).toThrow();
+			});
+
+			it('should return false when all options types are valid', () => {
+				expect(validate.hasInvalidOptionTypes(mockAllOptions, InterestGroup)).toBe(false);
 			});
 		});
 	});

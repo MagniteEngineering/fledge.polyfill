@@ -8,14 +8,14 @@ describe('Interest Groups', () => {
 	describe('joinAdInterestGroup', () => {
 		it('should return true when all valid options are provided', async () => {
 			const ig = await joinAdInterestGroup(mockAllOptions, mockExpiry);
-			await expect(ig).toBe(true);
+			await expect(ig).toBeUndefined();
 		});
 	});
 
 	describe('leaveAdInterestGroup', () => {
 		it('should return true when all valid options are provided', async () => {
 			const ig = await leaveAdInterestGroup(mockAllOptions);
-			await expect(ig).toBe(true);
+			await expect(ig).toBeUndefined();
 		});
 	});
 });
