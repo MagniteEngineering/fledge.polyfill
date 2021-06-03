@@ -44,7 +44,7 @@
 			import * as idb from 'https://cdn.jsdelivr.net/npm/idb-keyval@5/dist/esm/index.js';
 			import { Fledge } from './scripts/api/esm/index.js';
 			// const fledge = new Fledge('http://localhost:8000/iframe.html');
-			const fledge = new Fledge('https://magniteengineering.github.io/fledge.polyfill/iframe.html');
+			const fledge = new Fledge('https://ux.rubiconproject.com/fledge/iframe.html');
 			const customStore = idb.createStore('fledge.v1', 'interest-groups');
 
 			document.getElementById("join-ig").onclick = async function joinGroup() {
@@ -52,10 +52,6 @@
 					owner: document.getElementById('owner').value,
 					name: document.getElementById('name').value,
 					biddingLogicUrl: document.getElementById('url').value,
-					trustedBiddingSignalsUrl: 'https://magniteengineering.github.io/fledge.polyfill/get-values.json',
-					trustedBiddingSignalsKeys: [
-						'ads',
-					],
 				}, parseInt(document.getElementById('expiration').value));
 			};
 
