@@ -21,12 +21,6 @@ describe('Fledge', () => {
 		});
 		expect(hasLeaveAdInterestGroup).toBe(true);
 
-		const hasRenderAd = await page.evaluate(() => {
-			const { fledge } = window;
-			return fledge.renderFledgeAd && typeof fledge.renderFledgeAd === 'function';
-		});
-		expect(hasRenderAd).toBe(true);
-
 		const hasRunAdAuction = await page.evaluate(() => {
 			const fledge = new window.fledge.Fledge('http://localhost:3000/docs/iframe.html');
 			return fledge.runAdAuction && typeof fledge.runAdAuction === 'function';
