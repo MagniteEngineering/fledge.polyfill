@@ -30,7 +30,7 @@
 		<script type="module">
 			import { Fledge } from './scripts/api/esm/index.js';
 			// const fledge = new Fledge('http://localhost:8000/iframe.html');
-			const fledge = new Fledge('https://ux-legion.s3.amazonaws.com/fledge/iframe.html');
+			const fledge = new Fledge('https://magniteengineering.github.io/fledge.polyfill/iframe.html');
 			const timeStart = performance.now();
 
 			const options = {
@@ -72,9 +72,9 @@
 				timeRender = performance.now();
 
 				if (auctionResults) {
-					const adFrame = document.createElement('iframe');
-					adFrame.src = auctionResults;
-					document.getElementById('ad-slot-1').appendChild(adFrame);
+					const ad = document.createElement('iframe');
+					ad.src = auctionResults;
+					document.getElementById('ad-slot-1').appendChild(ad);
 
 					// await renderFledgeAd('#ad-slot-1', auctionResults, true);
 				} else {

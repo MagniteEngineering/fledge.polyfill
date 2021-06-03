@@ -82,7 +82,7 @@ In the future, rendering an ad will be handled by the Fledge API and would be pa
     // create an iframe within the Fledge auction iframe, render the winning ad
     const ad = document.createElement('iframe');
     ad.src = auctionResults;
-    document.getElementById('ad-slot-1').appendChild(adFrame);
+    document.getElementById('ad-slot-1').appendChild(ad);
 </script>
 ```
 
