@@ -24,7 +24,7 @@ describe('Utils', () => {
 					source: 'http://example.com',
 					target,
 				});
-				expect(target.innerHTML).toEqual('<iframe src="http://example.com/" scrolling="no" id="mock" style="border-width: 0px;"></iframe>');
+				expect(target.innerHTML).toEqual('<iframe src="http://example.com/" id="mock" style="border-width: 0px;"></iframe>');
 				expect(target.id).toEqual('ad-slot-1');
 			});
 		});

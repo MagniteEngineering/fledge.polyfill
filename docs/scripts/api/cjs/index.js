@@ -2,26 +2,6 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-function _interopNamespace(e) {
-	if (e && e.__esModule) return e;
-	var n = Object.create(null);
-	if (e) {
-		Object.keys(e).forEach(function (k) {
-			if (k !== 'default') {
-				var d = Object.getOwnPropertyDescriptor(e, k);
-				Object.defineProperty(n, k, d.get ? d : {
-					enumerable: true,
-					get: function () {
-						return e[k];
-					}
-				});
-			}
-		});
-	}
-	n['default'] = e;
-	return Object.freeze(n);
-}
-
 const AuctionConf = {
 	seller: 'string',
 	decisionLogicUrl: 'url',
@@ -64,7 +44,6 @@ const createFrame = ({ source, target = document.body, props = {}, style = {} })
 	const iframe = document.createElement('iframe');
 	const _props = {
 		src,
-		scrolling: 'no',
 		...props,
 	};
 	const _style = {
@@ -241,46 +220,6 @@ async function getFramePort (iframe, expectedOrigin) {
 	return ports[0];
 }
 
-/*
- * @function
- * @name call
- * @description wrap a promise in a reliable api, similar to Go-style
- * @author Newton <cnewton@magnite.com>
- * @param {promise} promise - a promise
- * @return {Promise<Array>} a promise that resolves to data as the first index in an array, and/or an error in the second index
- */
-const call = promise => promise
-	.then(data => ([ data, undefined ]))
-	.catch(error => Promise.resolve([ undefined, error ]));
-
-/*
- * @function
- * @name dynamicImport
- * @description dynamically imports a function
- * @author Newton <cnewton@magnite.com>
- * @param {URL} url - a fully qualified URL to an ES6 module
- * @param {string} fn - a function name that exists at the URL
- * @param {nargs} args - any level of arguments/parameters that the function takes
- * @return {any} any set of data that the function returns
- */
-const dynamicImport = async (url, fn, ...args) => {
-	const [ module, moduleErr ] = await call(Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(url)); }));
-
-	if (moduleErr) {
-		return null;
-	}
-
-	if (!module[fn] || typeof module[fn] !== 'function') {
-		return null;
-	}
-
-	try {
-		return module[fn](...args);
-	} catch (err) {
-		return null;
-	}
-};
-
 const frame = {
 	create: createFrame,
 };
@@ -324,7 +263,7 @@ class Fledge {
 		const port = message.getFramePort(iframe, origin);
 
 		this._props = {
-			iframe,
+			url,
 			port,
 		};
 	}
@@ -403,6 +342,7 @@ class Fledge {
 		validate.hasRequiredKeys(conf, [ 'seller', 'decisionLogicUrl', 'interestGroupBuyers' ]);
 		validate.hasInvalidOptionTypes(conf, AuctionConf);
 
+		const { url } = this.props;
 		const port = await this.props.port;
 		const { port1: receiver, port2: sender } = new MessageChannel();
 
@@ -415,73 +355,11 @@ class Fledge {
 				throw new Error('No response from the iframe was found!');
 			}
 			const [ , token ] = data;
-			return token;
+			return token === null ? null : `${url}#${token}`;
 		} finally {
 			receiver.close();
 		}
 	}
 }
 
-/*
-* @function
-* @name renderAd
-* @description render an ad
-* @author Newton <cnewton@magnite.com>
-* @param {string} selector - a string reprensenting a valid selector to find an element on the page
-* @param {string} token - a string that represents the results from an auction run via the `fledge.runAdAuction` call
-* @throws {Error} Any parameters passed are incorrect or an incorrect type
-* @return {Promise<null | true>}
-*
-* @example
-*   renderAd('#ad-slot-1', '76941e71-2ed7-416d-9c55-36d07beff786');
-*/
-async function renderFledgeAd (selector, token) {
-	validate.param(selector, 'string');
-	validate.param(token, 'string');
-
-	const target = document.querySelector(selector);
-	if (!target) {
-		throw new Error(`Target not found on the page! Please check that ${target} exists on the page.`);
-	}
-
-	const { origin, conf, winner } = JSON.parse(sessionStorage.getItem(token));
-	if (!winner) {
-		throw new Error(`A token was not found! Token provided: ${token}`);
-	}
-
-	if (origin !== `${window.top.location.origin}${window.top.location.pathname}`) {
-		throw new Error('The ads origin does not match the hosts origin!  No ad was rendered.');
-	}
-
-	frame.create({
-		source: winner.bid.render,
-		target,
-		props: {
-			id: `fledge-auction-${token}`,
-		},
-	});
-	const ad = document.querySelector(`#fledge-auction-${token}`);
-	if (!ad) {
-		throw new Error('Something went wrong! No ad was rendered.');
-	}
-
-	// get the sellers report
-	const sellersReport = await dynamicImport(conf.decisionLogicUrl, 'reportResult', conf, {
-		topWindowHostname: window.top.location.hostname,
-		interestGroupOwner: winner.bid.owner,
-		interestGroupName: winner.bid.name,
-		renderUrl: winner.bid.render,
-		bid: winner.bid.bid,
-	});
-	// get the buyers report
-	await dynamicImport(winner.bid.biddingLogicUrl, 'reportWin', conf?.auctionSignals, conf?.perBuyerSignals?.[winner.bid.owner], sellersReport, {
-		topWindowHostname: window.top.location.hostname,
-		interestGroupOwner: winner.bid.owner,
-		interestGroupName: winner.bid.name,
-		renderUrl: winner.bid.render,
-		bid: winner.bid.bid,
-	});
-}
-
 exports.Fledge = Fledge;
-exports.renderFledgeAd = renderFledgeAd;

@@ -18,7 +18,6 @@ export const createFrame = ({ source, target = document.body, props = {}, style 
 	const iframe = document.createElement('iframe');
 	const _props = {
 		src,
-		scrolling: 'no',
 		...props,
 	};
 	const _style = {
