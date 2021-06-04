@@ -31,9 +31,10 @@ const dynamicImport = async (url, fn, ...args) => {
  */
 export const getBid = async (bidder, conf) => {
 	const startTime = performance.now();
+	const { hostname } = new URL(window.location.ancestorOrigins[0]);
 	const trustedSignals = await getTrustedSignals(bidder?.trustedBiddingSignalsUrl, bidder?.trustedBiddingSignalsKeys);
 	const bid = await dynamicImport(bidder.biddingLogicUrl, 'generateBid', bidder, conf?.auctionSignals, conf?.perBuyerSignals?.[bidder.owner], trustedSignals, {
-		topWindowHostname: window.top.location.hostname,
+		topWindowHostname: hostname,
 		seller: conf.seller,
 	});
 
@@ -71,8 +72,9 @@ export const getScores = async (bids, conf) => Promise.all(bids.map(async bid =>
 	}
 	const trustedSignals = await getTrustedSignals(conf?.trustedScoringSignalsUrl, trustedSignalsKeys);
 
+	const { hostname } = new URL(window.location.ancestorOrigins[0]);
 	const score = await dynamicImport(conf.decisionLogicUrl, 'scoreAd', bid?.ad, bid?.bid, conf, trustedSignals, {
-		topWindowHostname: window.top.location.hostname,
+		topWindowHostname: hostname,
 		interestGroupOwner: bid.owner,
 		interestGroupName: bid.name,
 		biddingDurationMsec: bid.duration,
@@ -109,10 +111,10 @@ const getTrustedSignals = async (url, keys) => {
 		return undefined;
 	}
 
-	const hostname = `hostname=${window.top.location.hostname}`;
+	const { hostname } = new URL(window.location.ancestorOrigins[0]);
 	const isJSON = response => /\bapplication\/json\b/.test(response?.headers?.get('content-type'));
 
-	const [ response, responseErr ] = await call(fetch(`${url}?${hostname}&keys=${keys.join(',')}`));
+	const [ response, responseErr ] = await call(fetch(`${url}?hostname=${hostname}&keys=${keys.join(',')}`));
 	if (responseErr || !response.ok || !isJSON(response)) {
 		return null;
 	}

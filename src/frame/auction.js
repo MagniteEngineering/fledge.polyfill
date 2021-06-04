@@ -46,7 +46,6 @@ export default async function runAdAuction (conf) {
 
 	const token = uuid();
 	sessionStorage.setItem(token, JSON.stringify({
-		origin: `${window.top.location.origin}${window.top.location.pathname}`,
 		timestamp: Date.now(),
 		conf,
 		winner,

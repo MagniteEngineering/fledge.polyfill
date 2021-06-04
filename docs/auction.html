@@ -6,6 +6,13 @@
 		<link rel="stylesheet" href="https://unpkg.com/@theholocron/starkiller/dist/display.min.css" />
 		<link rel="stylesheet" href="https://unpkg.com/@theholocron/starkiller/dist/box-model.min.css" />
 		<title>Fledge Tools - Run an Auction</title>
+		<style>
+			iframe {
+				width: 300px;
+				height: 250px;
+				border-width: 0;
+			}
+		</style>
 	</head>
 	<body class="font-family-sans-serif">
 		<h1>Auction</h1>
@@ -21,7 +28,7 @@
 		<hr />
 		<div id="ad-slot-1"></div>
 		<script type="module">
-			import { Fledge, renderFledgeAd } from './scripts/api/esm/index.js';
+			import { Fledge } from './scripts/api/esm/index.js';
 			// const fledge = new Fledge('http://localhost:8000/iframe.html');
 			const fledge = new Fledge('https://magniteengineering.github.io/fledge.polyfill/iframe.html');
 			const timeStart = performance.now();
@@ -65,7 +72,11 @@
 				timeRender = performance.now();
 
 				if (auctionResults) {
-					await renderFledgeAd('#ad-slot-1', auctionResults, true);
+					const ad = document.createElement('iframe');
+					ad.src = auctionResults;
+					document.getElementById('ad-slot-1').appendChild(ad);
+
+					// await renderFledgeAd('#ad-slot-1', auctionResults, true);
 				} else {
 					document.getElementById('ad-slot-1').innerHTML = 'No eligible ads!';
 				}

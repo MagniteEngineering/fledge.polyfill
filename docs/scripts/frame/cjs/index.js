@@ -1,26 +1,66 @@
 'use strict';
 
 function _interopNamespace(e) {
-    if (e && e.__esModule) return e;
-    var n = Object.create(null);
-    if (e) {
-        Object.keys(e).forEach(function (k) {
-            if (k !== 'default') {
-                var d = Object.getOwnPropertyDescriptor(e, k);
-                Object.defineProperty(n, k, d.get ? d : {
-                    enumerable: true,
-                    get: function () {
-                        return e[k];
-                    }
-                });
-            }
-        });
-    }
-    n['default'] = e;
-    return Object.freeze(n);
+	if (e && e.__esModule) return e;
+	var n = Object.create(null);
+	if (e) {
+		Object.keys(e).forEach(function (k) {
+			if (k !== 'default') {
+				var d = Object.getOwnPropertyDescriptor(e, k);
+				Object.defineProperty(n, k, d.get ? d : {
+					enumerable: true,
+					get: function () {
+						return e[k];
+					}
+				});
+			}
+		});
+	}
+	n['default'] = e;
+	return Object.freeze(n);
 }
 
 const VERSION = 1;
+
+/*
+ * @function
+ * @name call
+ * @description wrap a promise in a reliable api, similar to Go-style
+ * @author Newton <cnewton@magnite.com>
+ * @param {promise} promise - a promise
+ * @return {Promise<Array>} a promise that resolves to data as the first index in an array, and/or an error in the second index
+ */
+const call$1 = promise => promise
+	.then(data => ([ data, undefined ]))
+	.catch(error => Promise.resolve([ undefined, error ]));
+
+/*
+ * @function
+ * @name dynamicImport
+ * @description dynamically imports a function
+ * @author Newton <cnewton@magnite.com>
+ * @param {URL} url - a fully qualified URL to an ES6 module
+ * @param {string} fn - a function name that exists at the URL
+ * @param {nargs} args - any level of arguments/parameters that the function takes
+ * @return {any} any set of data that the function returns
+ */
+const dynamicImport$1 = async (url, fn, ...args) => {
+	const [ module, moduleErr ] = await call$1(Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(url)); }));
+
+	if (moduleErr) {
+		return null;
+	}
+
+	if (!module[fn] || typeof module[fn] !== 'function') {
+		return null;
+	}
+
+	try {
+		return module[fn](...args);
+	} catch (err) {
+		return null;
+	}
+};
 
 function promisifyRequest(request) {
     return new Promise((resolve, reject) => {
@@ -221,9 +261,10 @@ const dynamicImport = async (url, fn, ...args) => {
  */
 const getBid = async (bidder, conf) => {
 	const startTime = performance.now();
+	const { hostname } = new URL(window.location.ancestorOrigins[0]);
 	const trustedSignals = await getTrustedSignals(bidder?.trustedBiddingSignalsUrl, bidder?.trustedBiddingSignalsKeys);
 	const bid = await dynamicImport(bidder.biddingLogicUrl, 'generateBid', bidder, conf?.auctionSignals, conf?.perBuyerSignals?.[bidder.owner], trustedSignals, {
-		topWindowHostname: window.top.location.hostname,
+		topWindowHostname: hostname,
 		seller: conf.seller,
 	});
 
@@ -261,8 +302,9 @@ const getScores = async (bids, conf) => Promise.all(bids.map(async bid => {
 	}
 	const trustedSignals = await getTrustedSignals(conf?.trustedScoringSignalsUrl, trustedSignalsKeys);
 
+	const { hostname } = new URL(window.location.ancestorOrigins[0]);
 	const score = await dynamicImport(conf.decisionLogicUrl, 'scoreAd', bid?.ad, bid?.bid, conf, trustedSignals, {
-		topWindowHostname: window.top.location.hostname,
+		topWindowHostname: hostname,
 		interestGroupOwner: bid.owner,
 		interestGroupName: bid.name,
 		biddingDurationMsec: bid.duration,
@@ -299,10 +341,10 @@ const getTrustedSignals = async (url, keys) => {
 		return undefined;
 	}
 
-	const hostname = `hostname=${window.top.location.hostname}`;
+	const { hostname } = new URL(window.location.ancestorOrigins[0]);
 	const isJSON = response => /\bapplication\/json\b/.test(response?.headers?.get('content-type'));
 
-	const [ response, responseErr ] = await call(fetch(`${url}?${hostname}&keys=${keys.join(',')}`));
+	const [ response, responseErr ] = await call(fetch(`${url}?hostname=${hostname}&keys=${keys.join(',')}`));
 	if (responseErr || !response.ok || !isJSON(response)) {
 		return null;
 	}
@@ -362,7 +404,6 @@ async function runAdAuction (conf) {
 
 	const token = uuid();
 	sessionStorage.setItem(token, JSON.stringify({
-		origin: `${window.top.location.origin}${window.top.location.pathname}`,
 		timestamp: Date.now(),
 		conf,
 		winner,
@@ -422,19 +463,53 @@ async function fledgeAPI ({ data, ports }) {
 	}
 }
 
-async function frame () {
+function mainFrame () {
 	// check whenever the document is being framed by a site which you don’t expect it to be framed by
 	const [ parentOrigin ] = window.location.ancestorOrigins;
 	if (parentOrigin === undefined) {
 		throw new Error(`Can't call 'postMessage' on the Frame window when run as a top-level document`);
 	}
 
-	// connect to the storage iframe and send a message
-	const { port1: receiver, port2: sender } = new MessageChannel();
-	receiver.onmessage = fledgeAPI;
-	window.parent.postMessage({
-		'fledge.polyfill': VERSION,
-	}, parentOrigin, [ sender ]);
+	const { hash } = window.location;
+	if (hash) {
+		const { conf, winner } = JSON.parse(sessionStorage.getItem(hash.substring(1)));
+		const { hostname } = new URL(parentOrigin);
+		if (!winner) {
+			throw new Error(`A token was not found! Token provided: ${hash}`);
+		}
+
+		const iframe = window.document.createElement('iframe');
+		iframe.src = winner.bid.render;
+		iframe.style['border-width'] = 0;
+		iframe.style.width = iframe.style.height = window.document.body.style.height = window.document.documentElement.style.height = '100%';
+		window.document.body.style.margin = '0';
+		window.document.body.appendChild(iframe);
+
+		// get the sellers report
+		dynamicImport$1(conf.decisionLogicUrl, 'reportResult', conf, {
+			topWindowHostname: hostname,
+			interestGroupOwner: winner.bid.owner,
+			interestGroupName: winner.bid.name,
+			renderUrl: winner.bid.render,
+			bid: winner.bid.bid,
+		}).then(report => {
+			// get the buyers report
+			dynamicImport$1(winner.bid.biddingLogicUrl, 'reportWin', conf?.auctionSignals, conf?.perBuyerSignals?.[winner.bid.owner], report, {
+				topWindowHostname: hostname,
+				interestGroupOwner: winner.bid.owner,
+				interestGroupName: winner.bid.name,
+				renderUrl: winner.bid.render,
+				bid: winner.bid.bid,
+			});
+		});
+	} else {
+		// connect to the storage iframe and send a message
+		const { port1: receiver, port2: sender } = new MessageChannel();
+		receiver.onmessage = fledgeAPI;
+		window.parent.postMessage({
+			'fledge.polyfill': VERSION,
+		}, parentOrigin, [ sender ]);
+	}
 }
 
-module.exports = frame;
+mainFrame();

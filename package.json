@@ -93,9 +93,9 @@
   "scripts": {
     "audit": "bundlesize --config ./node_modules/@theholocron/bundlewatch-config/index.js",
     "commit": "commit",
-    "predist": "rollup -c node:@theholocron/rollup-config --input=src/frame --output=dist/frame --name=fledgeframe --exports=default",
+    "predist": "rollup -c node:@theholocron/rollup-config --input=src/frame --output=dist/frame --name=fledgeframe",
     "dist": "rollup -c node:@theholocron/rollup-config --input=src/api --output=dist/api --name=fledge",
-    "predocs": "rollup -c node:@theholocron/rollup-config --input=src/frame --output=docs/scripts/frame --name=fledgeframe --exports=default",
+    "predocs": "rollup -c node:@theholocron/rollup-config --input=src/frame --output=docs/scripts/frame --name=fledgeframe",
     "docs": "rollup -c node:@theholocron/rollup-config --input=src/api --output=docs/scripts/api --name=fledge",
     "lint": "eslint .",
     "release": "semantic-release",
