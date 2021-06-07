@@ -20,7 +20,8 @@ function mainFrame () {
 		const iframe = window.document.createElement('iframe');
 		iframe.src = winner.bid.render;
 		iframe.style['border-width'] = 0;
-		iframe.style.width = iframe.style.height = window.document.body.style.height = window.document.documentElement.style.height = '100%';
+		iframe.style.width = winner.bid?.ad?.size?.width || '100%';
+		iframe.style.height = winner.bid?.ad?.size?.height || '100%';
 		window.document.body.style.margin = '0';
 		window.document.body.appendChild(iframe);
 
