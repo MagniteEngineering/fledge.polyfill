@@ -117,9 +117,10 @@ export class Fledge {
 		const { port1: receiver, port2: sender } = new MessageChannel();
 
 		try {
-			port.postMessage([ 'runAdAuction', [
+			const msg = JSON.parse(JSON.stringify([ 'runAdAuction', [
 				conf,
-			] ], [ sender ]);
+			] ]));
+			port.postMessage(msg, [ sender ]);
 			const { data } = await message.getFromFrame(receiver);
 			if (!data[0]) {
 				throw new Error('No response from the iframe was found!');
