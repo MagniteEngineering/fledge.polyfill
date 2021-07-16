@@ -94,7 +94,7 @@
     "audit": "bundlesize --config ./node_modules/@theholocron/bundlewatch-config/index.js",
     "commit": "commit",
     "predist": "rollup -c node:@theholocron/rollup-config --input=src/frame --output=dist/frame --name=fledgeframe",
-    "dist": "rollup -c node:@theholocron/rollup-config --input=src/api --output=dist/api --name=fledge",
+    "dist": "rollup -c rollup.config.js --input=src/api --output=dist/api --name=fledge",
     "predocs": "rollup -c node:@theholocron/rollup-config --input=src/frame --output=docs/scripts/frame --name=fledgeframe",
     "docs": "rollup -c node:@theholocron/rollup-config --input=src/api --output=docs/scripts/api --name=fledge",
     "lint": "eslint .",
@@ -109,6 +109,9 @@
     "test:perf": "serve . -l 3000 & export APP_PID=$! && node test/perf/index.js; kill -9 $APP_PID"
   },
   "devDependencies": {
+    "@rollup/plugin-babel": "^5.3.0",
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^11.2.1",
     "@theholocron/babel-preset": "^0.4.1",
     "@theholocron/bundlewatch-config": "^0.3.1",
     "@theholocron/commitlint-config": "^0.1.13",
@@ -127,9 +130,11 @@
     "microtime": "^3.0.0",
     "puppeteer": "^9.1.0",
     "randomstring": "^1.1.5",
+    "rollup": "^2.45.2",
     "serve": "^12.0.0"
   },
   "dependencies": {
+    "core-js": "^3.15.2",
     "idb-keyval": "^5.0.5"
   }
 }
