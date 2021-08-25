@@ -19,7 +19,7 @@ body:
     validations:
       required: false
   - type: textarea
-    id: give-me-this
+    id: ask-your-question
     attributes:
       label: How can we help you?
       description: Ask anything you can think of, we're here to help.
