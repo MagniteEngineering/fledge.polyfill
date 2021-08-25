@@ -1,9 +1,9 @@
 name: Bug Report
 description: File a bug report
 title: "[Bug]: "
-labels: [bug, triage]
+labels: [fix]
 assignees:
-  - octocat
+  - iamnewton
 body:
   - type: markdown
     attributes:
@@ -32,8 +32,10 @@ body:
       label: Version
       description: What version of our software are you running?
       options:
-        - 1.0.2 (Default)
-        - 1.0.3 (Edge)
+        - 0.3.2 (Latest)
+        - 0.3.0
+        - 0.2.0
+        - 0.1.0
     validations:
       required: true
   - type: dropdown
