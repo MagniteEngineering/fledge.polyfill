@@ -135,6 +135,6 @@
   },
   "dependencies": {
     "core-js": "^3.15.2",
-    "idb-keyval": "^5.0.5"
+    "idb-keyval": "^6.1.0"
   }
 }
