@@ -128,7 +128,7 @@
     "jest-localstorage-mock": "^2.4.10",
     "jest-puppeteer": "^6.0.0",
     "microtime": "^3.0.0",
-    "puppeteer": "^9.1.0",
+    "puppeteer": "^13.3.2",
     "randomstring": "^1.1.5",
     "rollup": "^2.45.2",
     "serve": "^12.0.0"
