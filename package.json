@@ -110,7 +110,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-babel": "^5.3.0",
-    "@rollup/plugin-commonjs": "^21.0.0",
+    "@rollup/plugin-commonjs": "^24.0.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
     "@theholocron/babel-preset": "^0.4.1",
     "@theholocron/bundlewatch-config": "^0.3.1",
